@@ -1,7 +1,6 @@
 modLoader="javafml"
 loaderVersion="[28,)"
-#issueTrackerURL=""
-#TODO: Set URL of issue tracker
+issueTrackerURL="https://github.com/pupnewfster/ProjectExtended/issues"
 
 [[mods]]
     modId="projectextended"
