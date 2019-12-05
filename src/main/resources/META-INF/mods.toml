@@ -1,0 +1,19 @@
+modLoader="javafml"
+loaderVersion="[28,)"
+#issueTrackerURL=""
+#TODO: Set URL of issue tracker
+
+[[mods]]
+    modId="projectextended"
+    version="${version}"
+    displayName="ProjectExtended"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/projectextended"
+    authors="pupnewfster"
+    credits="xnuL for creating the textures"
+    description='''ProjectExtended is a mod that adds features to ProjectE that EE2 would probably have had it been made in modern times.'''
+
+[[dependencies.projectextended]]
+    modId="projecte"
+    mandatory=true
+    versionRange="[${projecte_version},)"
+    side="BOTH"

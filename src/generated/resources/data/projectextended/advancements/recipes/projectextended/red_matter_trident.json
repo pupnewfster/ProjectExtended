@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "projectextended:red_matter_trident"
+    ]
+  },
+  "criteria": {
+    "has_matter": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "projecte:red_matter"
+          }
+        ]
+      }
+    },
+    "has_trident": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "projectextended:dark_matter_trident"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "projectextended:red_matter_trident"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_matter",
+      "has_trident",
+      "has_the_recipe"
+    ]
+  ]
+}
