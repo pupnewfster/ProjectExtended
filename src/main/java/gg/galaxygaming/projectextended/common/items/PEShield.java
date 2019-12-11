@@ -18,7 +18,7 @@ public class PEShield extends ShieldItem {
     private final EnumMatterType matterType;
 
     public PEShield(EnumMatterType matterType, Properties props) {
-        super(props.setTEISR(PEShield::getTEISR));
+        super(props.setTEISR(() -> getTEISR()));
         this.matterType = matterType;
     }
 

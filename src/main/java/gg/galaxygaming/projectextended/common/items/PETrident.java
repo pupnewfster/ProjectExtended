@@ -77,7 +77,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
     private final float attackSpeed;
 
     public PETrident(EnumMatterType matterType, int numCharges, float damage, Properties props) {
-        super(props.setTEISR(PETrident::getTEISR));
+        super(props.setTEISR(() -> getTEISR()));
         this.matterType = matterType;
         this.numCharges = numCharges;
         this.modeDesc = new String[]{
