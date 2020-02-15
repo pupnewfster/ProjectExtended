@@ -7,9 +7,11 @@ import gg.galaxygaming.projectextended.common.entity.ProjectExtendedEntityTypes;
 import java.util.Map;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -38,6 +40,16 @@ public class ClientRegistration {
         Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
         wrapTridentModel(modelRegistry, "dark_matter_trident");
         wrapTridentModel(modelRegistry, "red_matter_trident");
+    }
+
+    @SubscribeEvent
+    public static void onStitch(TextureStitchEvent.Pre event) {
+        if (event.getMap().getTextureLocation().equals(AtlasTexture.LOCATION_BLOCKS_TEXTURE)) {
+            event.addSprite(new ResourceLocation(ProjectExtended.MODID, "entity/dark_matter_shield_base"));
+            event.addSprite(new ResourceLocation(ProjectExtended.MODID, "entity/dark_matter_shield_base_nopattern"));
+            event.addSprite(new ResourceLocation(ProjectExtended.MODID, "entity/red_matter_shield_base"));
+            event.addSprite(new ResourceLocation(ProjectExtended.MODID, "entity/red_matter_shield_base_nopattern"));
+        }
     }
 
     private static void wrapTridentModel(Map<ResourceLocation, IBakedModel> modelRegistry, String trident) {
