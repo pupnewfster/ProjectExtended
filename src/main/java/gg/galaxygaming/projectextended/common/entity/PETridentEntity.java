@@ -89,7 +89,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     }
 
     @Override
-    public void tick() {//TODO: Re-evaluate/update vanilla copy
+    public void tick() {
         if (timeInGround > 4) {
             landed = true;
             noReturn = !shouldReturnToThrower();
@@ -101,7 +101,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
             if (entity != null) {
                 if (shouldReturnToThrower()) {
                     setNoClip(true);
-                    Vec3d returnVector = new Vec3d(entity.getPosX() - getPosX(), entity.getPosY() - getPosY() + entity.getEyeHeight(), entity.getPosZ() - getPosZ());
+                    Vec3d returnVector = new Vec3d(entity.getPosX() - getPosX(), entity.getPosYEye() - getPosY(), entity.getPosZ() - getPosZ());
                     setRawPosition(getPosX(), getPosY() + returnVector.y * 0.015D * loyaltyLevel, getPosZ());
                     if (world.isRemote) {
                         lastTickPosY = getPosY();
