@@ -1,30 +1,21 @@
 package gg.galaxygaming.projectextended.common.items;
 
-import gg.galaxygaming.projectextended.client.rendering.item.ShieldTEISR;
-import java.util.concurrent.Callable;
+import gg.galaxygaming.projectextended.client.rendering.item.ISTERProvider;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import moze_intel.projecte.gameObjs.EnumMatterType;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class PEShield extends ShieldItem {
 
     private final EnumMatterType matterType;
 
     public PEShield(EnumMatterType matterType, Properties props) {
-        super(props.setTEISR(() -> getTEISR()));
+        super(props.setISTER(ISTERProvider::shield));
         this.matterType = matterType;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static Callable<ItemStackTileEntityRenderer> getTEISR() {
-        return ShieldTEISR::new;
     }
 
     public int getMatterTier() {

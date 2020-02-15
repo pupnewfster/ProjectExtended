@@ -2,10 +2,9 @@ package gg.galaxygaming.projectextended.common.items;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import gg.galaxygaming.projectextended.client.rendering.item.TridentTEISR;
+import gg.galaxygaming.projectextended.client.rendering.item.ISTERProvider;
 import gg.galaxygaming.projectextended.common.entity.PETridentEntity;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import moze_intel.projecte.api.capabilities.item.IItemCharge;
@@ -15,7 +14,6 @@ import moze_intel.projecte.capability.ModeChangerItemCapabilityWrapper;
 import moze_intel.projecte.gameObjs.EnumMatterType;
 import moze_intel.projecte.gameObjs.items.IItemMode;
 import moze_intel.projecte.utils.ToolHelper;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
@@ -77,7 +75,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
     private final float attackSpeed;
 
     public PETrident(EnumMatterType matterType, int numCharges, float damage, Properties props) {
-        super(props.setTEISR(() -> getTEISR()));
+        super(props.setISTER(ISTERProvider::trident));
         this.matterType = matterType;
         this.numCharges = numCharges;
         this.modeDesc = new String[]{
@@ -88,11 +86,6 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
         };
         this.attackDamage = matterType.getAttackDamage() + damage;
         this.attackSpeed = -2.7F + 0.2F * getMatterTier();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static Callable<ItemStackTileEntityRenderer> getTEISR() {
-        return TridentTEISR::new;
     }
 
     public float getDamage() {

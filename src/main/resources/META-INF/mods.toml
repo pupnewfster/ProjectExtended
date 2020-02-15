@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[28,)"
+loaderVersion="[${loader_version},)"
 issueTrackerURL="https://github.com/pupnewfster/ProjectExtended/issues"
 
 [[mods]]
@@ -11,6 +11,16 @@ issueTrackerURL="https://github.com/pupnewfster/ProjectExtended/issues"
     credits="xnuL for creating the textures"
     description='''ProjectExtended is a mod that adds features to ProjectE that EE2 would probably have had it been made in modern times.'''
 
+[[dependencies.projectextended]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[${mc_version}]"
+    side="BOTH"
+[[dependencies.projectextended]]
+    modId="forge"
+    mandatory=true
+    versionRange="[${forge_version},)"
+    side="BOTH"
 [[dependencies.projectextended]]
     modId="projecte"
     mandatory=true

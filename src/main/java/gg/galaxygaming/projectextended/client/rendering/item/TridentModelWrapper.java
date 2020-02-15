@@ -1,10 +1,10 @@
 package gg.galaxygaming.projectextended.client.rendering.item;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.vecmath.Matrix4f;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -14,10 +14,9 @@ import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraft.world.ILightReader;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.data.IModelData;
-import org.apache.commons.lang3.tuple.Pair;
 
 public class TridentModelWrapper implements IBakedModel {
 
@@ -54,6 +53,17 @@ public class TridentModelWrapper implements IBakedModel {
     }
 
     @Override
+    public boolean doesHandlePerspectives() {
+        return getBakedModel().doesHandlePerspectives();
+    }
+
+    @Override
+    public IBakedModel handlePerspective(TransformType type, MatrixStack mat) {
+        transform = type;
+        return ForgeHooksClient.handlePerspective(getBakedModel(), type, mat);
+    }
+
+    @Override
     public boolean isAmbientOcclusion() {
         return getBakedModel().isAmbientOcclusion();
     }
@@ -61,6 +71,13 @@ public class TridentModelWrapper implements IBakedModel {
     @Override
     public boolean isGui3d() {
         //This has to be false or there is a weird minor GL leak when rendering the gui's model
+        return false;
+    }
+
+    @Override
+    public boolean func_230044_c_() {
+        //Lighting or something
+        //TODO: Check
         return false;
     }
 
@@ -90,7 +107,7 @@ public class TridentModelWrapper implements IBakedModel {
 
     @Nonnull
     @Override
-    public IModelData getModelData(@Nonnull IEnviromentBlockReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
+    public IModelData getModelData(@Nonnull ILightReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
         return getBakedModel().getModelData(world, pos, state, tileData);
     }
 
@@ -98,12 +115,5 @@ public class TridentModelWrapper implements IBakedModel {
     @Override
     public ItemOverrideList getOverrides() {
         return getBakedModel().getOverrides();
-    }
-
-    @Nonnull
-    @Override
-    public Pair<? extends IBakedModel, Matrix4f> handlePerspective(@Nonnull TransformType type) {
-        transform = type;
-        return ForgeHooksClient.handlePerspective(getBakedModel(), type);
     }
 }

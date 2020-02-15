@@ -1,56 +1,54 @@
 package gg.galaxygaming.projectextended.client.rendering.item;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.datafixers.util.Pair;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.items.PEShield;
+import java.util.List;
 import javax.annotation.Nonnull;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BannerTextures;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.model.Material;
+import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.tileentity.BannerTileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
+import net.minecraft.tileentity.BannerPattern;
+import net.minecraft.tileentity.BannerTileEntity;
 import net.minecraft.util.ResourceLocation;
 
 public class ShieldTEISR extends ItemStackTileEntityRenderer {
 
-    public static final BannerTextures.Cache DM_SHIELD_DESIGNS = new BannerTextures.Cache("dark_matter_shield_",
-          new ResourceLocation(ProjectExtended.MODID, "textures/entity/dark_matter_shield_base.png"), "textures/entity/shield/");
-    public static final BannerTextures.Cache RM_SHIELD_DESIGNS = new BannerTextures.Cache("red_matter_shield_",
-          new ResourceLocation(ProjectExtended.MODID, "textures/entity/red_matter_shield_base.png"), "textures/entity/shield/");
-
-    public static final ResourceLocation DM_SHIELD = new ResourceLocation(ProjectExtended.MODID, "textures/entity/dark_matter_shield_base_nopattern.png");
-    public static final ResourceLocation RM_SHIELD = new ResourceLocation(ProjectExtended.MODID, "textures/entity/red_matter_shield_base_nopattern.png");
+    public static final Material DM_SHIELD_BASE = new Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(ProjectExtended.MODID, "entity/dark_matter_shield_base"));
+    public static final Material DM_SHIELD_NO_PATTERN = new Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(ProjectExtended.MODID, "entity/dark_matter_shield_base_nopattern"));
+    public static final Material RM_SHIELD_BASE = new Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(ProjectExtended.MODID, "entity/red_matter_shield_base"));
+    public static final Material RM_SHIELD_NO_PATTERN = new Material(AtlasTexture.LOCATION_BLOCKS_TEXTURE, new ResourceLocation(ProjectExtended.MODID, "entity/red_matter_shield_base_nopattern"));
 
     @Override
-    public void renderByItem(@Nonnull ItemStack stack) {
-        if (stack.getChildTag("BlockEntityTag") != null) {
-            banner.loadFromItemStack(stack, ShieldItem.getColor(stack));
-            Minecraft.getInstance().getTextureManager().bindTexture(getTextureCache(stack).getResourceLocation(banner.getPatternResourceLocation(), banner.getPatternList(), banner.getColorList()));
+    public void render(@Nonnull ItemStack stack, @Nonnull MatrixStack matrix, @Nonnull IRenderTypeBuffer renderer, int light, int overlayLight) {
+        boolean hasBanner = stack.getChildTag("BlockEntityTag") != null;
+        matrix.push();
+        matrix.scale(1.0F, -1.0F, -1.0F);
+        Material material = getMaterial(stack, hasBanner);
+        IVertexBuilder ivertexbuilder = material.getSprite().wrapBuffer(ItemRenderer.getBuffer(renderer, modelShield.getRenderType(material.getAtlasLocation()), false, stack.hasEffect()));
+        modelShield.func_228294_b_().render(matrix, ivertexbuilder, light, overlayLight, 1.0F, 1.0F, 1.0F, 1.0F);
+        if (hasBanner) {
+            List<Pair<BannerPattern, DyeColor>> list = BannerTileEntity.func_230138_a_(ShieldItem.getColor(stack), BannerTileEntity.func_230139_a_(stack));
+            BannerTileEntityRenderer.func_230180_a_(matrix, renderer, light, overlayLight, modelShield.func_228293_a_(), material, false, list);
         } else {
-            Minecraft.getInstance().getTextureManager().bindTexture(getTexture(stack));
+            modelShield.func_228293_a_().render(matrix, ivertexbuilder, light, overlayLight, 1.0F, 1.0F, 1.0F, 1.0F);
         }
-        GlStateManager.pushMatrix();
-        GlStateManager.scalef(1.0F, -1.0F, -1.0F);
-        modelShield.render();
-        if (stack.hasEffect()) {
-            renderEffect(modelShield::render);
-        }
-        GlStateManager.popMatrix();
+        matrix.pop();
     }
 
-    private BannerTextures.Cache getTextureCache(ItemStack stack) {
+    private Material getMaterial(ItemStack stack, boolean hasBanner) {
         if (stack.getItem() instanceof PEShield && ((PEShield) stack.getItem()).getMatterTier() > 0) {
-            return RM_SHIELD_DESIGNS;
-        }
-        //Fallback to dark matter shield cache
-        return DM_SHIELD_DESIGNS;
-    }
-
-    private ResourceLocation getTexture(ItemStack stack) {
-        if (stack.getItem() instanceof PEShield && ((PEShield) stack.getItem()).getMatterTier() > 0) {
-            return RM_SHIELD;
+            return hasBanner ? RM_SHIELD_BASE : DM_SHIELD_NO_PATTERN;
         }
         //Fallback to dark matter shield
-        return DM_SHIELD;
+        return hasBanner ? DM_SHIELD_BASE : RM_SHIELD_NO_PATTERN;
     }
 }

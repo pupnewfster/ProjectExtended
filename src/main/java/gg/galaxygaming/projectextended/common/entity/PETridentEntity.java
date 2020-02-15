@@ -1,7 +1,7 @@
 package gg.galaxygaming.projectextended.common.entity;
 
-import gg.galaxygaming.projectextended.common.items.ProjectExtendedItems;
 import gg.galaxygaming.projectextended.common.items.PETrident;
+import gg.galaxygaming.projectextended.common.items.ProjectExtendedItems;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,6 +22,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
@@ -44,7 +47,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 public class PETridentEntity extends AbstractArrowEntity implements IEntityAdditionalSpawnData {
 
     private static final Predicate<Entity> SLAY_MOB = entity -> !entity.isSpectator() && entity instanceof IMob;
-
+    private static final DataParameter<Boolean> ENCHANTED = EntityDataManager.createKey(PETridentEntity.class, DataSerializers.BOOLEAN);
     private ItemStack thrownStack = new ItemStack(ProjectExtendedItems.DARK_MATTER_TRIDENT.get());
     private boolean landed;
     private boolean noReturn;
@@ -59,6 +62,13 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     public PETridentEntity(World worldIn, LivingEntity thrower, ItemStack thrownStackIn) {
         super(ProjectExtendedEntityTypes.PE_TRIDENT.get(), thrower, worldIn);
         setStackAndLoyalty(thrownStackIn.copy());
+        this.dataManager.set(ENCHANTED, thrownStackIn.hasEffect());
+    }
+
+    @Override
+    protected void registerData() {
+        super.registerData();
+        this.dataManager.register(ENCHANTED, false);
     }
 
     private void setStackAndLoyalty(@Nonnull ItemStack stack) {
@@ -74,8 +84,12 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
         return matterTier;
     }
 
+    public boolean hasEffect() {
+        return this.dataManager.get(ENCHANTED);
+    }
+
     @Override
-    public void tick() {
+    public void tick() {//TODO: Re-evaluate/update vanilla copy
         if (timeInGround > 4) {
             landed = true;
             noReturn = !shouldReturnToThrower();
@@ -87,10 +101,10 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
             if (entity != null) {
                 if (shouldReturnToThrower()) {
                     setNoClip(true);
-                    Vec3d returnVector = new Vec3d(entity.posX - posX, entity.posY - posY + entity.getEyeHeight(), entity.posZ - posZ);
-                    posY += returnVector.y * 0.015D * loyaltyLevel;
+                    Vec3d returnVector = new Vec3d(entity.getPosX() - getPosX(), entity.getPosY() - getPosY() + entity.getEyeHeight(), entity.getPosZ() - getPosZ());
+                    setRawPosition(getPosX(), getPosY() + returnVector.y * 0.015D * loyaltyLevel, getPosZ());
                     if (world.isRemote) {
-                        lastTickPosY = posY;
+                        lastTickPosY = getPosY();
                     }
                     setMotion(getMotion().scale(0.95D).add(returnVector.normalize().scale(0.05D * loyaltyLevel)));
                     if (returningTicks == 0) {
@@ -165,12 +179,10 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     private void onBlockHit(BlockRayTraceResult result) {
         BlockState hitState = world.getBlockState(result.getPos());
         inBlockState = hitState;
-        Vec3d motion = result.getHitVec().subtract(posX, posY, posZ);
+        Vec3d motion = result.getHitVec().subtract(getPosX(), getPosY(), getPosZ());
         setMotion(motion);
         Vec3d vec3d1 = motion.normalize().scale(0.05F);
-        posX -= vec3d1.x;
-        posY -= vec3d1.y;
-        posZ -= vec3d1.z;
+        setRawPosition(getPosX() - vec3d1.x, getPosY() - vec3d1.y, getPosZ() - vec3d1.z);
         //Vanilla Copy end
 
         SoundEvent sound = getHitGroundSound();
@@ -244,7 +256,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
                 for (Entity entity : world.getEntitiesInAABBexcluding(thrower, getBoundingBox().grow(distance), SLAY_MOB)) {
                     entity.attackEntityFrom(src, damageToDo);
                 }
-                AreaEffectCloudEntity particle = new AreaEffectCloudEntity(world, posX, posY, posZ);
+                AreaEffectCloudEntity particle = new AreaEffectCloudEntity(world, getPosX(), getPosY(), getPosZ());
                 particle.setOwner(thrower);
                 particle.setParticleData(ParticleTypes.CRIT);
                 particle.setRadius(distance);
@@ -304,9 +316,9 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     }
 
     @Override
-    protected void tryDespawn() {
+    protected void func_225516_i_() {
         if (this.pickupStatus != PickupStatus.ALLOWED) {
-            super.tryDespawn();
+            super.func_225516_i_();
         } else if (noReturn && !world.isRemote) {
             //Drop the item if we despawned after not having been able to return
             entityDropItem(getArrowStack(), 0.1F);

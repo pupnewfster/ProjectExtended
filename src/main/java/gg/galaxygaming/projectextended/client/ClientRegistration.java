@@ -3,7 +3,7 @@ package gg.galaxygaming.projectextended.client;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.client.rendering.PETridentRenderer;
 import gg.galaxygaming.projectextended.client.rendering.item.TridentModelWrapper;
-import gg.galaxygaming.projectextended.common.entity.PETridentEntity;
+import gg.galaxygaming.projectextended.common.entity.ProjectExtendedEntityTypes;
 import java.util.Map;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -19,7 +19,7 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent event) {
-        RenderingRegistry.registerEntityRenderingHandler(PETridentEntity.class, PETridentRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(ProjectExtendedEntityTypes.PE_TRIDENT.get(), PETridentRenderer::new);
     }
 
     @SubscribeEvent
