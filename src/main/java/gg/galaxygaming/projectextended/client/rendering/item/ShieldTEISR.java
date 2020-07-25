@@ -46,9 +46,9 @@ public class ShieldTEISR extends ItemStackTileEntityRenderer {
 
     private Material getMaterial(ItemStack stack, boolean hasBanner) {
         if (stack.getItem() instanceof PEShield && ((PEShield) stack.getItem()).getMatterTier() > 0) {
-            return hasBanner ? RM_SHIELD_BASE : DM_SHIELD_NO_PATTERN;
+            return hasBanner ? RM_SHIELD_BASE : RM_SHIELD_NO_PATTERN;
         }
         //Fallback to dark matter shield
-        return hasBanner ? DM_SHIELD_BASE : RM_SHIELD_NO_PATTERN;
+        return hasBanner ? DM_SHIELD_BASE : DM_SHIELD_NO_PATTERN;
     }
 }

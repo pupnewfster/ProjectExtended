@@ -34,7 +34,8 @@ public class LanguageDataGenerator extends LanguageProvider {
         add(baseTranslationKey + ".black", "Black " + name);
         add(baseTranslationKey + ".red", "Red " + name);
         add(baseTranslationKey + ".green", "Green " + name);
-        add(baseTranslationKey + ".blue", "Brown " + name);
+        add(baseTranslationKey + ".blue", "Blue " + name);
+        add(baseTranslationKey + ".brown", "Brown " + name);
         add(baseTranslationKey + ".purple", "Purple " + name);
         add(baseTranslationKey + ".cyan", "Cyan " + name);
         add(baseTranslationKey + ".light_gray", "Light Gray " + name);
