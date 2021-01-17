@@ -16,9 +16,9 @@ import net.minecraft.item.crafting.SpecialRecipeSerializer;
 import net.minecraft.util.IItemProvider;
 import net.minecraftforge.common.Tags;
 
-public class RecipeDataGenerator extends RecipeProvider {
+public class ProjectExtendedRecipeProvider extends RecipeProvider {
 
-    public RecipeDataGenerator(DataGenerator gen) {
+    public ProjectExtendedRecipeProvider(DataGenerator gen) {
         super(gen);
     }
 

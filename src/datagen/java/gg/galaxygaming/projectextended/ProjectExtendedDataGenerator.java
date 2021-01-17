@@ -1,8 +1,9 @@
 package gg.galaxygaming.projectextended;
 
-import gg.galaxygaming.projectextended.client.ModelDataGenerator;
+import gg.galaxygaming.projectextended.client.ProjectExtendedItemModelProvider;
 import gg.galaxygaming.projectextended.client.lang.ProjectExtendedLangProvider;
-import gg.galaxygaming.projectextended.common.RecipeDataGenerator;
+import gg.galaxygaming.projectextended.common.ProjectExtendedEntityTypesTagProvider;
+import gg.galaxygaming.projectextended.common.ProjectExtendedRecipeProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,10 +20,11 @@ public class ProjectExtendedDataGenerator {
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         if (event.includeClient()) {
             gen.addProvider(new ProjectExtendedLangProvider(gen));
-            gen.addProvider(new ModelDataGenerator(gen, existingFileHelper));
+            gen.addProvider(new ProjectExtendedItemModelProvider(gen, existingFileHelper));
         }
         if (event.includeServer()) {
-            gen.addProvider(new RecipeDataGenerator(gen));
+            gen.addProvider(new ProjectExtendedEntityTypesTagProvider(gen, existingFileHelper));
+            gen.addProvider(new ProjectExtendedRecipeProvider(gen));
         }
     }
 }

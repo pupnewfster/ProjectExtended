@@ -18,9 +18,9 @@ import net.minecraftforge.client.model.generators.ModelBuilder.Perspective;
 import net.minecraftforge.client.model.generators.loaders.SeparatePerspectiveModelBuilder;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
-public class ModelDataGenerator extends ItemModelProvider {
+public class ProjectExtendedItemModelProvider extends ItemModelProvider {
 
-    public ModelDataGenerator(DataGenerator gen, ExistingFileHelper helper) {
+    public ProjectExtendedItemModelProvider(DataGenerator gen, ExistingFileHelper helper) {
         super(gen, ProjectExtended.MODID, helper);
     }
 
