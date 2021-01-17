@@ -16,17 +16,11 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
 
     @Override
     protected void addTranslations() {
-        addAdvancements();
         addEntityTypes();
         addItems();
         addModes();
-        addTooltips();
         //Misc stuff
         add(ProjectExtendedLang.PROJECT_EXTENDED, ProjectExtended.MOD_NAME);
-    }
-
-    private void addAdvancements() {
-
     }
 
     private void addEntityTypes() {
@@ -70,9 +64,5 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
         add(ProjectExtendedLang.MODE_TRIDENT_2, "Channeling");
         add(ProjectExtendedLang.MODE_TRIDENT_3, "Riptide");
         add(ProjectExtendedLang.MODE_TRIDENT_4, "Shockwave");
-    }
-
-    private void addTooltips() {
-
     }
 }

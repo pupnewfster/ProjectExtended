@@ -44,7 +44,7 @@ public class PEShield extends ShieldItem {
     }
 
     @Override
-    public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
+    public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
         //Override the shield allowing planks to repair it as we can't lose durability anyways
         return false;
     }

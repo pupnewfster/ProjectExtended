@@ -7,7 +7,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import moze_intel.projecte.gameObjs.items.ItemPE;
-import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.Entity;
@@ -127,7 +126,10 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
 
     private boolean shouldReturnToThrower() {
         Entity entity = func_234616_v_();
-        return entity != null && entity.isAlive() && !(entity instanceof ServerPlayerEntity && entity.isSpectator());
+        if (entity != null && entity.isAlive()) {
+            return !(entity instanceof ServerPlayerEntity) || !entity.isSpectator();
+        }
+        return false;
     }
 
     @Nonnull
@@ -147,22 +149,29 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
         Entity hitEntity = result.getEntity();
         PETrident trident = (PETrident) thrownStack.getItem();
         int charge = trident.getCharge(thrownStack);
-
+        float damage = trident.getDamage() + charge;
+        if (hitEntity instanceof LivingEntity) {
+            LivingEntity livingHit = (LivingEntity) hitEntity;
+            //Even though we can't be enchanted normally, apply enchantment modifiers anyways
+            damage += EnchantmentHelper.getModifierForCreature(this.thrownStack, livingHit.getCreatureAttribute());
+        }
         Entity thrower = func_234616_v_();
         DamageSource damagesource = DamageSource.causeTridentDamage(this, thrower == null ? this : thrower);
         landed = true;
-        SoundEvent sound = SoundEvents.ITEM_TRIDENT_HIT;
-        if (hitEntity.attackEntityFrom(damagesource, trident.getDamage() + charge) && hitEntity instanceof LivingEntity) {
-            LivingEntity livingHit = (LivingEntity) hitEntity;
-            if (thrower instanceof LivingEntity) {
-                EnchantmentHelper.applyThornEnchantments(livingHit, thrower);
-                EnchantmentHelper.applyArthropodEnchantments((LivingEntity) thrower, livingHit);
+        if (hitEntity.attackEntityFrom(damagesource, damage)) {
+            //Vanilla's trident exits on endermen here, we allow hitting them instead
+            if (hitEntity instanceof LivingEntity) {
+                LivingEntity livingHit = (LivingEntity) hitEntity;
+                if (thrower instanceof LivingEntity) {
+                    EnchantmentHelper.applyThornEnchantments(livingHit, thrower);
+                    EnchantmentHelper.applyArthropodEnchantments((LivingEntity) thrower, livingHit);
+                }
+                this.arrowHit(livingHit);
             }
-            this.arrowHit(livingHit);
         }
-
         setMotion(getMotion().mul(-0.01D, -0.1D, -0.01D));
         float volume = 1.0F;
+        SoundEvent sound = SoundEvents.ITEM_TRIDENT_HIT;
         byte mode = trident.getMode(thrownStack);
         if (mode == PETrident.CHANNELING) {
             if (trySummonLightning(charge + 1, hitEntity.getPosition(), thrower instanceof ServerPlayerEntity ? (ServerPlayerEntity) thrower : null)) {
@@ -177,9 +186,10 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
         playSound(sound, volume, 1.0F);
     }
 
-    private void onBlockHit(BlockRayTraceResult result) {
-        BlockState hitState = world.getBlockState(result.getPos());
-        inBlockState = hitState;
+    @Override//onBlockHit
+    protected void func_230299_a_(BlockRayTraceResult result) {
+        inBlockState = world.getBlockState(result.getPos());
+        inBlockState.onProjectileCollision(world, inBlockState, result, this);
         Vector3d motion = result.getHitVec().subtract(getPosX(), getPosY(), getPosZ());
         setMotion(motion);
         Vector3d vec3d1 = motion.normalize().scale(0.05F);
@@ -218,7 +228,6 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
         setHitSound(SoundEvents.ENTITY_ARROW_HIT);
         setShotFromCrossbow(false);
         func_213870_w();
-        hitState.onProjectileCollision(world, hitState, result, this);
     }
 
     private boolean trySummonLightning(int bolts, BlockPos hitPos, @Nullable ServerPlayerEntity thrower) {
@@ -276,21 +285,6 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     @Override
     protected SoundEvent getHitEntitySound() {
         return SoundEvents.ITEM_TRIDENT_HIT_GROUND;
-    }
-
-    @Override
-    protected void onImpact(@Nonnull RayTraceResult result) {
-        if (thrownStack.isEmpty()) {
-            //Make sure we don't have an empty stack even though this should never happen
-            return;
-        }
-        //Mirrors Vanilla's AbstractArrowEntity, the block specific code has been moved to onBlockHit so that we can override the sound made
-        // and add custom logic to it
-        if (result.getType() == RayTraceResult.Type.ENTITY) {
-            onEntityHit((EntityRayTraceResult) result);
-        } else if (result.getType() == RayTraceResult.Type.BLOCK) {
-            onBlockHit((BlockRayTraceResult) result);
-        }
     }
 
     @Override
@@ -355,5 +349,10 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     @Override
     public void readSpawnData(PacketBuffer buffer) {
         setStackAndLoyalty(buffer.readItemStack());
+    }
+
+    @Override
+    public ItemStack getPickedResult(RayTraceResult target) {
+        return thrownStack.copy();
     }
 }

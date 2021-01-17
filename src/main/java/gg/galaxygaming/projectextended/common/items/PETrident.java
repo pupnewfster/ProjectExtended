@@ -33,7 +33,6 @@ import net.minecraft.item.TridentItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -221,10 +220,10 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
     public ActionResult<ItemStack> onItemRightClick(@Nonnull World world, PlayerEntity player, @Nonnull Hand hand) {
         ItemStack stack = player.getHeldItem(hand);
         if (getMode(stack) == RIPTIDE && !canUseRiptide(player)) {
-            return new ActionResult<>(ActionResultType.FAIL, stack);
+            return ActionResult.resultFail(stack);
         }
         player.setActiveHand(hand);
-        return new ActionResult<>(ActionResultType.SUCCESS, stack);
+        return ActionResult.resultConsume(stack);
     }
 
     @Nonnull

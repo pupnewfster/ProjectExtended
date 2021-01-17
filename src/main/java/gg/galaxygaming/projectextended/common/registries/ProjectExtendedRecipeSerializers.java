@@ -9,5 +9,5 @@ public class ProjectExtendedRecipeSerializers {
 
     public static final IRecipeSerializerDeferredRegister RECIPE_SERIALIZERS = new IRecipeSerializerDeferredRegister();
 
-    public static final IRecipeSerializerRegistryObject<PEShieldSpecialRecipe, SpecialRecipeSerializer<PEShieldSpecialRecipe>> SHIELD_DECORATION = RECIPE_SERIALIZERS.register("pe_shielddecoration", () -> new SpecialRecipeSerializer<>(PEShieldSpecialRecipe::new));
+    public static final IRecipeSerializerRegistryObject<PEShieldSpecialRecipe, SpecialRecipeSerializer<PEShieldSpecialRecipe>> SHIELD_DECORATION = RECIPE_SERIALIZERS.register("shield_decoration", () -> new SpecialRecipeSerializer<>(PEShieldSpecialRecipe::new));
 }
