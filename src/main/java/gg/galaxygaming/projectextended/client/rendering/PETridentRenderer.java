@@ -2,18 +2,18 @@ package gg.galaxygaming.projectextended.client.rendering;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import gg.galaxygaming.projectextended.client.rendering.item.TridentTEISR;
+import gg.galaxygaming.projectextended.client.rendering.item.TridentISTER;
 import gg.galaxygaming.projectextended.common.entity.PETridentEntity;
 import javax.annotation.Nonnull;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.model.TridentModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3f;
 
 //Most of this is copied from Vanilla's TridentRenderer, but for our trident as it does not extent the vanilla trident entity
 public class PETridentRenderer extends EntityRenderer<PETridentEntity> {
@@ -38,6 +38,6 @@ public class PETridentRenderer extends EntityRenderer<PETridentEntity> {
     @Nonnull
     @Override
     public ResourceLocation getEntityTexture(@Nonnull PETridentEntity entity) {
-        return entity.getMatterTier() == 0 ? TridentTEISR.DM_TRIDENT : TridentTEISR.RM_TRIDENT;
+        return entity.getMatterTier() == 0 ? TridentISTER.DM_TRIDENT : TridentISTER.RM_TRIDENT;
     }
 }

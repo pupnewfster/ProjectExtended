@@ -1,25 +1,30 @@
 package gg.galaxygaming.projectextended.common.items;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableMultimap.Builder;
 import com.google.common.collect.Multimap;
-import gg.galaxygaming.projectextended.client.rendering.item.ISTERProvider;
+import gg.galaxygaming.projectextended.client.rendering.ISTERProvider;
+import gg.galaxygaming.projectextended.common.ProjectExtendedLang;
 import gg.galaxygaming.projectextended.common.entity.PETridentEntity;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import moze_intel.projecte.api.capabilities.item.IItemCharge;
 import moze_intel.projecte.capability.ChargeItemCapabilityWrapper;
 import moze_intel.projecte.capability.ItemCapabilityWrapper;
 import moze_intel.projecte.capability.ModeChangerItemCapabilityWrapper;
 import moze_intel.projecte.gameObjs.EnumMatterType;
 import moze_intel.projecte.gameObjs.items.IItemMode;
-import moze_intel.projecte.utils.ToolHelper;
+import moze_intel.projecte.utils.ToolHelper.ChargeAttributeCache;
+import moze_intel.projecte.utils.text.ILangEntry;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.AttributeModifier.Operation;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity.PickupStatus;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -34,11 +39,9 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
 public class PETrident extends TridentItem implements IItemCharge, IItemMode {
@@ -68,8 +71,10 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
      */
     public static final byte SHOCKWAVE = 3;
 
+    private final ChargeAttributeCache attributeCache = new ChargeAttributeCache();
+    private final Multimap<Attribute, AttributeModifier> baseAttributes;
     private final EnumMatterType matterType;
-    private final String[] modeDesc;
+    private final ILangEntry[] modeDesc;
     private final int numCharges;
     private final float attackDamage;
     private final float attackSpeed;
@@ -78,14 +83,18 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
         super(props.setISTER(ISTERProvider::trident));
         this.matterType = matterType;
         this.numCharges = numCharges;
-        this.modeDesc = new String[]{
-              "projectextended.trident.normal",
-              "projectextended.trident.channeling",
-              "projectextended.trident.riptide",
-              "projectextended.trident.shockwave"
+        this.modeDesc = new ILangEntry[]{
+              ProjectExtendedLang.MODE_TRIDENT_1,
+              ProjectExtendedLang.MODE_TRIDENT_2,
+              ProjectExtendedLang.MODE_TRIDENT_3,
+              ProjectExtendedLang.MODE_TRIDENT_4
         };
         this.attackDamage = matterType.getAttackDamage() + damage;
         this.attackSpeed = -2.7F + 0.2F * getMatterTier();
+        Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", attackDamage, AttributeModifier.Operation.ADDITION));
+        builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", attackSpeed, AttributeModifier.Operation.ADDITION));
+        this.baseAttributes = builder.build();
     }
 
     public float getDamage() {
@@ -97,7 +106,17 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
     }
 
     @Override
-    public boolean isBookEnchantable(@Nonnull ItemStack stack, @Nonnull ItemStack book) {
+    public boolean isEnchantable(@Nonnull ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return false;
+    }
+
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
         return false;
     }
 
@@ -122,13 +141,12 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
     }
 
     @Override
-    public String[] getModeTranslationKeys() {
+    public ILangEntry[] getModeLangEntries() {
         return modeDesc;
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void addInformation(ItemStack stack, World world, List<ITextComponent> list, ITooltipFlag flags) {
+    public void addInformation(@Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag flags) {
         list.add(getToolTip(stack));
     }
 
@@ -138,7 +156,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
     }
 
     @Override
-    public void onPlayerStoppedUsing(@Nonnull ItemStack stack, @Nonnull World world, LivingEntity entity, int timeLeft) {
+    public void onPlayerStoppedUsing(@Nonnull ItemStack stack, @Nonnull World world, @Nonnull LivingEntity entity, int timeLeft) {
         if (entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
             int i = this.getUseDuration(stack) - timeLeft;
@@ -151,7 +169,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
                 if (!world.isRemote && mode != RIPTIDE) {
                     //If we are on the server and the mode is not riptide then spawn a trident entity
                     PETridentEntity trident = new PETridentEntity(world, player, stack);
-                    trident.shoot(player, player.rotationPitch, player.rotationYaw, 0.0F, 2.5F + 0.5F, 1.0F);
+                    trident.func_234612_a_(player, player.rotationPitch, player.rotationYaw, 0.0F, 2.5F + 0.5F, 1.0F);
                     if (player.abilities.isCreativeMode) {
                         trident.pickupStatus = PickupStatus.CREATIVE_ONLY;
                     }
@@ -176,8 +194,8 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
                     float velocityModifier = (0.75F + 0.75F * riptideLevel) / velocity;
                     player.addVelocity(xVelocity * velocityModifier, yVelocity * velocityModifier, zVelocity * velocityModifier);
                     player.startSpinAttack(20);
-                    if (player.onGround) {
-                        player.move(MoverType.SELF, new Vec3d(0.0D, 1.1999999F, 0.0D));
+                    if (player.isOnGround()) {
+                        player.move(MoverType.SELF, new Vector3d(0.0D, 1.1999999F, 0.0D));
                     }
                     SoundEvent soundevent;
                     if (riptideLevel >= 3) {
@@ -200,7 +218,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
 
     @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, @Nonnull Hand hand) {
+    public ActionResult<ItemStack> onItemRightClick(@Nonnull World world, PlayerEntity player, @Nonnull Hand hand) {
         ItemStack stack = player.getHeldItem(hand);
         if (getMode(stack) == RIPTIDE && !canUseRiptide(player)) {
             return new ActionResult<>(ActionResultType.FAIL, stack);
@@ -211,20 +229,18 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode {
 
     @Nonnull
     @Override
-    public Multimap<String, AttributeModifier> getAttributeModifiers(EquipmentSlotType equipmentSlot) {
-        //Note: We just entirely bypass the TridentItem's modifiers to set them with our own values
-        Multimap<String, AttributeModifier> attributes = HashMultimap.create();
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(@Nonnull EquipmentSlotType equipmentSlot) {
         if (equipmentSlot == EquipmentSlotType.MAINHAND) {
-            attributes.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", attackDamage, Operation.ADDITION));
-            attributes.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", attackSpeed, Operation.ADDITION));
+            //Note: We just entirely bypass the TridentItem's modifiers to set them with our own values for the main hand
+            return baseAttributes;
         }
-        return attributes;
+        return super.getAttributeModifiers(equipmentSlot);
     }
 
     @Nonnull
     @Override
-    public Multimap<String, AttributeModifier> getAttributeModifiers(@Nonnull EquipmentSlotType slot, ItemStack stack) {
-        return ToolHelper.addChargeAttributeModifier(super.getAttributeModifiers(slot, stack), slot, stack);
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(@Nonnull EquipmentSlotType slot, ItemStack stack) {
+        return attributeCache.addChargeAttributeModifier(super.getAttributeModifiers(slot, stack), slot, stack);
     }
 
     @Override

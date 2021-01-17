@@ -1,6 +1,12 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven {
+            name "forge"
+            url 'https://files.minecraftforge.net/maven'
+        }
         jcenter()
         mavenCentral()
     }
@@ -14,10 +20,10 @@ plugins {
     id 'idea'
 }
 
+apply plugin: 'net.minecraftforge.gradle'
+
 idea {
     module {
-        // For some reason this is necessary for IDEA 2014 workspaces to recognize assets
-        inheritOutputDirs = true
         //Exclude directories from being managed
         for (String excludeDirName in ["run", "out", "logs", "gradle"]) {
             File excludeDir = new File(projectDir, excludeDirName)
@@ -26,19 +32,18 @@ idea {
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-
 sourceSets {
     main {
         resources {
-            srcDirs += 'src/generated/resources'
+            srcDirs += 'src/datagen/generated'
             //There is no need to pack the Data Generator cache into the build
             exclude '.cache'
         }
     }
     datagen {
-        //Let the data gen module know about the main module
-        compileClasspath += sourceSets.main.output
+        java.srcDirs = ['src/datagen/java']
+        resources.srcDirs = ['src/datagen/resources']
+        compileClasspath += project.sourceSets.main.output
     }
 }
 
@@ -60,8 +65,7 @@ minecraft {
 
     runs {
         client {
-            workingDirectory project.file('run')
-            properties 'fml.earlyprogresswindow': 'false'
+            workingDirectory file('run')
 
             //The below if statements are to add args to your gradle.properties file in user home
             // (DO NOT add them directly to the gradle.properties file for this project)
@@ -83,6 +87,11 @@ minecraft {
                 //Your access token, you can find it in your '.minecraft/launcher_profiles.json' file
                 args '--accessToken', project.getProperty('mc_accessToken')
             }
+            if (project.hasProperty('forge_force_ansi')) {
+                //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
+                // or eclipse's plugin that adds support for ansi escape in console
+                jvmArg('-Dterminal.ansi=' + project.getProperty('forge_force_ansi'))
+            }
 
             mods {
                 projectextended {
@@ -92,7 +101,13 @@ minecraft {
         }
 
         server {
-            workingDirectory project.file('run')
+            workingDirectory file('run')
+            if (project.hasProperty('forge_force_ansi')) {
+                //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
+                // or eclipse's plugin that adds support for ansi escape in console
+                jvmArg('-Dterminal.ansi=' + project.getProperty('forge_force_ansi'))
+            }
+
             mods {
                 projectextended {
                     source(sourceSets.main)
@@ -101,18 +116,19 @@ minecraft {
         }
 
         data {
-            workingDirectory project.file('run')
+            workingDirectory file('run')
             environment 'target', 'fmluserdevdata'
-            properties 'fml.earlyprogresswindow': 'false'
+            if (project.hasProperty('forge_force_ansi')) {
+                //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
+                // or eclipse's plugin that adds support for ansi escape in console
+                jvmArg('-Dterminal.ansi=' + project.getProperty('forge_force_ansi'))
+            }
 
-
-            args '--mod', 'projectextended', '--all', '--output', '"' + file('src/generated/resources/') + '"',
-                    '--existing', '"' + sourceSets.main.resources.srcDirs[0] + '"',
-                    //Fake the fact that the dm png exists
-                    '--existing', '"' + sourceSets.datagen.resources.srcDirs[0] + '"'
+            args '--mod', 'projectextended', '--all', '--output', file('src/datagen/generated/'),
+                    '--existing', file('src/main/resources/'), '--existing-mod', 'projecte'
             mods {
                 projectextended {
-                    sources(sourceSets.main, sourceSets.datagen)
+                    sources((SourceSet[]) [sourceSets.main, sourceSets.datagen])
                 }
             }
         }
@@ -121,33 +137,65 @@ minecraft {
 
 repositories {
     maven {
-        name 'JEI'
-        url "http://dvs1.progwml6.com/files/maven"
+        name 'prog'
+        url 'https://dvs1.progwml6.com/files/maven'
+        content {
+            includeGroup 'mezz.jei'
+        }
     }
     maven {
-        url = "https://www.cursemaven.com"
+        name 'CurseMaven'
+        url 'https://www.cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
+    }
+    flatDir {
+        dirs 'libs'
     }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
+    //compile fg.deobf("curse.maven:projecte:${projecte_fileid}")
+    compile fg.deobf("projecte:projecte:1.0.4:universal")
     //Include JEI in the dev environment
-    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}")
-    compile fg.deobf("curse.maven:projecte:${projecte_fileid}")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.16.4:${jei_version}")
+}
+
+jar {
+    manifest.attributes([
+            "Specification-Title"     : "ProjectExtended",
+            "Specification-Vendor"    : "pupnewfster",
+            "Specification-Version"   : "${mod_version}",
+            "Implementation-Title"    : "ProjectExtended",
+            "Implementation-Version"  : "${mod_version}",
+            "Implementation-Vendor"   : "pupnewfster",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+    ])
 }
 
 task replaceResources(type: Copy) {
     outputs.upToDateWhen { false }
-    from (sourceSets.main.resources) {
+    from(sourceSets.main.resources) {
         include "META-INF/mods.toml"
-        expand "version": mod_version, "mc_version": minecraft_version, "forge_version": min_forge_version, "loader_version": loader_version, "projecte_version": projecte_version
+        expand "version": mod_version, "mc_version": minecraft_version_range, "forge_version": forge_version_range,
+                "loader_version": loader_version_range, "projecte_version": projecte_version_range
     }
     into "$buildDir/resources/main/"
 }
 
+def jsonPatterns = ["**/*.json", "**/*.mcmeta"]
+
 processResources {
     //Exclude the mods.toml file as we manually handle that and don't want it to invalidate our cache
     exclude 'META-INF/mods.toml'
-    finalizedBy(replaceResources)
+    finalizedBy replaceResources
+    //Minify json resources
+    doLast {
+        fileTree(dir: getOutputs().getFiles().getAsPath(), includes: jsonPatterns).each {
+            File file -> file.setText(JsonOutput.toJson(new JsonSlurper().parse(file)))
+        }
+    }
 }

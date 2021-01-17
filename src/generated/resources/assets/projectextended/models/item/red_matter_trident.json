@@ -1,6 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "projectextended:item/red_matter_trident"
-  }
-}

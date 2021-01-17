@@ -1,6 +1,7 @@
 modLoader="javafml"
-loaderVersion="[${loader_version},)"
+loaderVersion="${loader_version}"
 issueTrackerURL="https://github.com/pupnewfster/ProjectExtended/issues"
+license="MIT"
 
 [[mods]]
     modId="projectextended"
@@ -14,15 +15,15 @@ issueTrackerURL="https://github.com/pupnewfster/ProjectExtended/issues"
 [[dependencies.projectextended]]
     modId="minecraft"
     mandatory=true
-    versionRange="[${mc_version}]"
+    versionRange="${mc_version}"
     side="BOTH"
 [[dependencies.projectextended]]
     modId="forge"
     mandatory=true
-    versionRange="[${forge_version},)"
+    versionRange="${forge_version}"
     side="BOTH"
 [[dependencies.projectextended]]
     modId="projecte"
     mandatory=true
-    versionRange="[${projecte_version},)"
+    versionRange="${projecte_version}"
     side="BOTH"

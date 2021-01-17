@@ -1,7 +1,8 @@
 package gg.galaxygaming.projectextended.common.entity;
 
 import gg.galaxygaming.projectextended.common.items.PETrident;
-import gg.galaxygaming.projectextended.common.items.ProjectExtendedItems;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,7 +34,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants.NBT;
@@ -48,7 +49,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
 
     private static final Predicate<Entity> SLAY_MOB = entity -> !entity.isSpectator() && entity instanceof IMob;
     private static final DataParameter<Boolean> ENCHANTED = EntityDataManager.createKey(PETridentEntity.class, DataSerializers.BOOLEAN);
-    private ItemStack thrownStack = new ItemStack(ProjectExtendedItems.DARK_MATTER_TRIDENT.get());
+    private ItemStack thrownStack = new ItemStack(ProjectExtendedItems.DARK_MATTER_TRIDENT);
     private boolean landed;
     private boolean noReturn;
     private int loyaltyLevel;
@@ -59,8 +60,8 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
         super(type, worldIn);
     }
 
-    public PETridentEntity(World worldIn, LivingEntity thrower, ItemStack thrownStackIn) {
-        super(ProjectExtendedEntityTypes.PE_TRIDENT.get(), thrower, worldIn);
+    public PETridentEntity(World world, LivingEntity thrower, ItemStack thrownStackIn) {
+        super(ProjectExtendedEntityTypes.PE_TRIDENT.get(), thrower, world);
         setStackAndLoyalty(thrownStackIn.copy());
         this.dataManager.set(ENCHANTED, thrownStackIn.hasEffect());
     }
@@ -96,12 +97,12 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
         }
         //If we aren't told to not do any return logic AND we either landed or are already on the return trip
         if (!noReturn && (landed || getNoClip())) {
-            Entity entity = getShooter();
+            Entity entity = func_234616_v_();
             //Make it return to the thrower
             if (entity != null) {
                 if (shouldReturnToThrower()) {
                     setNoClip(true);
-                    Vec3d returnVector = new Vec3d(entity.getPosX() - getPosX(), entity.getPosYEye() - getPosY(), entity.getPosZ() - getPosZ());
+                    Vector3d returnVector = new Vector3d(entity.getPosX() - getPosX(), entity.getPosYEye() - getPosY(), entity.getPosZ() - getPosZ());
                     setRawPosition(getPosX(), getPosY() + returnVector.y * 0.015D * loyaltyLevel, getPosZ());
                     if (world.isRemote) {
                         lastTickPosY = getPosY();
@@ -125,7 +126,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     }
 
     private boolean shouldReturnToThrower() {
-        Entity entity = getShooter();
+        Entity entity = func_234616_v_();
         return entity != null && entity.isAlive() && !(entity instanceof ServerPlayerEntity && entity.isSpectator());
     }
 
@@ -137,7 +138,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
 
     @Nullable
     @Override
-    protected EntityRayTraceResult rayTraceEntities(@Nonnull Vec3d startVec, @Nonnull Vec3d endVec) {
+    protected EntityRayTraceResult rayTraceEntities(@Nonnull Vector3d startVec, @Nonnull Vector3d endVec) {
         return this.landed ? null : super.rayTraceEntities(startVec, endVec);
     }
 
@@ -147,7 +148,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
         PETrident trident = (PETrident) thrownStack.getItem();
         int charge = trident.getCharge(thrownStack);
 
-        Entity thrower = getShooter();
+        Entity thrower = func_234616_v_();
         DamageSource damagesource = DamageSource.causeTridentDamage(this, thrower == null ? this : thrower);
         landed = true;
         SoundEvent sound = SoundEvents.ITEM_TRIDENT_HIT;
@@ -179,9 +180,9 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     private void onBlockHit(BlockRayTraceResult result) {
         BlockState hitState = world.getBlockState(result.getPos());
         inBlockState = hitState;
-        Vec3d motion = result.getHitVec().subtract(getPosX(), getPosY(), getPosZ());
+        Vector3d motion = result.getHitVec().subtract(getPosX(), getPosY(), getPosZ());
         setMotion(motion);
-        Vec3d vec3d1 = motion.normalize().scale(0.05F);
+        Vector3d vec3d1 = motion.normalize().scale(0.05F);
         setRawPosition(getPosX() - vec3d1.x, getPosY() - vec3d1.y, getPosZ() - vec3d1.z);
         //Vanilla Copy end
 
@@ -190,7 +191,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
         float pitch = 1.2F / (rand.nextFloat() * 0.2F + 0.9F);
 
         BlockPos hitPosition = result.getPos();
-        Entity thrower = getShooter();
+        Entity thrower = func_234616_v_();
         //If we hit a block try
         PETrident trident = (PETrident) thrownStack.getItem();
         int charge = trident.getCharge(thrownStack);
@@ -230,9 +231,12 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
                     boolean hasAction = false;
                     for (int i = 0; i < bolts; i++) {
                         if (thrower == null || ItemPE.consumeFuel(thrower, thrownStack, 64, true)) {
-                            LightningBoltEntity lightning = new LightningBoltEntity(world, hitPos.getX() + rand.nextFloat(), hitPos.getY(), hitPos.getZ() + rand.nextFloat(), false);
-                            lightning.setCaster(thrower);
-                            ((ServerWorld) world).addLightningBolt(lightning);
+                            LightningBoltEntity lightning = EntityType.LIGHTNING_BOLT.create(world);
+                            if (lightning != null) {
+                                lightning.moveForced(Vector3d.copyCenteredHorizontally(hitPos));
+                                lightning.setCaster(thrower);
+                                world.addEntity(lightning);
+                            }
                             hasAction = true;
                         } else {
                             //If we failed to consume EMC but needed EMC just break out early as we won't have the required EMC for any of the future bolts
@@ -275,7 +279,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     }
 
     @Override
-    protected void onHit(RayTraceResult result) {
+    protected void onImpact(@Nonnull RayTraceResult result) {
         if (thrownStack.isEmpty()) {
             //Make sure we don't have an empty stack even though this should never happen
             return;
@@ -291,14 +295,14 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
 
     @Override
     public void onCollideWithPlayer(@Nonnull PlayerEntity entityIn) {
-        Entity entity = this.getShooter();
+        Entity entity = func_234616_v_();
         if (entity == null || entity.getUniqueID() == entityIn.getUniqueID()) {
             super.onCollideWithPlayer(entityIn);
         }
     }
 
     @Override
-    public void readAdditional(CompoundNBT compound) {
+    public void readAdditional(@Nonnull CompoundNBT compound) {
         super.readAdditional(compound);
         if (compound.contains("Trident", NBT.TAG_COMPOUND)) {
             setStackAndLoyalty(ItemStack.read(compound.getCompound("Trident")));
@@ -308,7 +312,7 @@ public class PETridentEntity extends AbstractArrowEntity implements IEntityAddit
     }
 
     @Override
-    public void writeAdditional(CompoundNBT compound) {
+    public void writeAdditional(@Nonnull CompoundNBT compound) {
         super.writeAdditional(compound);
         compound.put("Trident", thrownStack.write(new CompoundNBT()));
         compound.putBoolean("Landed", landed);

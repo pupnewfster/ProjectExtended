@@ -1,17 +1,22 @@
 package gg.galaxygaming.projectextended.client;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
-import gg.galaxygaming.projectextended.common.items.ProjectExtendedItems;
-import java.util.function.Supplier;
+import gg.galaxygaming.projectextended.common.items.PEShield;
+import gg.galaxygaming.projectextended.common.items.PETrident;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import javax.annotation.Nonnull;
 import moze_intel.projecte.PECore;
+import moze_intel.projecte.gameObjs.registration.impl.ItemRegistryObject;
+import net.minecraft.client.renderer.model.BlockModel.GuiLight;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.Item;
+import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.generators.ExistingFileHelper;
 import net.minecraftforge.client.model.generators.ItemModelBuilder;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.client.model.generators.ModelFile.UncheckedModelFile;
+import net.minecraftforge.client.model.generators.ModelBuilder.Perspective;
+import net.minecraftforge.client.model.generators.loaders.SeparatePerspectiveModelBuilder;
+import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class ModelDataGenerator extends ItemModelProvider {
 
@@ -19,55 +24,78 @@ public class ModelDataGenerator extends ItemModelProvider {
         super(gen, ProjectExtended.MODID, helper);
     }
 
-    @Override
-    protected void registerModels() {
-        generateShieldModels(ProjectExtendedItems.DARK_MATTER_SHIELD, mcLoc("block/diamond_block"));
-        //Note: We include an empty file to fake that the texture exists
-        generateShieldModels(ProjectExtendedItems.RED_MATTER_SHIELD, new ResourceLocation(PECore.MODID, "blocks/dm"));
-        generateTridentModels(ProjectExtendedItems.DARK_MATTER_TRIDENT);
-        generateTridentModels(ProjectExtendedItems.RED_MATTER_TRIDENT);
-    }
-
-    private void generateShieldModels(Supplier<? extends Item> item, ResourceLocation particle) {
-        String name = name(item);
-        ItemModelBuilder blockingModel = getBuilder(name + "_blocking")
-              .parent(new UncheckedModelFile(folder + "/shield_blocking"))
-              .texture("particle", particle);
-        getBuilder(name)
-              .parent(new UncheckedModelFile(folder + "/shield"))
-              .texture("particle", particle)
-              .override()
-              .predicate(mcLoc("blocking"), 1)
-              .model(new UncheckedModelFile(blockingModel.getUncheckedLocation()))
-              .end();
-    }
-
-    private String name(Supplier<? extends Item> item) {
-        return item.get().getRegistryName().getPath();
-    }
-
-    private void generateTridentModels(Supplier<? extends Item> item) {
-        String name = name(item);
-        ResourceLocation itemLoc = modLoc(folder + "/" + name);
-        //Base Model
-        getBuilder(name).parent(new UncheckedModelFile(folder + "/generated")).texture("layer0", itemLoc);
-        //Throwing model
-        ItemModelBuilder throwingModel = getBuilder(name + "_throwing")
-              .parent(new UncheckedModelFile(folder + "/trident_throwing"))
-              .texture("particle", itemLoc);
-        //In hand model
-        getBuilder(name + "_in_hand")
-              .parent(new UncheckedModelFile(folder + "/trident_in_hand"))
-              .texture("particle", itemLoc)
-              .override()
-              .predicate(mcLoc("throwing"), 1)
-              .model(new UncheckedModelFile(throwingModel.getUncheckedLocation()))
-              .end();
-    }
-
     @Nonnull
     @Override
     public String getName() {
         return ProjectExtended.MOD_NAME + " Item Models";
+    }
+
+    @Override
+    protected void registerModels() {
+        generateShieldModel(ProjectExtendedItems.DARK_MATTER_SHIELD, mcLoc("block/diamond_block"));
+        generateShieldModel(ProjectExtendedItems.RED_MATTER_SHIELD, PECore.rl("block/dark_matter_block"));
+        generateTridentModel(ProjectExtendedItems.DARK_MATTER_TRIDENT);
+        generateTridentModel(ProjectExtendedItems.RED_MATTER_TRIDENT);
+    }
+
+    private void generateShieldModel(ItemRegistryObject<PEShield> item, ResourceLocation particle) {
+        String name = name(item);
+        withExistingParent(name, "shield")
+              .texture("particle", particle)
+              .override()
+              .predicate(modLoc("blocking"), 1)
+              .model(withExistingParent(name + "_blocking", "shield_blocking")
+                    .texture("particle", particle))
+              .end();
+    }
+
+    private void generateTridentModel(ItemRegistryObject<PETrident> item) {
+        String name = name(item);
+        ResourceLocation itemLoc = modLoc(folder + "/" + name);
+        ItemModelBuilder guiModel = nested()
+              .parent(withExistingParent(name + "_gui", "item/generated")
+                    .texture("layer0", itemLoc));
+        ItemModelBuilder throwingModel = getBuilder(name + "_throwing")
+              .guiLight(GuiLight.FRONT)
+              .texture("particle", itemLoc)
+              .customLoader(SeparatePerspectiveModelBuilder::begin)
+              //Throwing model is "base" so that we can have our transforms
+              .base(nested()
+                    .parent(getExistingFile(mcLoc("trident_throwing")))
+                    .texture("particle", itemLoc))
+              //Gui, ground, and fixed all use the normal "item model"
+              .perspective(TransformType.GUI, guiModel)
+              .perspective(TransformType.GROUND, guiModel)
+              .perspective(TransformType.FIXED, guiModel)
+              .end();
+        getBuilder(name)
+              .guiLight(GuiLight.FRONT)
+              .texture("particle", itemLoc)
+              //Override when throwing to the throwing model to ensure we have the correct transforms
+              .override()
+              .predicate(modLoc("throwing"), 1)
+              .model(throwingModel)
+              .end()
+              .customLoader(SeparatePerspectiveModelBuilder::begin)
+              //In hand model is base
+              .base(nested()
+                    .parent(getExistingFile(mcLoc("trident_in_hand")))
+                    .texture("particle", itemLoc)
+                    //Add head transformation
+                    .transforms()
+                    .transform(Perspective.HEAD)
+                    .rotation(0, 180, 120)
+                    .translation(8, 10, -11)
+                    .scale(1.5F)
+                    .end()
+                    .end())
+              //Gui, ground, and fixed all use the normal "item model"
+              .perspective(TransformType.GUI, guiModel)
+              .perspective(TransformType.GROUND, guiModel)
+              .perspective(TransformType.FIXED, guiModel);
+    }
+
+    private static String name(IItemProvider item) {
+        return item.asItem().getRegistryName().getPath();
     }
 }

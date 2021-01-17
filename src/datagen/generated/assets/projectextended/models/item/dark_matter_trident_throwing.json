@@ -1,0 +1,24 @@
+{
+  "gui_light": "front",
+  "textures": {
+    "particle": "projectextended:item/dark_matter_trident"
+  },
+  "loader": "forge:separate-perspective",
+  "base": {
+    "parent": "minecraft:item/trident_throwing",
+    "textures": {
+      "particle": "projectextended:item/dark_matter_trident"
+    }
+  },
+  "perspectives": {
+    "gui": {
+      "parent": "projectextended:item/dark_matter_trident_gui"
+    },
+    "ground": {
+      "parent": "projectextended:item/dark_matter_trident_gui"
+    },
+    "fixed": {
+      "parent": "projectextended:item/dark_matter_trident_gui"
+    }
+  }
+}

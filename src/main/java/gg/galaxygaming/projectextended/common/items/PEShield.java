@@ -1,10 +1,11 @@
 package gg.galaxygaming.projectextended.common.items;
 
-import gg.galaxygaming.projectextended.client.rendering.item.ISTERProvider;
+import gg.galaxygaming.projectextended.client.rendering.ISTERProvider;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import moze_intel.projecte.gameObjs.EnumMatterType;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
@@ -23,7 +24,17 @@ public class PEShield extends ShieldItem {
     }
 
     @Override
-    public boolean isBookEnchantable(@Nonnull ItemStack stack, @Nonnull ItemStack book) {
+    public boolean isEnchantable(@Nonnull ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
+        return false;
+    }
+
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
         return false;
     }
 

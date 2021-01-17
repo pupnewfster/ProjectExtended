@@ -1,12 +1,10 @@
 package gg.galaxygaming.projectextended;
 
-import gg.galaxygaming.projectextended.client.ClientRegistration;
-import gg.galaxygaming.projectextended.common.entity.ProjectExtendedEntityTypes;
-import gg.galaxygaming.projectextended.common.items.ProjectExtendedItems;
-import gg.galaxygaming.projectextended.common.recipe.ProjectExtendedRecipeSerializers;
-import net.minecraftforge.api.distmarker.Dist;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedRecipeSerializers;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
@@ -23,14 +21,13 @@ public class ProjectExtended {
 
     public ProjectExtended() {
         INSTANCE = this;
-
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ProjectExtendedItems.ITEMS.register(modEventBus);
         ProjectExtendedEntityTypes.ENTITY_TYPES.register(modEventBus);
         ProjectExtendedRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
+    }
 
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> {
-            modEventBus.register(ClientRegistration.class);
-        });
+    public static ResourceLocation rl(String path) {
+        return new ResourceLocation(MODID, path);
     }
 }

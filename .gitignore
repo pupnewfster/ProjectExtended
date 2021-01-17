@@ -1,25 +1,42 @@
-# eclipse
-bin
-*.launch
-.settings
-.metadata
-.classpath
-.project
-
-# idea
-out
+# IntelliJ
+/*.iml
+.idea/
 *.ipr
 *.iws
-*.iml
-.idea
+.idea_modules/
+out/
 
-# gradle
-build
+# Gradle
 .gradle
+build/
+run/
+logs/
 
-# other
-eclipse
-run
+# Eclipse + other common
+*.pydevproject
+.project
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+*.launch
+eclipse/
+libs/
 
-# Files from Forge MDK
-forge*changelog.txt
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Mac crap
+.DS_Store
+
+# Data gen cache
+/src/datagen/generated/.cache

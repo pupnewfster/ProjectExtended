@@ -1,6 +1,7 @@
 package gg.galaxygaming.projectextended.common.recipe;
 
 import gg.galaxygaming.projectextended.common.items.PEShield;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedRecipeSerializers;
 import javax.annotation.Nonnull;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.BannerItem;
