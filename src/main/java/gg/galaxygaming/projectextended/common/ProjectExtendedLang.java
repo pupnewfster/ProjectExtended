@@ -6,6 +6,8 @@ import net.minecraft.util.Util;
 
 public enum ProjectExtendedLang implements ILangEntry {
     PROJECT_EXTENDED("misc", "mod_name"),
+    WARNING_BLACKLIST_CONDENSER("warning", "blacklist.condenser"),
+    WARNING_BLACKLIST_TRANSMUTATION("warning", "blacklist.transmutation"),
     MODE_TRIDENT_1("mode", "trident.1"),
     MODE_TRIDENT_2("mode", "trident.2"),
     MODE_TRIDENT_3("mode", "trident.3"),

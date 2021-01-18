@@ -1,4 +1,4 @@
-package gg.galaxygaming.projectextended.common;
+package gg.galaxygaming.projectextended.common.tag;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;

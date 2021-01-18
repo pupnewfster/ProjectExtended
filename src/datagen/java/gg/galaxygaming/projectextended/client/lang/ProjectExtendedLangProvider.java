@@ -21,6 +21,8 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
         addModes();
         //Misc stuff
         add(ProjectExtendedLang.PROJECT_EXTENDED, ProjectExtended.MOD_NAME);
+        add(ProjectExtendedLang.WARNING_BLACKLIST_CONDENSER, "WARNING: This item is blacklisted from the condenser. It cannot be used as the target lock, but can be used for EMC.");
+        add(ProjectExtendedLang.WARNING_BLACKLIST_TRANSMUTATION, "WARNING: This item is blacklisted from the transmutation table. It cannot be learned, but can be consumed for EMC.");
     }
 
     private void addEntityTypes() {
