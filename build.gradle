@@ -150,16 +150,12 @@ repositories {
             includeGroup 'curse.maven'
         }
     }
-    flatDir {
-        dirs 'libs'
-    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    //compile fg.deobf("curse.maven:projecte:${projecte_fileid}")
-    compile fg.deobf("projecte:projecte:1.0.4:universal")
+    compile fg.deobf("curse.maven:projecte-226410:${projecte_fileid}")
     //Include JEI in the dev environment
     runtimeOnly fg.deobf("mezz.jei:jei-1.16.4:${jei_version}")
 }
@@ -181,7 +177,7 @@ task replaceResources(type: Copy) {
     from(sourceSets.main.resources) {
         include "META-INF/mods.toml"
         expand "version": mod_version, "mc_version": minecraft_version_range, "forge_version": forge_version_range,
-                "loader_version": loader_version_range, "projecte_version": projecte_version_range
+                "loader_version": loader_version_range
     }
     into "$buildDir/resources/main/"
 }

@@ -51,19 +51,4 @@ public class ProjectExtended {
             event.setCanceled(true);
         }
     }
-
-    /*public List<String> transmutationTooltip(ToolTipHandler.ToolTipInfo info) {
-        return emcTooltip(info, TextFormatting.DARK_RED + new TextComponentTranslation("compatskills.warn.projecte.transmutation").getUnformattedComponentText());
-    }
-
-    public List<String> condenserTooltip(ToolTipHandler.ToolTipInfo info) {
-        return emcTooltip(info, TextFormatting.YELLOW + new TextComponentTranslation("compatskills.warn.projecte.condenser").getUnformattedComponentText());
-    }*/
-
-    private void emcTooltip(ItemInfo info, String message) {
-        if (ProjectEAPI.getEMCProxy().getValue(info) > 0) {
-            //TODO: Message
-        }
-
-    }
 }
