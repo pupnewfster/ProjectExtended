@@ -5,8 +5,8 @@ import gg.galaxygaming.projectextended.common.ProjectExtendedLang;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.DyeColor;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.ItemLike;
 
 public class ProjectExtendedLangProvider extends BaseLanguageProvider {
 
@@ -36,8 +36,8 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
         addItem(ProjectExtendedItems.RED_MATTER_TRIDENT, "Red Matter Trident");
     }
 
-    private void addShield(IItemProvider shield, String name) {
-        String baseTranslationKey = shield.asItem().getTranslationKey();
+    private void addShield(ItemLike shield, String name) {
+        String baseTranslationKey = shield.asItem().getDescriptionId();
         add(baseTranslationKey, name);
         addShield(baseTranslationKey, DyeColor.BLACK, "Black", name);
         addShield(baseTranslationKey, DyeColor.RED, "Red", name);

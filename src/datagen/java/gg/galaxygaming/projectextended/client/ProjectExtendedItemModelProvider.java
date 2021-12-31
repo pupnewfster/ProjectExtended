@@ -7,11 +7,11 @@ import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import javax.annotation.Nonnull;
 import moze_intel.projecte.PECore;
 import moze_intel.projecte.gameObjs.registration.impl.ItemRegistryObject;
-import net.minecraft.client.renderer.model.BlockModel.GuiLight;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.BlockModel.GuiLight;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.client.model.generators.ItemModelBuilder;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.client.model.generators.ModelBuilder.Perspective;
@@ -95,7 +95,7 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
               .perspective(TransformType.FIXED, guiModel);
     }
 
-    private static String name(IItemProvider item) {
+    private static String name(ItemLike item) {
         return item.asItem().getRegistryName().getPath();
     }
 }

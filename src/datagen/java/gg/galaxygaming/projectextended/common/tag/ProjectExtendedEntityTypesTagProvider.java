@@ -4,7 +4,7 @@ import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import javax.annotation.Nullable;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.EntityTypeTagsProvider;
+import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
@@ -15,7 +15,7 @@ public class ProjectExtendedEntityTypesTagProvider extends EntityTypeTagsProvide
     }
 
     @Override
-    protected void registerTags() {
-        getOrCreateBuilder(EntityTypeTags.IMPACT_PROJECTILES).add(ProjectExtendedEntityTypes.PE_TRIDENT.get());
+    protected void addTags() {
+        tag(EntityTypeTags.IMPACT_PROJECTILES).add(ProjectExtendedEntityTypes.PE_TRIDENT.get());
     }
 }

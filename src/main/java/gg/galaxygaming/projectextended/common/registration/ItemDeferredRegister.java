@@ -8,23 +8,24 @@ import java.util.function.UnaryOperator;
 import javax.annotation.Nonnull;
 import moze_intel.projecte.PECore;
 import moze_intel.projecte.gameObjs.registration.impl.ItemRegistryObject;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class ItemDeferredRegister extends WrappedDeferredRegister<Item> {
 
-    private static final ItemGroup creativeTab = new ItemGroup(PECore.MODID) {
+    private static final CreativeModeTab creativeTab = new CreativeModeTab(PECore.MODID) {
+        @Nonnull
         @Override
-        public ItemStack createIcon() {
+        public ItemStack makeIcon() {
             return new ItemStack(ProjectExtendedItems.DARK_MATTER_TRIDENT);
         }
 
         @Nonnull
         @Override
-        public ITextComponent getGroupName() {
+        public Component getDisplayName() {
             //Overwrite the lang key to match the one representing ProjectExtended
             return ProjectExtendedLang.PROJECT_EXTENDED.translate();
         }
@@ -35,11 +36,11 @@ public class ItemDeferredRegister extends WrappedDeferredRegister<Item> {
     }
 
     public static Item.Properties getBaseProperties() {
-        return new Item.Properties().group(creativeTab);
+        return new Item.Properties().tab(creativeTab);
     }
 
     public <ITEM extends Item> ItemRegistryObject<ITEM> registerNoStackFireImmune(String name, Function<Item.Properties, ITEM> sup) {
-        return register(name, sup, properties -> properties.maxStackSize(1).isImmuneToFire());
+        return register(name, sup, properties -> properties.stacksTo(1).fireResistant());
     }
 
     public <ITEM extends Item> ItemRegistryObject<ITEM> register(String name, Function<Item.Properties, ITEM> sup, UnaryOperator<Item.Properties> propertyModifier) {

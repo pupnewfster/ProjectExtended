@@ -1,51 +1,57 @@
 package gg.galaxygaming.projectextended.client.rendering.item;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.items.PEShield;
 import java.util.List;
 import javax.annotation.Nonnull;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.tileentity.BannerTileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShieldItem;
-import net.minecraft.tileentity.BannerPattern;
-import net.minecraft.tileentity.BannerTileEntity;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.blockentity.BannerRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.level.block.entity.BannerBlockEntity;
+import net.minecraft.world.level.block.entity.BannerPattern;
 
-public class ShieldISTER extends ItemStackTileEntityRenderer {
+public class ShieldISTER extends BlockEntityWithoutLevelRenderer {
 
-    public static final RenderMaterial DM_SHIELD = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ProjectExtended.rl("entity/dark_matter_shield"));
-    public static final RenderMaterial RM_SHIELD = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, ProjectExtended.rl("entity/red_matter_shield"));
+    public static final Material DM_SHIELD = new Material(TextureAtlas.LOCATION_BLOCKS, ProjectExtended.rl("entity/dark_matter_shield"));
+    public static final Material RM_SHIELD = new Material(TextureAtlas.LOCATION_BLOCKS, ProjectExtended.rl("entity/red_matter_shield"));
+
+    public ShieldISTER(BlockEntityRenderDispatcher renderDispatcher, EntityModelSet modelSet) {
+        super(renderDispatcher, modelSet);
+    }
 
     @Override
-    public void func_239207_a_(@Nonnull ItemStack stack, @Nonnull TransformType transformType, @Nonnull MatrixStack matrix, @Nonnull IRenderTypeBuffer renderer,
+    public void renderByItem(@Nonnull ItemStack stack, @Nonnull TransformType transformType, @Nonnull PoseStack matrix, @Nonnull MultiBufferSource renderer,
           int light, int overlayLight) {
-        matrix.push();
+        matrix.pushPose();
         matrix.scale(1, -1, -1);
-        RenderMaterial material;
-        if (stack.getItem() instanceof PEShield && ((PEShield) stack.getItem()).getMatterTier() > 0) {
+        Material material;
+        if (stack.getItem() instanceof PEShield shield && shield.getMatterTier() > 0) {
             material = RM_SHIELD;
         } else {
             //Fallback to dark matter shield
             material = DM_SHIELD;
         }
-        IVertexBuilder buffer = material.getSprite().wrapBuffer(ItemRenderer.getEntityGlintVertexBuilder(renderer, modelShield.getRenderType(material.getAtlasLocation()),
-              true, stack.hasEffect()));
-        if (stack.getChildTag("BlockEntityTag") != null) {
-            modelShield.func_228294_b_().render(matrix, buffer, light, overlayLight, 1, 1, 1, 1);
-            List<Pair<BannerPattern, DyeColor>> list = BannerTileEntity.getPatternColorData(ShieldItem.getColor(stack), BannerTileEntity.getPatternData(stack));
-            BannerTileEntityRenderer.func_230180_a_(matrix, renderer, light, overlayLight, modelShield.func_228293_a_(), material, false, list);
+        VertexConsumer buffer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(renderer, shieldModel.renderType(material.atlasLocation()),
+              true, stack.hasFoil()));
+        if (stack.getTagElement("BlockEntityTag") != null) {
+            shieldModel.handle().render(matrix, buffer, light, overlayLight, 1, 1, 1, 1);
+            List<Pair<BannerPattern, DyeColor>> list = BannerBlockEntity.createPatterns(ShieldItem.getColor(stack), BannerBlockEntity.getItemPatterns(stack));
+            BannerRenderer.renderPatterns(matrix, renderer, light, overlayLight, shieldModel.plate(), material, false, list);
         } else {
-            modelShield.render(matrix, buffer, light, overlayLight, 1, 1, 1, 1);
+            shieldModel.renderToBuffer(matrix, buffer, light, overlayLight, 1, 1, 1, 1);
         }
-        matrix.pop();
+        matrix.popPose();
     }
 }

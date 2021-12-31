@@ -3,19 +3,19 @@ package gg.galaxygaming.projectextended.common.items;
 import gg.galaxygaming.projectextended.client.rendering.ISTERProvider;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import moze_intel.projecte.gameObjs.EnumMatterType;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShieldItem;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraftforge.client.IItemRenderProperties;
 
 public class PEShield extends ShieldItem {
 
     private final EnumMatterType matterType;
 
     public PEShield(EnumMatterType matterType, Properties props) {
-        super(props.setISTER(ISTERProvider::shield));
+        super(props);
         this.matterType = matterType;
     }
 
@@ -44,14 +44,13 @@ public class PEShield extends ShieldItem {
     }
 
     @Override
-    public boolean getIsRepairable(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
-        //Override the shield allowing planks to repair it as we can't lose durability anyways
+    public boolean isValidRepairItem(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
+        //Override the shield allowing planks to repair it as we can't lose durability anyway
         return false;
     }
 
     @Override
-    public boolean isShield(ItemStack stack, @Nullable LivingEntity entity) {
-        //Has to override this because default impl in IForgeItem checks for exact equality with the shield item instead of instanceof
-        return true;
+    public void initializeClient(@Nonnull Consumer<IItemRenderProperties> consumer) {
+        consumer.accept(ISTERProvider.shield());
     }
 }

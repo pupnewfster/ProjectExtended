@@ -4,11 +4,9 @@ import gg.galaxygaming.projectextended.common.ProjectExtendedTags;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedRecipeSerializers;
-import moze_intel.projecte.api.ItemInfo;
-import moze_intel.projecte.api.ProjectEAPI;
 import moze_intel.projecte.api.event.PlayerAttemptCondenserSetEvent;
 import moze_intel.projecte.api.event.PlayerAttemptLearnEvent;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -41,13 +39,13 @@ public class ProjectExtended {
     }
 
     public void onAttemptCondenserSet(PlayerAttemptCondenserSetEvent event) {
-        if (event.getReducedInfo().getItem().isIn(ProjectExtendedTags.Items.BLACKLIST_CONDENSER)) {
+        if (ProjectExtendedTags.Items.BLACKLIST_CONDENSER.contains(event.getReducedInfo().getItem())) {
             event.setCanceled(true);
         }
     }
 
     public void onAttemptLearnEvent(PlayerAttemptLearnEvent event) {
-        if (event.getReducedInfo().getItem().isIn(ProjectExtendedTags.Items.BLACKLIST_LEARNING)) {
+        if (ProjectExtendedTags.Items.BLACKLIST_LEARNING.contains(event.getReducedInfo().getItem())) {
             event.setCanceled(true);
         }
     }

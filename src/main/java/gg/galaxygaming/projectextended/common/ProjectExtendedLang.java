@@ -2,7 +2,7 @@ package gg.galaxygaming.projectextended.common;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
 import moze_intel.projecte.utils.text.ILangEntry;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 
 public enum ProjectExtendedLang implements ILangEntry {
     PROJECT_EXTENDED("misc", "mod_name"),
@@ -16,7 +16,7 @@ public enum ProjectExtendedLang implements ILangEntry {
     private final String key;
 
     ProjectExtendedLang(String type, String path) {
-        this(Util.makeTranslationKey(type, ProjectExtended.rl(path)));
+        this(Util.makeDescriptionId(type, ProjectExtended.rl(path)));
     }
 
     ProjectExtendedLang(String key) {

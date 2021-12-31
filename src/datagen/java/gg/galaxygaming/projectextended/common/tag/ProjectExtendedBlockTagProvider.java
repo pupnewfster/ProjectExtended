@@ -2,8 +2,8 @@ package gg.galaxygaming.projectextended.common.tag;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
 import javax.annotation.Nullable;
-import net.minecraft.data.BlockTagsProvider;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class ProjectExtendedBlockTagProvider extends BlockTagsProvider {
@@ -13,6 +13,6 @@ public class ProjectExtendedBlockTagProvider extends BlockTagsProvider {
     }
 
     @Override
-    protected void registerTags() {
+    protected void addTags() {
     }
 }

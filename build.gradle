@@ -5,29 +5,39 @@ buildscript {
     repositories {
         maven {
             name "forge"
-            url 'https://files.minecraftforge.net/maven'
+            url "https://maven.minecraftforge.net/"
         }
-        jcenter()
-        mavenCentral()
+        maven {
+            name 'parchment'
+            url 'https://maven.parchmentmc.org'
+        }
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
 plugins {
     id 'java'
+    id 'eclipse'
     id 'idea'
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
+
+wrapper {
+    //Define wrapper values here so as to not have to always do so when updating gradlew.properties
+    gradleVersion = '7.3.3'
+    distributionType = Wrapper.DistributionType.ALL
+}
 
 idea {
     module {
         //Exclude directories from being managed
         for (String excludeDirName in ["run", "out", "logs", "gradle"]) {
-            File excludeDir = new File(projectDir, excludeDirName)
-            excludeDirs.add(excludeDir)
+            excludeDirs.add(new File(projectDir, excludeDirName))
         }
     }
 }
@@ -42,30 +52,70 @@ sourceSets {
     }
     datagen {
         java.srcDirs = ['src/datagen/java']
-        resources.srcDirs = ['src/datagen/resources']
+        //Data gen has no resources it just creates resources
+        resources.srcDirs = []
         compileClasspath += project.sourceSets.main.output
     }
 }
 
 configurations {
     //Let the datagen source set know about forge
-    datagenCompile.extendsFrom(compile)
+    datagenImplementation.extendsFrom(implementation)
+    datagenCompileOnly.extendsFrom(compileOnly)
+    datagenRuntimeOnly.extendsFrom(runtimeOnly)
+}
+
+ext {
+    versionProperties = ["version"       : mod_version, "mc_version": minecraft_version_range, "forge_version": forge_version_range,
+                         "loader_version": loader_version_range]
+    jsonPatterns = ["**/*.json", "**/*.mcmeta"]
+}
+
+def replaceResources = tasks.register("replaceResources", Copy) {
+    it.outputs.upToDateWhen { false }
+    def modsToml = copySpec {
+        from(sourceSets.main.resources) {
+            include "META-INF/mods.toml"
+            expand versionProperties
+        }
+    }
+    //Copy it into the build dir
+    it.with modsToml
+    it.into "$buildDir/resources/main/"
+    //If IntelliJ's output dir exists, copy it there as well
+    if (new File("$rootDir/out/production/").exists()) {
+        copy {
+            with modsToml
+            into "$rootDir/out/production/"
+        }
+    }
+    //If Eclipse's output dir exists, copy it there as well
+    if (new File("$rootDir/bin/main/").exists()) {
+        copy {
+            with modsToml
+            into "$rootDir/bin/main/"
+        }
+    }
 }
 
 group = 'gg.galaxygaming.projectextended'
 version = "${minecraft_version}-${mod_version}"
 archivesBaseName = 'ProjectExtended'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaVersion.VERSION_1_8
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: "snapshot", version: "${mappings_version}"
+    mappings channel: "${mappings_channel}", version: "${mappings_version}"
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformers.from(file('src/main/resources/META-INF/accesstransformer.cfg'))
 
     runs {
         client {
             workingDirectory file('run')
+
+            //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             //The below if statements are to add args to your gradle.properties file in user home
             // (DO NOT add them directly to the gradle.properties file for this project)
@@ -84,7 +134,7 @@ minecraft {
                 args '--username', project.getProperty('mc_username')
             }
             if (project.hasProperty('mc_accessToken')) {
-                //Your access token, you can find it in your '.minecraft/launcher_profiles.json' file
+                //Your access token, you can find it in your '.minecraft/launcher_accounts.json' file
                 args '--accessToken', project.getProperty('mc_accessToken')
             }
             if (project.hasProperty('forge_force_ansi')) {
@@ -94,14 +144,16 @@ minecraft {
             }
 
             mods {
-                projectextended {
-                    source(sourceSets.main)
-                }
+                projectextended.source(sourceSets.main)
             }
         }
 
         server {
             workingDirectory file('run')
+            //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
             if (project.hasProperty('forge_force_ansi')) {
                 //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
                 // or eclipse's plugin that adds support for ansi escape in console
@@ -109,15 +161,17 @@ minecraft {
             }
 
             mods {
-                projectextended {
-                    source(sourceSets.main)
-                }
+                projectextended.source(sourceSets.main)
             }
         }
 
         data {
             workingDirectory file('run')
             environment 'target', 'fmluserdevdata'
+            //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
             if (project.hasProperty('forge_force_ansi')) {
                 //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
                 // or eclipse's plugin that adds support for ansi escape in console
@@ -127,9 +181,7 @@ minecraft {
             args '--mod', 'projectextended', '--all', '--output', file('src/datagen/generated/'),
                     '--existing', file('src/main/resources/'), '--existing-mod', 'projecte'
             mods {
-                projectextended {
-                    sources((SourceSet[]) [sourceSets.main, sourceSets.datagen])
-                }
+                projectextended.sources((SourceSet[]) [sourceSets.main, sourceSets.datagen])
             }
         }
     }
@@ -150,17 +202,56 @@ repositories {
             includeGroup 'curse.maven'
         }
     }
+    flatDir {
+        dirs "libs"
+    }
+
+    whenObjectAdded {
+        //ForgeGradle adds these in an afterEvaluate, so we need to catch them as they're added and exclude mod artifacts/groups
+        if (it instanceof MavenArtifactRepository) {
+            def url = it.url.toString()
+            if (url == 'https://maven.minecraftforge.net/' || url == 'https://libraries.minecraft.net/' || url == 'https://repo.maven.apache.org/maven2/') {
+                try {
+                    it.content {
+                        excludeGroup 'curse.maven'
+                        excludeGroup 'mezz.jei'
+                    }
+                    println("Adding exclusions to ${it.url}")
+                } catch (Exception ignored) {
+                    //oh well
+                }
+            }
+        }
+    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    compile fg.deobf("curse.maven:projecte-226410:${projecte_fileid}")
+    //TODO: Replace with CurseMaven
+    implementation fg.deobf("projecte:projecte:1.0.0")
+    //implementation fg.deobf("curse.maven:projecte-226410:${projecte_fileid}")
     //Include JEI in the dev environment
-    runtimeOnly fg.deobf("mezz.jei:jei-1.16.4:${jei_version}")
+    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}")
 }
 
+//Set the various variables/settings for the different process resources tasks
+processResources {
+    duplicatesStrategy(DuplicatesStrategy.FAIL)
+    exclude('META-INF/mods.toml')
+    configure { finalizedBy(replaceResources) }
+    doLast {
+        fileTree(dir: getOutputs().getFiles().getAsPath(), includes: jsonPatterns).each {
+            File file -> file.setText(JsonOutput.toJson(new JsonSlurper().parse(file)))
+        }
+    }
+}
+
+//Make the various classes tasks depend on the corresponding replaceResources tasks in addition to the default processResources tasks they depend on
+classes.configure { dependsOn(replaceResources) }
+
 jar {
+    duplicatesStrategy(DuplicatesStrategy.FAIL)
     manifest.attributes([
             "Specification-Title"     : "ProjectExtended",
             "Specification-Vendor"    : "pupnewfster",
@@ -169,29 +260,16 @@ jar {
             "Implementation-Version"  : "${mod_version}",
             "Implementation-Vendor"   : "pupnewfster",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "Automatic-Module-Name"   : "projectextended",
     ])
+    afterEvaluate { finalizedBy reobfJar }
 }
 
-task replaceResources(type: Copy) {
-    outputs.upToDateWhen { false }
-    from(sourceSets.main.resources) {
-        include "META-INF/mods.toml"
-        expand "version": mod_version, "mc_version": minecraft_version_range, "forge_version": forge_version_range,
-                "loader_version": loader_version_range
-    }
-    into "$buildDir/resources/main/"
+reobf {
+    jar { classpath.from(sourceSets.main.compileClasspath) }
 }
 
-def jsonPatterns = ["**/*.json", "**/*.mcmeta"]
-
-processResources {
-    //Exclude the mods.toml file as we manually handle that and don't want it to invalidate our cache
-    exclude 'META-INF/mods.toml'
-    finalizedBy replaceResources
-    //Minify json resources
-    doLast {
-        fileTree(dir: getOutputs().getFiles().getAsPath(), includes: jsonPatterns).each {
-            File file -> file.setText(JsonOutput.toJson(new JsonSlurper().parse(file)))
-        }
-    }
-}
+tasks.withType(JavaCompile).configureEach({
+    it.options.encoding = 'UTF-8'
+    it.options.compilerArgs << "-Xmaxerrs" << "100000"
+})
