@@ -5,22 +5,36 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.items.PETrident;
 import javax.annotation.Nonnull;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
 
 public class TridentISTER extends BlockEntityWithoutLevelRenderer {
 
     public static final ResourceLocation DM_TRIDENT = ProjectExtended.rl("textures/entity/dark_matter_trident.png");
     public static final ResourceLocation RM_TRIDENT = ProjectExtended.rl("textures/entity/red_matter_trident.png");
+    public static final TridentISTER RENDERER = new TridentISTER(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
+
+    private final EntityModelSet modelSet;
+    private TridentModel tridentModel;
 
     public TridentISTER(BlockEntityRenderDispatcher renderDispatcher, EntityModelSet modelSet) {
         super(renderDispatcher, modelSet);
+        this.modelSet = modelSet;
+    }
+
+    @Override
+    public void onResourceManagerReload(@Nonnull ResourceManager resourceManager) {
+        this.tridentModel = new TridentModel(modelSet.bakeLayer(ModelLayers.TRIDENT));
     }
 
     @Override

@@ -7,7 +7,10 @@ import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.items.PEShield;
 import java.util.List;
 import javax.annotation.Nonnull;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
@@ -16,6 +19,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.Material;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
@@ -26,9 +30,19 @@ public class ShieldISTER extends BlockEntityWithoutLevelRenderer {
 
     public static final Material DM_SHIELD = new Material(TextureAtlas.LOCATION_BLOCKS, ProjectExtended.rl("entity/dark_matter_shield"));
     public static final Material RM_SHIELD = new Material(TextureAtlas.LOCATION_BLOCKS, ProjectExtended.rl("entity/red_matter_shield"));
+    public static final ShieldISTER RENDERER = new ShieldISTER(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
+
+    private final EntityModelSet modelSet;
+    private ShieldModel shieldModel;
 
     public ShieldISTER(BlockEntityRenderDispatcher renderDispatcher, EntityModelSet modelSet) {
         super(renderDispatcher, modelSet);
+        this.modelSet = modelSet;
+    }
+
+    @Override
+    public void onResourceManagerReload(@Nonnull ResourceManager resourceManager) {
+        this.shieldModel = new ShieldModel(modelSet.bakeLayer(ModelLayers.SHIELD));
     }
 
     @Override

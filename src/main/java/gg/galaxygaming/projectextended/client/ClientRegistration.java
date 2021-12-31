@@ -2,6 +2,8 @@ package gg.galaxygaming.projectextended.client;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.client.rendering.PETridentRenderer;
+import gg.galaxygaming.projectextended.client.rendering.item.ShieldISTER;
+import gg.galaxygaming.projectextended.client.rendering.item.TridentISTER;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -11,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -31,6 +34,12 @@ public class ClientRegistration {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ProjectExtendedEntityTypes.PE_TRIDENT.get(), PETridentRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(ShieldISTER.RENDERER);
+        event.registerReloadListener(TridentISTER.RENDERER);
     }
 
     private static void addPropertyOverrides(ResourceLocation override, ItemPropertyFunction propertyGetter, ItemLike... items) {
