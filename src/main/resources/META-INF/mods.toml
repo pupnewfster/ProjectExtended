@@ -22,3 +22,8 @@ license="MIT"
     mandatory=true
     versionRange="${forge_version}"
     side="BOTH"
+[[dependencies.projectextended]]
+    modId="projecte"
+    mandatory=true
+    versionRange="${projecte_version}"
+    side="BOTH"
