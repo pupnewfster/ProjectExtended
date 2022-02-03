@@ -1,0 +1,44 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "projectextended:alchemical_barrel"
+    ]
+  },
+  "criteria": {
+    "has_covalence_dust": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "projecte:low_covalence_dust"
+            ]
+          },
+          {
+            "items": [
+              "projecte:medium_covalence_dust"
+            ]
+          },
+          {
+            "items": [
+              "projecte:high_covalence_dust"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "projectextended:alchemical_barrel"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_covalence_dust",
+      "has_the_recipe"
+    ]
+  ]
+}

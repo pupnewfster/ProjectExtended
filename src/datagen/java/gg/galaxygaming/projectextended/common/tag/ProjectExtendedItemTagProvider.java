@@ -2,10 +2,12 @@ package gg.galaxygaming.projectextended.common.tag;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.ProjectExtendedTags;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import javax.annotation.Nullable;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class ProjectExtendedItemTagProvider extends ItemTagsProvider {
@@ -18,5 +20,8 @@ public class ProjectExtendedItemTagProvider extends ItemTagsProvider {
     protected void addTags() {
         tag(ProjectExtendedTags.Items.BLACKLIST_CONDENSER);
         tag(ProjectExtendedTags.Items.BLACKLIST_LEARNING);
+        tag(Tags.Items.BARRELS).add(
+              ProjectExtendedBlocks.ALCHEMICAL_BARREL.asItem()
+        );
     }
 }

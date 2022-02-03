@@ -1,6 +1,9 @@
 package gg.galaxygaming.projectextended;
 
 import gg.galaxygaming.projectextended.common.ProjectExtendedTags;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlockEntityTypes;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedContainerTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedRecipeSerializers;
@@ -28,6 +31,9 @@ public class ProjectExtended {
         INSTANCE = this;
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ProjectExtendedItems.ITEMS.register(modEventBus);
+        ProjectExtendedBlocks.BLOCKS.register(modEventBus);
+        ProjectExtendedBlockEntityTypes.BLOCK_ENTITY_TYPES.register(modEventBus);
+        ProjectExtendedContainerTypes.CONTAINER_TYPES.register(modEventBus);
         ProjectExtendedEntityTypes.ENTITY_TYPES.register(modEventBus);
         ProjectExtendedRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, this::onAttemptCondenserSet);

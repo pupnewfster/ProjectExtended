@@ -3,6 +3,7 @@ package gg.galaxygaming.projectextended.client;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.items.PEShield;
 import gg.galaxygaming.projectextended.common.items.PETrident;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import javax.annotation.Nonnull;
 import moze_intel.projecte.PECore;
@@ -30,12 +31,19 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
         return ProjectExtended.MOD_NAME + " Item Models";
     }
 
+    private static String getName(ItemLike itemProvider) {
+        return itemProvider.asItem().getRegistryName().getPath();
+    }
+
     @Override
     protected void registerModels() {
         generateShieldModel(ProjectExtendedItems.DARK_MATTER_SHIELD, mcLoc("block/diamond_block"));
         generateShieldModel(ProjectExtendedItems.RED_MATTER_SHIELD, PECore.rl("block/dark_matter_block"));
         generateTridentModel(ProjectExtendedItems.DARK_MATTER_TRIDENT);
         generateTridentModel(ProjectExtendedItems.RED_MATTER_TRIDENT);
+
+        String name = getName(ProjectExtendedBlocks.ALCHEMICAL_BARREL);
+        withExistingParent(name, modLoc("block/" + name));
     }
 
     private void generateShieldModel(ItemRegistryObject<PEShield> item, ResourceLocation particle) {

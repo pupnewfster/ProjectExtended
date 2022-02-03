@@ -2,6 +2,7 @@ package gg.galaxygaming.projectextended.client.lang;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.ProjectExtendedLang;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import net.minecraft.data.DataGenerator;
@@ -16,6 +17,7 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
 
     @Override
     protected void addTranslations() {
+        addBlocks();
         addEntityTypes();
         addItems();
         addModes();
@@ -23,6 +25,13 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
         add(ProjectExtendedLang.PROJECT_EXTENDED, ProjectExtended.MOD_NAME);
         add(ProjectExtendedLang.WARNING_BLACKLIST_CONDENSER, "WARNING: This item is blacklisted from the condenser. It cannot be used as the target lock, but can be used for EMC.");
         add(ProjectExtendedLang.WARNING_BLACKLIST_TRANSMUTATION, "WARNING: This item is blacklisted from the transmutation table. It cannot be learned, but can be consumed for EMC.");
+
+        add(ProjectExtendedLang.ADVANCEMENTS_ALCHEMICAL_BARREL, "Barrelled Storage!");
+        add(ProjectExtendedLang.ADVANCEMENTS_ALCHEMICAL_BARREL_DESCRIPTION, "A \"little\" barrel upgrade.");
+    }
+
+    private void addBlocks() {
+        add(ProjectExtendedBlocks.ALCHEMICAL_BARREL, "Alchemical Barrel");
     }
 
     private void addEntityTypes() {

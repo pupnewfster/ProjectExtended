@@ -11,7 +11,10 @@ public enum ProjectExtendedLang implements ILangEntry {
     MODE_TRIDENT_1("mode", "trident.1"),
     MODE_TRIDENT_2("mode", "trident.2"),
     MODE_TRIDENT_3("mode", "trident.3"),
-    MODE_TRIDENT_4("mode", "trident.4");
+    MODE_TRIDENT_4("mode", "trident.4"),
+    ADVANCEMENTS_ALCHEMICAL_BARREL("advancements", "alchemical_barrel"),
+    ADVANCEMENTS_ALCHEMICAL_BARREL_DESCRIPTION("advancements", "alchemical_barrel.description"),
+    ;
 
     private final String key;
 

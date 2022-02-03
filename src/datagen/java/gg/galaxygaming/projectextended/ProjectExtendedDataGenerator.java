@@ -1,8 +1,11 @@
 package gg.galaxygaming.projectextended;
 
+import gg.galaxygaming.projectextended.client.ProjectExtendedBlockStateProvider;
 import gg.galaxygaming.projectextended.client.ProjectExtendedItemModelProvider;
 import gg.galaxygaming.projectextended.client.lang.ProjectExtendedLangProvider;
+import gg.galaxygaming.projectextended.common.ProjectExtendedAdvancementsProvider;
 import gg.galaxygaming.projectextended.common.ProjectExtendedRecipeProvider;
+import gg.galaxygaming.projectextended.common.loot.ProjectExtendedLootProvider;
 import gg.galaxygaming.projectextended.common.tag.ProjectExtendedBlockTagProvider;
 import gg.galaxygaming.projectextended.common.tag.ProjectExtendedEntityTypesTagProvider;
 import gg.galaxygaming.projectextended.common.tag.ProjectExtendedItemTagProvider;
@@ -22,6 +25,7 @@ public class ProjectExtendedDataGenerator {
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         if (event.includeClient()) {
             gen.addProvider(new ProjectExtendedLangProvider(gen));
+            gen.addProvider(new ProjectExtendedBlockStateProvider(gen, existingFileHelper));
             gen.addProvider(new ProjectExtendedItemModelProvider(gen, existingFileHelper));
         }
         if (event.includeServer()) {
@@ -30,6 +34,8 @@ public class ProjectExtendedDataGenerator {
             gen.addProvider(new ProjectExtendedItemTagProvider(gen, blockTagsProvider, existingFileHelper));
             gen.addProvider(new ProjectExtendedEntityTypesTagProvider(gen, existingFileHelper));
             gen.addProvider(new ProjectExtendedRecipeProvider(gen));
+            gen.addProvider(new ProjectExtendedAdvancementsProvider(gen, existingFileHelper));
+            gen.addProvider(new ProjectExtendedLootProvider(gen));
         }
     }
 }

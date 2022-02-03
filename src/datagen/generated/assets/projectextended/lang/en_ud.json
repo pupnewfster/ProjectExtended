@@ -1,4 +1,7 @@
 {
+  "advancements.projectextended.alchemical_barrel": "\u00A1\u01DD\u1D77\u0250\u0279o\u0287S p\u01DD\uA781\uA781\u01DD\u0279\u0279\u0250\u15FA",
+  "advancements.projectextended.alchemical_barrel.description": "\u02D9\u01DDp\u0250\u0279\u1D77dn \uA781\u01DD\u0279\u0279\u0250q \u201E\u01DD\uA781\u0287\u0287\u1D09\uA781\u201E \u2C6F",
+  "block.projectextended.alchemical_barrel": "\uA781\u01DD\u0279\u0279\u0250\u15FA \uA781\u0250\u0254\u1D09\u026F\u01DD\u0265\u0254\uA781\u2C6F",
   "entity.projectextended.pe_trident": "\u0287u\u01DDp\u1D09\u0279\u27D8 \u0279\u01DD\u0287\u0287\u0250W",
   "item.projectextended.dark_matter_shield": "p\uA781\u01DD\u1D09\u0265S \u0279\u01DD\u0287\u0287\u0250W \u029E\u0279\u0250\u15E1",
   "item.projectextended.dark_matter_shield.black": "p\uA781\u01DD\u1D09\u0265S \u0279\u01DD\u0287\u0287\u0250W \u029E\u0279\u0250\u15E1 \u029E\u0254\u0250\uA781\u15FA",
