@@ -7,7 +7,7 @@ import moze_intel.projecte.gameObjs.container.CondenserContainer;
 import moze_intel.projecte.gameObjs.container.TransmutationContainer;
 import moze_intel.projecte.utils.text.ILangEntry;
 import net.minecraft.ChatFormatting;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
@@ -39,8 +39,8 @@ public class ClientWarningHelper {
         return openContainer instanceof TransmutationContainer;
     }
 
-    private static void addTooltip(ItemTooltipEvent event, Tag<Item> blacklistTag, ILangEntry langEntry) {
-        if (blacklistTag.contains(event.getItemStack().getItem())) {
+    private static void addTooltip(ItemTooltipEvent event, TagKey<Item> blacklistTag, ILangEntry langEntry) {
+        if (event.getItemStack().is(blacklistTag)) {
             event.getToolTip().add(langEntry.translateColored(ChatFormatting.YELLOW));
         }
     }

@@ -207,9 +207,9 @@ repositories {
             includeGroup 'curse.maven'
         }
     }
-    flatDir {
+    /*flatDir {
         dirs "libs"
-    }
+    }*/
 
     whenObjectAdded {
         //ForgeGradle adds these in an afterEvaluate, so we need to catch them as they're added and exclude mod artifacts/groups
@@ -233,9 +233,8 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    //TODO: Replace with CurseMaven
-    implementation fg.deobf("projecte:projecte:1.0.0:universal")
-    //implementation fg.deobf("curse.maven:projecte-226410:${projecte_fileid}")
+    //implementation fg.deobf("projecte:projecte:1.0.0:universal")
+    implementation fg.deobf("curse.maven:projecte-226410:${projecte_fileid}")
     //Include JEI in the dev environment
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}")
 }

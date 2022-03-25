@@ -45,13 +45,13 @@ public class ProjectExtended {
     }
 
     public void onAttemptCondenserSet(PlayerAttemptCondenserSetEvent event) {
-        if (ProjectExtendedTags.Items.BLACKLIST_CONDENSER.contains(event.getReducedInfo().getItem())) {
+        if (ProjectExtendedTags.Items.BLACKLIST_CONDENSER_LOOKUP.contains(event.getReducedInfo().getItem())) {
             event.setCanceled(true);
         }
     }
 
     public void onAttemptLearnEvent(PlayerAttemptLearnEvent event) {
-        if (ProjectExtendedTags.Items.BLACKLIST_LEARNING.contains(event.getReducedInfo().getItem())) {
+        if (ProjectExtendedTags.Items.BLACKLIST_LEARNING_LOOKUP.contains(event.getReducedInfo().getItem())) {
             event.setCanceled(true);
         }
     }
