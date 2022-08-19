@@ -6,7 +6,6 @@ import com.mojang.datafixers.util.Pair;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.items.PEShield;
 import java.util.List;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -19,12 +18,14 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.Material;
+import net.minecraft.core.Holder;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BannerPattern;
+import org.jetbrains.annotations.NotNull;
 
 public class ShieldISTER extends BlockEntityWithoutLevelRenderer {
 
@@ -41,12 +42,12 @@ public class ShieldISTER extends BlockEntityWithoutLevelRenderer {
     }
 
     @Override
-    public void onResourceManagerReload(@Nonnull ResourceManager resourceManager) {
+    public void onResourceManagerReload(@NotNull ResourceManager resourceManager) {
         this.shieldModel = new ShieldModel(modelSet.bakeLayer(ModelLayers.SHIELD));
     }
 
     @Override
-    public void renderByItem(@Nonnull ItemStack stack, @Nonnull TransformType transformType, @Nonnull PoseStack matrix, @Nonnull MultiBufferSource renderer,
+    public void renderByItem(@NotNull ItemStack stack, @NotNull TransformType transformType, @NotNull PoseStack matrix, @NotNull MultiBufferSource renderer,
           int light, int overlayLight) {
         matrix.pushPose();
         matrix.scale(1, -1, -1);
@@ -61,7 +62,7 @@ public class ShieldISTER extends BlockEntityWithoutLevelRenderer {
               true, stack.hasFoil()));
         if (stack.getTagElement("BlockEntityTag") != null) {
             shieldModel.handle().render(matrix, buffer, light, overlayLight, 1, 1, 1, 1);
-            List<Pair<BannerPattern, DyeColor>> list = BannerBlockEntity.createPatterns(ShieldItem.getColor(stack), BannerBlockEntity.getItemPatterns(stack));
+            List<Pair<Holder<BannerPattern>, DyeColor>> list = BannerBlockEntity.createPatterns(ShieldItem.getColor(stack), BannerBlockEntity.getItemPatterns(stack));
             BannerRenderer.renderPatterns(matrix, renderer, light, overlayLight, shieldModel.plate(), material, false, list);
         } else {
             shieldModel.renderToBuffer(matrix, buffer, light, overlayLight, 1, 1, 1, 1);

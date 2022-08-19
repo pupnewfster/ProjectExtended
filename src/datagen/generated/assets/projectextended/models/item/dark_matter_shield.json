@@ -1,14 +1,14 @@
 {
   "parent": "minecraft:item/shield",
-  "textures": {
-    "particle": "minecraft:block/diamond_block"
-  },
   "overrides": [
     {
+      "model": "projectextended:item/dark_matter_shield_blocking",
       "predicate": {
         "projectextended:blocking": 1.0
-      },
-      "model": "projectextended:item/dark_matter_shield_blocking"
+      }
     }
-  ]
+  ],
+  "textures": {
+    "particle": "minecraft:block/diamond_block"
+  }
 }

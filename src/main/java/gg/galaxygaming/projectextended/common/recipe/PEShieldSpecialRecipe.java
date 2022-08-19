@@ -2,7 +2,6 @@ package gg.galaxygaming.projectextended.common.recipe;
 
 import gg.galaxygaming.projectextended.common.items.PEShield;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedRecipeSerializers;
-import javax.annotation.Nonnull;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -11,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 public class PEShieldSpecialRecipe extends CustomRecipe {
 
@@ -19,7 +19,7 @@ public class PEShieldSpecialRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean matches(CraftingContainer inv, @Nonnull Level world) {
+    public boolean matches(CraftingContainer inv, @NotNull Level world) {
         ItemStack shieldStack = ItemStack.EMPTY;
         ItemStack bannerStack = ItemStack.EMPTY;
         for (int i = 0; i < inv.getContainerSize(); ++i) {
@@ -41,7 +41,7 @@ public class PEShieldSpecialRecipe extends CustomRecipe {
         return !shieldStack.isEmpty() && !bannerStack.isEmpty();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public ItemStack assemble(CraftingContainer inv) {
         ItemStack bannerStack = ItemStack.EMPTY;
@@ -71,7 +71,7 @@ public class PEShieldSpecialRecipe extends CustomRecipe {
         return width * height >= 2;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ProjectExtendedRecipeSerializers.SHIELD_DECORATION.get();

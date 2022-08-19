@@ -1,21 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
+  "key": {
+    "M": {
+      "item": "projecte:dark_matter"
+    },
+    "P": {
+      "tag": "forge:gems/diamond"
+    },
+    "T": {
+      "item": "minecraft:trident"
+    }
+  },
   "pattern": [
     "MTM",
     " P ",
     " P "
   ],
-  "key": {
-    "M": {
-      "item": "projecte:dark_matter"
-    },
-    "T": {
-      "item": "minecraft:trident"
-    },
-    "P": {
-      "tag": "forge:gems/diamond"
-    }
-  },
   "result": {
     "item": "projectextended:dark_matter_trident"
   }

@@ -1,21 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
+  "key": {
+    "M": {
+      "item": "projecte:red_matter"
+    },
+    "P": {
+      "item": "projecte:dark_matter"
+    },
+    "T": {
+      "item": "projectextended:dark_matter_trident"
+    }
+  },
   "pattern": [
     "MTM",
     " P ",
     " P "
   ],
-  "key": {
-    "M": {
-      "item": "projecte:red_matter"
-    },
-    "T": {
-      "item": "projectextended:dark_matter_trident"
-    },
-    "P": {
-      "item": "projecte:dark_matter"
-    }
-  },
   "result": {
     "item": "projectextended:red_matter_trident"
   }

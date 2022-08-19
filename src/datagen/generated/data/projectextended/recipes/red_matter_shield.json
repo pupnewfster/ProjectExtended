@@ -1,21 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
+  "key": {
+    "M": {
+      "item": "projecte:red_matter"
+    },
+    "P": {
+      "item": "projecte:dark_matter"
+    },
+    "S": {
+      "item": "projectextended:dark_matter_shield"
+    }
+  },
   "pattern": [
     "PMP",
     "PSP",
     " P "
   ],
-  "key": {
-    "M": {
-      "item": "projecte:red_matter"
-    },
-    "S": {
-      "item": "projectextended:dark_matter_shield"
-    },
-    "P": {
-      "item": "projecte:dark_matter"
-    }
-  },
   "result": {
     "item": "projectextended:red_matter_shield"
   }

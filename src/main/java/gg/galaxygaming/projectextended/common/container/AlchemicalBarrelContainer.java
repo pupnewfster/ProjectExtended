@@ -3,13 +3,13 @@ package gg.galaxygaming.projectextended.common.container;
 import gg.galaxygaming.projectextended.common.block_entity.AlchemicalBarrelBlockEntity;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedContainerTypes;
-import javax.annotation.Nonnull;
 import moze_intel.projecte.gameObjs.container.PEContainer;
 import moze_intel.projecte.gameObjs.container.slots.InventoryContainerSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 public class AlchemicalBarrelContainer extends PEContainer {
 
@@ -30,12 +30,12 @@ public class AlchemicalBarrelContainer extends PEContainer {
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) {
+    public boolean stillValid(@NotNull Player player) {
         return stillValid(player, blockEntity, ProjectExtendedBlocks.ALCHEMICAL_BARREL);
     }
 
     @Override
-    public void removed(@Nonnull Player player) {
+    public void removed(@NotNull Player player) {
         super.removed(player);
         blockEntity.stopOpen(player);
     }

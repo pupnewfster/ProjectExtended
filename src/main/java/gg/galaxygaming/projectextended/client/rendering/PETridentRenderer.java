@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import gg.galaxygaming.projectextended.client.rendering.item.TridentISTER;
 import gg.galaxygaming.projectextended.common.entity.PETridentEntity;
-import javax.annotation.Nonnull;
 import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,6 +14,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
 //Most of this is copied from Vanilla's TridentRenderer, but for our trident as it does not extent the vanilla trident entity
 public class PETridentRenderer extends EntityRenderer<PETridentEntity> {
@@ -27,19 +27,19 @@ public class PETridentRenderer extends EntityRenderer<PETridentEntity> {
     }
 
     @Override
-    public void render(PETridentEntity entity, float entityYaw, float partialTicks, PoseStack matrix, @Nonnull MultiBufferSource renderer, int light) {
+    public void render(PETridentEntity entity, float entityYaw, float partialTicks, PoseStack matrix, @NotNull MultiBufferSource renderer, int light) {
         matrix.pushPose();
         matrix.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
         matrix.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot()) + 90.0F));
-        VertexConsumer vertexConsumer = ItemRenderer.getFoilBuffer(renderer, tridentModel.renderType(getTextureLocation(entity)), false, entity.hasEffect());
+        VertexConsumer vertexConsumer = ItemRenderer.getFoilBuffer(renderer, tridentModel.renderType(getTextureLocation(entity)), false, entity.isFoil());
         tridentModel.renderToBuffer(matrix, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrix.popPose();
         super.render(entity, entityYaw, partialTicks, matrix, renderer, light);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public ResourceLocation getTextureLocation(@Nonnull PETridentEntity entity) {
+    public ResourceLocation getTextureLocation(@NotNull PETridentEntity entity) {
         return entity.getMatterTier() == 0 ? TridentISTER.DM_TRIDENT : TridentISTER.RM_TRIDENT;
     }
 }

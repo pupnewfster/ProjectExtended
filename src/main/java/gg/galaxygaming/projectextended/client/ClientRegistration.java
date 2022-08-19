@@ -12,17 +12,17 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.registries.RegisterEvent;
 
 @Mod.EventBusSubscriber(modid = ProjectExtended.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientRegistration {
@@ -54,8 +54,8 @@ public class ClientRegistration {
     }
 
     @SubscribeEvent
-    public static void registerContainerTypes(RegistryEvent.Register<MenuType<?>> event) {
-        MenuScreens.register(ProjectExtendedContainerTypes.ALCHEMICAL_BARREL_CONTAINER.get(), AlchemicalBarrelScreen::new);
+    public static void registerContainerTypes(RegisterEvent event) {
+        event.register(Registry.MENU_REGISTRY, helper -> MenuScreens.register(ProjectExtendedContainerTypes.ALCHEMICAL_BARREL_CONTAINER.get(), AlchemicalBarrelScreen::new));
     }
 
     @SubscribeEvent

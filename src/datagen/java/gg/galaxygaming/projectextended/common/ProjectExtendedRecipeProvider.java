@@ -4,7 +4,6 @@ import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedRecipeSerializers;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import moze_intel.projecte.gameObjs.registries.PEItems;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.DataGenerator;
@@ -17,6 +16,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 public class ProjectExtendedRecipeProvider extends RecipeProvider {
 
@@ -25,7 +26,7 @@ public class ProjectExtendedRecipeProvider extends RecipeProvider {
     }
 
     @Override
-    protected void buildCraftingRecipes(@Nonnull Consumer<FinishedRecipe> consumer) {
+    protected void buildCraftingRecipes(@NotNull Consumer<FinishedRecipe> consumer) {
         addCustomRecipeSerializer(consumer, ProjectExtendedRecipeSerializers.SHIELD_DECORATION.get());
         addTridentRecipe(consumer, ProjectExtendedItems.DARK_MATTER_TRIDENT, PEItems.DARK_MATTER, Items.TRIDENT, Ingredient.of(Tags.Items.GEMS_DIAMOND));
         addTridentRecipe(consumer, ProjectExtendedItems.RED_MATTER_TRIDENT, PEItems.RED_MATTER, ProjectExtendedItems.DARK_MATTER_TRIDENT,
@@ -67,7 +68,7 @@ public class ProjectExtendedRecipeProvider extends RecipeProvider {
     }
 
     private static void addCustomRecipeSerializer(Consumer<FinishedRecipe> consumer, SimpleRecipeSerializer<?> serializer) {
-        SpecialRecipeBuilder.special(serializer).save(consumer, serializer.getRegistryName().toString());
+        SpecialRecipeBuilder.special(serializer).save(consumer, ForgeRegistries.RECIPE_SERIALIZERS.getKey(serializer).toString());
     }
 
     private void addTridentRecipe(Consumer<FinishedRecipe> consumer, ItemLike item, ItemLike matter, ItemLike trident, Ingredient previousTier) {

@@ -2,13 +2,13 @@ package gg.galaxygaming.projectextended.common.items;
 
 import gg.galaxygaming.projectextended.client.rendering.ISTERProvider;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import moze_intel.projecte.gameObjs.EnumMatterType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraftforge.client.IItemRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import org.jetbrains.annotations.NotNull;
 
 public class PEShield extends ShieldItem {
 
@@ -24,7 +24,7 @@ public class PEShield extends ShieldItem {
     }
 
     @Override
-    public boolean isEnchantable(@Nonnull ItemStack stack) {
+    public boolean isEnchantable(@NotNull ItemStack stack) {
         return false;
     }
 
@@ -44,13 +44,13 @@ public class PEShield extends ShieldItem {
     }
 
     @Override
-    public boolean isValidRepairItem(@Nonnull ItemStack toRepair, @Nonnull ItemStack repair) {
+    public boolean isValidRepairItem(@NotNull ItemStack toRepair, @NotNull ItemStack repair) {
         //Override the shield allowing planks to repair it as we can't lose durability anyway
         return false;
     }
 
     @Override
-    public void initializeClient(@Nonnull Consumer<IItemRenderProperties> consumer) {
+    public void initializeClient(@NotNull Consumer<IClientItemExtensions> consumer) {
         consumer.accept(ISTERProvider.shield());
     }
 }

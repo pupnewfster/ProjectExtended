@@ -38,9 +38,9 @@ public class UpsideDownLanguageProvider extends ConvertibleLanguageProvider {
     }
 
     private static String convertFormattingComponent(FormatComponent component, int curIndex, int numArguments) {
-        if (component instanceof MessageFormatComponent) {
+        if (component instanceof MessageFormatComponent messageFormatComponent) {
             //Convert a MessageFormat styled formatting code
-            return convertMessageFormatCode((MessageFormatComponent) component);
+            return convertMessageFormatCode(messageFormatComponent);
         }
         String formattingCode = component.contents();
         //Convert a % styled formatting code

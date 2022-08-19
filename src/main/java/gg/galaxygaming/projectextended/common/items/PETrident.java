@@ -8,8 +8,6 @@ import gg.galaxygaming.projectextended.common.ProjectExtendedLang;
 import gg.galaxygaming.projectextended.common.entity.PETridentEntity;
 import java.util.List;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import moze_intel.projecte.api.capabilities.item.IItemCharge;
 import moze_intel.projecte.capability.ChargeItemCapabilityWrapper;
 import moze_intel.projecte.capability.ItemCapabilityWrapper;
@@ -42,8 +40,10 @@ import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.IItemRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class PETrident extends TridentItem implements IItemCharge, IItemMode, IBarHelper {
 
@@ -98,7 +98,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
     }
 
     @Override
-    public void initializeClient(@Nonnull Consumer<IItemRenderProperties> consumer) {
+    public void initializeClient(@NotNull Consumer<IClientItemExtensions> consumer) {
         consumer.accept(ISTERProvider.trident());
     }
 
@@ -111,7 +111,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
     }
 
     @Override
-    public boolean isEnchantable(@Nonnull ItemStack stack) {
+    public boolean isEnchantable(@NotNull ItemStack stack) {
         return false;
     }
 
@@ -131,7 +131,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
     }
 
     @Override
-    public boolean isBarVisible(@Nonnull ItemStack stack) {
+    public boolean isBarVisible(@NotNull ItemStack stack) {
         return true;
     }
 
@@ -141,17 +141,17 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
     }
 
     @Override
-    public int getBarWidth(@Nonnull ItemStack stack) {
+    public int getBarWidth(@NotNull ItemStack stack) {
         return getScaledBarWidth(stack);
     }
 
     @Override
-    public int getBarColor(@Nonnull ItemStack stack) {
+    public int getBarColor(@NotNull ItemStack stack) {
         return getColorForBar(stack);
     }
 
     @Override
-    public int getNumCharges(@Nonnull ItemStack itemStack) {
+    public int getNumCharges(@NotNull ItemStack itemStack) {
         return numCharges;
     }
 
@@ -161,7 +161,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag flags) {
+    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level world, @NotNull List<Component> list, @NotNull TooltipFlag flags) {
         list.add(getToolTip(stack));
     }
 
@@ -171,7 +171,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
     }
 
     @Override
-    public void releaseUsing(@Nonnull ItemStack stack, @Nonnull Level world, @Nonnull LivingEntity entity, int timeLeft) {
+    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level world, @NotNull LivingEntity entity, int timeLeft) {
         if (entity instanceof Player player) {
             int i = this.getUseDuration(stack) - timeLeft;
             if (i >= 10) {
@@ -230,9 +230,9 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
         return getMatterTier() > 0 || player.isInWaterOrRain();
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@Nonnull Level world, Player player, @Nonnull InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(@NotNull Level world, Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (getMode(stack) == RIPTIDE && !canUseRiptide(player)) {
             return InteractionResultHolder.fail(stack);
@@ -241,9 +241,9 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
         return InteractionResultHolder.consume(stack);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@Nonnull EquipmentSlot equipmentSlot) {
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@NotNull EquipmentSlot equipmentSlot) {
         if (equipmentSlot == EquipmentSlot.MAINHAND) {
             //Note: We just entirely bypass the TridentItem's modifiers to set them with our own values for the main hand
             return baseAttributes;
@@ -251,9 +251,9 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
         return super.getDefaultAttributeModifiers(equipmentSlot);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(@Nonnull EquipmentSlot slot, ItemStack stack) {
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(@NotNull EquipmentSlot slot, ItemStack stack) {
         return attributeCache.addChargeAttributeModifier(super.getAttributeModifiers(slot, stack), slot, stack);
     }
 

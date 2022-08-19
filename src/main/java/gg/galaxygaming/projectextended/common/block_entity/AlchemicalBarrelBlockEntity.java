@@ -3,7 +3,6 @@ package gg.galaxygaming.projectextended.common.block_entity;
 import gg.galaxygaming.projectextended.common.container.AlchemicalBarrelContainer;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlockEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
-import javax.annotation.Nonnull;
 import moze_intel.projecte.api.capabilities.PECapabilities;
 import moze_intel.projecte.capability.managing.BasicCapabilityResolver;
 import moze_intel.projecte.gameObjs.block_entities.CapabilityEmcBlockEntity;
@@ -25,24 +24,25 @@ import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 public class AlchemicalBarrelBlockEntity extends CapabilityEmcBlockEntity implements MenuProvider {
 
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
         @Override
-        protected void onOpen(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+        protected void onOpen(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
             AlchemicalBarrelBlockEntity.this.playSound(state, SoundEvents.BARREL_OPEN);
             AlchemicalBarrelBlockEntity.this.updateBlockState(state, true);
         }
 
         @Override
-        protected void onClose(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+        protected void onClose(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
             AlchemicalBarrelBlockEntity.this.playSound(state, SoundEvents.BARREL_CLOSE);
             AlchemicalBarrelBlockEntity.this.updateBlockState(state, false);
         }
 
         @Override
-        protected void openerCountChanged(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, int oldCount, int openCount) {
+        protected void openerCountChanged(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, int oldCount, int openCount) {
         }
 
         @Override
@@ -88,13 +88,13 @@ public class AlchemicalBarrelBlockEntity extends CapabilityEmcBlockEntity implem
     }
 
     @Override
-    public void load(@Nonnull CompoundTag nbt) {
+    public void load(@NotNull CompoundTag nbt) {
         super.load(nbt);
         inventory.deserializeNBT(nbt);
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) {
+    protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
         tag.merge(inventory.serializeNBT());
     }
@@ -131,13 +131,13 @@ public class AlchemicalBarrelBlockEntity extends CapabilityEmcBlockEntity implem
         this.level.playSound(null, d0, d1, d2, sound, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    public AbstractContainerMenu createMenu(int windowId, @Nonnull Inventory playerInventory, @Nonnull Player playerIn) {
+    public AbstractContainerMenu createMenu(int windowId, @NotNull Inventory playerInventory, @NotNull Player playerIn) {
         return new AlchemicalBarrelContainer(windowId, playerInventory, this);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Component getDisplayName() {
         return TextComponentUtil.build(ProjectExtendedBlocks.ALCHEMICAL_BARREL);

@@ -1,0 +1,10 @@
+// 1.19.2	2022-08-06T15:50:05.9352971	Tags for minecraft:item
+274670177e2a1a967509fe89e95410303998658a data/forge/tags/items/barrels.json
+8538474bea842a611c960dac07e79421af313865 data/forge/tags/items/tools/shields.json
+5b5b365c795e84bcf87ab0d1b54d380f7ca02413 data/forge/tags/items/tools/shields/dark_matter.json
+bae1020330c8e14c29cbcbd7343f7f001fd4e675 data/forge/tags/items/tools/shields/red_matter.json
+acff22c6c0ec046f1d2a56376e404933c39f1a8b data/forge/tags/items/tools/tridents.json
+aadd0e7dae4dcb858ef27f0fffda3e572d349a25 data/forge/tags/items/tools/tridents/dark_matter.json
+6a491206804161777b67e8c0fbe22c3d4a07285d data/forge/tags/items/tools/tridents/red_matter.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/projectextended/tags/items/blacklist_condenser.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/projectextended/tags/items/blacklist_learning.json

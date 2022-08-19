@@ -1,9 +1,4 @@
 {
-  "gui_light": "front",
-  "textures": {
-    "particle": "projectextended:item/red_matter_trident"
-  },
-  "loader": "forge:separate-perspective",
   "base": {
     "parent": "minecraft:item/trident_in_hand",
     "display": {
@@ -13,15 +8,15 @@
           180,
           120
         ],
-        "translation": [
-          8,
-          10,
-          -11
-        ],
         "scale": [
           1.5,
           1.5,
           1.5
+        ],
+        "translation": [
+          8,
+          10,
+          -11
         ]
       }
     },
@@ -29,23 +24,28 @@
       "particle": "projectextended:item/red_matter_trident"
     }
   },
+  "gui_light": "front",
+  "loader": "forge:separate_transforms",
+  "overrides": [
+    {
+      "model": "projectextended:item/red_matter_trident_throwing",
+      "predicate": {
+        "projectextended:throwing": 1.0
+      }
+    }
+  ],
   "perspectives": {
-    "gui": {
+    "fixed": {
       "parent": "projectextended:item/red_matter_trident_gui"
     },
     "ground": {
       "parent": "projectextended:item/red_matter_trident_gui"
     },
-    "fixed": {
+    "gui": {
       "parent": "projectextended:item/red_matter_trident_gui"
     }
   },
-  "overrides": [
-    {
-      "predicate": {
-        "projectextended:throwing": 1.0
-      },
-      "model": "projectextended:item/red_matter_trident_throwing"
-    }
-  ]
+  "textures": {
+    "particle": "projectextended:item/red_matter_trident"
+  }
 }

@@ -3,7 +3,6 @@ package gg.galaxygaming.projectextended.common;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
 import moze_intel.projecte.PECore;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
@@ -11,6 +10,7 @@ import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.advancements.AdvancementProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.NotNull;
 
 public class ProjectExtendedAdvancementsProvider extends AdvancementProvider {
 
@@ -19,7 +19,7 @@ public class ProjectExtendedAdvancementsProvider extends AdvancementProvider {
 	}
 
 	@Override
-	protected void registerAdvancements(@Nonnull Consumer<Advancement> advancementConsumer, @Nonnull ExistingFileHelper fileHelper) {
+	protected void registerAdvancements(@NotNull Consumer<Advancement> advancementConsumer, @NotNull ExistingFileHelper fileHelper) {
 		Advancement.Builder.advancement()
 			.parent(PECore.rl("alchemical_chest"))
 			.display(ProjectExtendedBlocks.ALCHEMICAL_BARREL, ProjectExtendedLang.ADVANCEMENTS_ALCHEMICAL_BARREL.translate(),

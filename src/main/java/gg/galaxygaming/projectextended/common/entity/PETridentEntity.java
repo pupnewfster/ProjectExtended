@@ -4,8 +4,6 @@ import gg.galaxygaming.projectextended.common.items.PETrident;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import java.util.function.Predicate;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import moze_intel.projecte.gameObjs.items.ItemPE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -39,6 +37,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Modified copy of vanilla's {@link ThrownTrident} so as to cut some things out, but also allow for overriding things and then being able to properly still call super
@@ -47,13 +47,13 @@ import net.minecraftforge.network.NetworkHooks;
 public class PETridentEntity extends AbstractArrow implements IEntityAdditionalSpawnData {
 
     private static final Predicate<Entity> SLAY_MOB = entity -> !entity.isSpectator() && entity instanceof Enemy;
-    private static final EntityDataAccessor<Boolean> ENCHANTED = SynchedEntityData.defineId(PETridentEntity.class, EntityDataSerializers.BOOLEAN);
-    private ItemStack thrownStack = new ItemStack(ProjectExtendedItems.DARK_MATTER_TRIDENT);
-    private boolean landed;
+    private static final EntityDataAccessor<Boolean> ID_FOIL = SynchedEntityData.defineId(PETridentEntity.class, EntityDataSerializers.BOOLEAN);
+    private ItemStack tridentItem = new ItemStack(ProjectExtendedItems.DARK_MATTER_TRIDENT);
+    private boolean dealtDamage;
     private boolean noReturn;
     private int loyaltyLevel;
     private int matterTier;
-    public int returningTicks;
+    private int clientSideReturnTridentTickCount;
 
     public PETridentEntity(EntityType<? extends PETridentEntity> type, Level worldIn) {
         super(type, worldIn);
@@ -62,18 +62,18 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
     public PETridentEntity(Level world, LivingEntity thrower, ItemStack thrownStackIn) {
         super(ProjectExtendedEntityTypes.PE_TRIDENT.get(), thrower, world);
         setStackAndLoyalty(thrownStackIn.copy());
-        this.entityData.set(ENCHANTED, thrownStackIn.hasFoil());
+        this.entityData.set(ID_FOIL, thrownStackIn.hasFoil());
     }
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(ENCHANTED, false);
+        this.entityData.define(ID_FOIL, false);
     }
 
-    private void setStackAndLoyalty(@Nonnull ItemStack stack) {
+    private void setStackAndLoyalty(@NotNull ItemStack stack) {
         if (!stack.isEmpty() && stack.getItem() instanceof PETrident trident) {
-            thrownStack = stack;
+            tridentItem = stack;
             matterTier = trident.getMatterTier();
             loyaltyLevel = trident.getCharge(stack) + 1;
         }
@@ -83,34 +83,34 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
         return matterTier;
     }
 
-    public boolean hasEffect() {
-        return this.entityData.get(ENCHANTED);
+    public boolean isFoil() {
+        return this.entityData.get(ID_FOIL);
     }
 
     @Override
     public void tick() {
         if (inGroundTime > 4) {
-            landed = true;
-            noReturn = !shouldReturnToThrower();
+            dealtDamage = true;
+            noReturn = !isAcceptableReturnOwner();
         }
         //If we aren't told to not do any return logic AND we either landed or are already on the return trip
-        if (!noReturn && (landed || isNoPhysics())) {
+        if (!noReturn && (dealtDamage || isNoPhysics())) {
             Entity entity = getOwner();
             //Make it return to the thrower
             if (entity != null) {
-                if (shouldReturnToThrower()) {
+                if (isAcceptableReturnOwner()) {
                     setNoPhysics(true);
-                    Vec3 returnVector = new Vec3(entity.getX() - getX(), entity.getEyeY() - getY(), entity.getZ() - getZ());
+                    Vec3 returnVector = entity.getEyePosition().subtract(position());
                     setPosRaw(getX(), getY() + returnVector.y * 0.015D * loyaltyLevel, getZ());
                     if (level.isClientSide) {
                         yOld = getY();
                     }
                     setDeltaMovement(getDeltaMovement().scale(0.95D).add(returnVector.normalize().scale(0.05D * loyaltyLevel)));
-                    if (returningTicks == 0) {
+                    if (clientSideReturnTridentTickCount == 0) {
                         //Play the return sound if this is our first tick returning
                         playSound(SoundEvents.TRIDENT_RETURN, 10.0F, 1.0F);
                     }
-                    returningTicks++;
+                    clientSideReturnTridentTickCount++;
                 } else {
                     //If we shouldn't return to the thrower, but we already are on the way back just drop the item
                     if (!level.isClientSide && pickup == Pickup.ALLOWED) {
@@ -123,7 +123,7 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
         super.tick();
     }
 
-    private boolean shouldReturnToThrower() {
+    private boolean isAcceptableReturnOwner() {
         Entity entity = getOwner();
         if (entity != null && entity.isAlive()) {
             return !(entity instanceof ServerPlayer) || !entity.isSpectator();
@@ -131,31 +131,31 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
         return false;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     protected ItemStack getPickupItem() {
-        return this.thrownStack.copy();
+        return this.tridentItem.copy();
     }
 
     @Nullable
     @Override
-    protected EntityHitResult findHitEntity(@Nonnull Vec3 startVec, @Nonnull Vec3 endVec) {
-        return this.landed ? null : super.findHitEntity(startVec, endVec);
+    protected EntityHitResult findHitEntity(@NotNull Vec3 startVec, @NotNull Vec3 endVec) {
+        return this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
     }
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
         Entity hitEntity = result.getEntity();
-        PETrident trident = (PETrident) thrownStack.getItem();
-        int charge = trident.getCharge(thrownStack);
+        PETrident trident = (PETrident) tridentItem.getItem();
+        int charge = trident.getCharge(tridentItem);
         float damage = trident.getDamage() + charge;
         if (hitEntity instanceof LivingEntity livingHit) {
             //Even though we can't be enchanted normally, apply enchantment modifiers anyway
-            damage += EnchantmentHelper.getDamageBonus(this.thrownStack, livingHit.getMobType());
+            damage += EnchantmentHelper.getDamageBonus(this.tridentItem, livingHit.getMobType());
         }
         Entity thrower = getOwner();
         DamageSource damagesource = DamageSource.trident(this, thrower == null ? this : thrower);
-        landed = true;
+        dealtDamage = true;
         if (hitEntity.hurt(damagesource, damage)) {
             //Vanilla's trident exits on endermen here, we allow hitting them instead
             if (hitEntity instanceof LivingEntity livingHit) {
@@ -169,7 +169,7 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
         setDeltaMovement(getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
         float volume = 1.0F;
         SoundEvent sound = SoundEvents.TRIDENT_HIT;
-        byte mode = trident.getMode(thrownStack);
+        byte mode = trident.getMode(tridentItem);
         if (mode == PETrident.CHANNELING) {
             if (trySummonLightning(charge + 1, hitEntity.blockPosition(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null)) {
                 sound = SoundEvents.TRIDENT_THUNDER;
@@ -200,9 +200,9 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
         BlockPos hitPosition = result.getBlockPos();
         Entity thrower = getOwner();
         //If we hit a block try
-        PETrident trident = (PETrident) thrownStack.getItem();
-        int charge = trident.getCharge(thrownStack);
-        byte mode = trident.getMode(thrownStack);
+        PETrident trident = (PETrident) tridentItem.getItem();
+        int charge = trident.getCharge(tridentItem);
+        byte mode = trident.getMode(tridentItem);
         if (mode == PETrident.CHANNELING) {
             if (trySummonLightning(charge + 1, hitPosition.above(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null)) {
                 sound = SoundEvents.TRIDENT_THUNDER;
@@ -236,7 +236,7 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
                 if (level.canSeeSkyFromBelowWater(hitPos)) {
                     boolean hasAction = false;
                     for (int i = 0; i < bolts; i++) {
-                        if (thrower == null || ItemPE.consumeFuel(thrower, thrownStack, 64, true)) {
+                        if (thrower == null || ItemPE.consumeFuel(thrower, tridentItem, 64, true)) {
                             LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
                             if (lightning != null) {
                                 lightning.moveTo(Vec3.atBottomCenterOf(hitPos));
@@ -278,35 +278,39 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
         return false;
     }
 
-    @Nonnull
+    @Override
+    protected boolean tryPickup(@NotNull Player player) {
+        return super.tryPickup(player) || isNoPhysics() && ownedBy(player) && player.getInventory().add(getPickupItem());
+    }
+
+    @NotNull
     @Override
     protected SoundEvent getDefaultHitGroundSoundEvent() {
         return SoundEvents.TRIDENT_HIT_GROUND;
     }
 
     @Override
-    public void playerTouch(@Nonnull Player entityIn) {
-        Entity entity = getOwner();
-        if (entity == null || entity.getUUID() == entityIn.getUUID()) {
-            super.playerTouch(entityIn);
+    public void playerTouch(@NotNull Player entity) {
+        if (ownedBy(entity) || getOwner() == null) {
+            super.playerTouch(entity);
         }
     }
 
     @Override
-    public void readAdditionalSaveData(@Nonnull CompoundTag compound) {
+    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         if (compound.contains("Trident", Tag.TAG_COMPOUND)) {
             setStackAndLoyalty(ItemStack.of(compound.getCompound("Trident")));
         }
-        landed = compound.getBoolean("Landed");
+        dealtDamage = compound.getBoolean("DealtDamage");
         noReturn = compound.getBoolean("NoReturn");
     }
 
     @Override
-    public void addAdditionalSaveData(@Nonnull CompoundTag compound) {
+    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.put("Trident", thrownStack.save(new CompoundTag()));
-        compound.putBoolean("Landed", landed);
+        compound.put("Trident", tridentItem.serializeNBT());
+        compound.putBoolean("DealtDamage", dealtDamage);
         compound.putBoolean("NoReturn", noReturn);
     }
 
@@ -326,13 +330,12 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
         return 0.99F + 0.5F * (getMatterTier() + 1);
     }
 
-    //Only used on client
     @Override
     public boolean shouldRender(double x, double y, double z) {
         return true;
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
@@ -340,7 +343,7 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
-        buffer.writeItem(thrownStack);
+        buffer.writeItem(tridentItem);
     }
 
     @Override
@@ -350,6 +353,6 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
 
     @Override
     public ItemStack getPickedResult(HitResult target) {
-        return thrownStack.copy();
+        return tridentItem.copy();
     }
 }

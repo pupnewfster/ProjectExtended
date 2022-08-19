@@ -11,10 +11,10 @@ import gg.galaxygaming.projectextended.common.tag.ProjectExtendedEntityTypesTagP
 import gg.galaxygaming.projectextended.common.tag.ProjectExtendedItemTagProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 @EventBusSubscriber(modid = ProjectExtended.MODID, bus = Bus.MOD)
 public class ProjectExtendedDataGenerator {
@@ -23,19 +23,17 @@ public class ProjectExtendedDataGenerator {
     public static void gatherData(GatherDataEvent event) {
         DataGenerator gen = event.getGenerator();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-        if (event.includeClient()) {
-            gen.addProvider(new ProjectExtendedLangProvider(gen));
-            gen.addProvider(new ProjectExtendedBlockStateProvider(gen, existingFileHelper));
-            gen.addProvider(new ProjectExtendedItemModelProvider(gen, existingFileHelper));
-        }
-        if (event.includeServer()) {
-            ProjectExtendedBlockTagProvider blockTagsProvider = new ProjectExtendedBlockTagProvider(gen, existingFileHelper);
-            gen.addProvider(blockTagsProvider);
-            gen.addProvider(new ProjectExtendedItemTagProvider(gen, blockTagsProvider, existingFileHelper));
-            gen.addProvider(new ProjectExtendedEntityTypesTagProvider(gen, existingFileHelper));
-            gen.addProvider(new ProjectExtendedRecipeProvider(gen));
-            gen.addProvider(new ProjectExtendedAdvancementsProvider(gen, existingFileHelper));
-            gen.addProvider(new ProjectExtendedLootProvider(gen));
-        }
+        //Client side datagen
+        gen.addProvider(event.includeClient(), new ProjectExtendedLangProvider(gen));
+        gen.addProvider(event.includeClient(), new ProjectExtendedBlockStateProvider(gen, existingFileHelper));
+        gen.addProvider(event.includeClient(), new ProjectExtendedItemModelProvider(gen, existingFileHelper));
+        //Server side datagen
+        ProjectExtendedBlockTagProvider blockTagsProvider = new ProjectExtendedBlockTagProvider(gen, existingFileHelper);
+        gen.addProvider(event.includeServer(), blockTagsProvider);
+        gen.addProvider(event.includeServer(), new ProjectExtendedItemTagProvider(gen, blockTagsProvider, existingFileHelper));
+        gen.addProvider(event.includeServer(), new ProjectExtendedEntityTypesTagProvider(gen, existingFileHelper));
+        gen.addProvider(event.includeServer(), new ProjectExtendedRecipeProvider(gen));
+        gen.addProvider(event.includeServer(), new ProjectExtendedAdvancementsProvider(gen, existingFileHelper));
+        gen.addProvider(event.includeServer(), new ProjectExtendedLootProvider(gen));
     }
 }

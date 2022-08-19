@@ -21,7 +21,7 @@ public class ClientWarningHelper {
 
     @SubscribeEvent
     public static void tooltipEvent(ItemTooltipEvent event) {
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         if (player != null) {
             if (isCondenser(player.containerMenu)) {
                 addTooltip(event, ProjectExtendedTags.Items.BLACKLIST_CONDENSER, ProjectExtendedLang.WARNING_BLACKLIST_CONDENSER);

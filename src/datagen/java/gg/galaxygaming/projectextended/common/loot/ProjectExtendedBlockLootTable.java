@@ -3,7 +3,6 @@ package gg.galaxygaming.projectextended.common.loot;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import net.minecraft.data.loot.BlockLoot;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
@@ -11,6 +10,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import org.jetbrains.annotations.NotNull;
 
 public class ProjectExtendedBlockLootTable extends BlockLoot {
 
@@ -22,7 +22,7 @@ public class ProjectExtendedBlockLootTable extends BlockLoot {
 	}
 
 	@Override
-	public void dropOther(@Nonnull Block block, @Nonnull ItemLike drop) {
+	public void dropOther(@NotNull Block block, @NotNull ItemLike drop) {
 		//Override to use our own dropping method that names the loot table
 		add(block, dropping(drop));
 	}
@@ -35,13 +35,13 @@ public class ProjectExtendedBlockLootTable extends BlockLoot {
 	}
 
 	@Override
-	protected void add(@Nonnull Block block, @Nonnull LootTable.Builder table) {
+	protected void add(@NotNull Block block, @NotNull LootTable.Builder table) {
 		//Overwrite the core register method to add to our list of known blocks
 		super.add(block, table);
 		knownBlocks.add(block);
 	}
 
-	@Nonnull
+	@NotNull
 	@Override
 	protected Iterable<Block> getKnownBlocks() {
 		return knownBlocks;

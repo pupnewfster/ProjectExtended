@@ -26,4 +26,5 @@ license="MIT"
     modId="projecte"
     mandatory=true
     versionRange="${projecte_version}"
+    ordering="AFTER"
     side="BOTH"

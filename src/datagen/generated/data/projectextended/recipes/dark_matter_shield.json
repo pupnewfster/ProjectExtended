@@ -1,10 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "PMP",
-    "PPP",
-    " P "
-  ],
   "key": {
     "M": {
       "item": "projecte:dark_matter"
@@ -13,6 +8,11 @@
       "tag": "forge:gems/diamond"
     }
   },
+  "pattern": [
+    "PMP",
+    "PPP",
+    " P "
+  ],
   "result": {
     "item": "projectextended:dark_matter_shield"
   }

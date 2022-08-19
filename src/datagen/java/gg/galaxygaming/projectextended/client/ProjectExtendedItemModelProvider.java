@@ -5,9 +5,9 @@ import gg.galaxygaming.projectextended.common.items.PEShield;
 import gg.galaxygaming.projectextended.common.items.PETrident;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
-import javax.annotation.Nonnull;
 import moze_intel.projecte.PECore;
 import moze_intel.projecte.gameObjs.registration.impl.ItemRegistryObject;
+import moze_intel.projecte.utils.RegistryUtils;
 import net.minecraft.client.renderer.block.model.BlockModel.GuiLight;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.data.DataGenerator;
@@ -15,9 +15,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.client.model.generators.ItemModelBuilder;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.client.model.generators.ModelBuilder.Perspective;
-import net.minecraftforge.client.model.generators.loaders.SeparatePerspectiveModelBuilder;
+import net.minecraftforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.NotNull;
 
 public class ProjectExtendedItemModelProvider extends ItemModelProvider {
 
@@ -25,14 +25,14 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
         super(gen, ProjectExtended.MODID, helper);
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public String getName() {
         return ProjectExtended.MOD_NAME + " Item Models";
     }
 
     private static String getName(ItemLike itemProvider) {
-        return itemProvider.asItem().getRegistryName().getPath();
+        return RegistryUtils.getPath(itemProvider.asItem());
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
     }
 
     private void generateShieldModel(ItemRegistryObject<PEShield> item, ResourceLocation particle) {
-        String name = name(item);
+        String name = getName(item);
         withExistingParent(name, "shield")
               .texture("particle", particle)
               .override()
@@ -58,7 +58,7 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
     }
 
     private void generateTridentModel(ItemRegistryObject<PETrident> item) {
-        String name = name(item);
+        String name = getName(item);
         ResourceLocation itemLoc = modLoc(folder + "/" + name);
         ItemModelBuilder guiModel = nested()
               .parent(withExistingParent(name + "_gui", "item/generated")
@@ -66,7 +66,7 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
         ItemModelBuilder throwingModel = getBuilder(name + "_throwing")
               .guiLight(GuiLight.FRONT)
               .texture("particle", itemLoc)
-              .customLoader(SeparatePerspectiveModelBuilder::begin)
+              .customLoader(SeparateTransformsModelBuilder::begin)
               //Throwing model is "base" so that we can have our transforms
               .base(nested()
                     .parent(getExistingFile(mcLoc("trident_throwing")))
@@ -84,14 +84,14 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
               .predicate(modLoc("throwing"), 1)
               .model(throwingModel)
               .end()
-              .customLoader(SeparatePerspectiveModelBuilder::begin)
+              .customLoader(SeparateTransformsModelBuilder::begin)
               //In hand model is base
               .base(nested()
                     .parent(getExistingFile(mcLoc("trident_in_hand")))
                     .texture("particle", itemLoc)
                     //Add head transformation
                     .transforms()
-                    .transform(Perspective.HEAD)
+                    .transform(TransformType.HEAD)
                     .rotation(0, 180, 120)
                     .translation(8, 10, -11)
                     .scale(1.5F)
@@ -101,9 +101,5 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
               .perspective(TransformType.GUI, guiModel)
               .perspective(TransformType.GROUND, guiModel)
               .perspective(TransformType.FIXED, guiModel);
-    }
-
-    private static String name(ItemLike item) {
-        return item.asItem().getRegistryName().getPath();
     }
 }

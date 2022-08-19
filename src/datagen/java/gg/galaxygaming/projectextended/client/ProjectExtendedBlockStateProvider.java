@@ -2,6 +2,7 @@ package gg.galaxygaming.projectextended.client;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
+import moze_intel.projecte.utils.RegistryUtils;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -28,6 +29,6 @@ public class ProjectExtendedBlockStateProvider extends BlockStateProvider {
 	}
 
 	private static String getName(ItemLike itemProvider) {
-		return itemProvider.asItem().getRegistryName().getPath();
+		return RegistryUtils.getPath(itemProvider.asItem());
 	}
 }

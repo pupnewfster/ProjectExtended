@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.items.PETrident;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -17,6 +16,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class TridentISTER extends BlockEntityWithoutLevelRenderer {
 
@@ -33,12 +33,12 @@ public class TridentISTER extends BlockEntityWithoutLevelRenderer {
     }
 
     @Override
-    public void onResourceManagerReload(@Nonnull ResourceManager resourceManager) {
+    public void onResourceManagerReload(@NotNull ResourceManager resourceManager) {
         this.tridentModel = new TridentModel(modelSet.bakeLayer(ModelLayers.TRIDENT));
     }
 
     @Override
-    public void renderByItem(@Nonnull ItemStack stack, @Nonnull TransformType transformType, @Nonnull PoseStack matrix, @Nonnull MultiBufferSource renderer,
+    public void renderByItem(@NotNull ItemStack stack, @NotNull TransformType transformType, @NotNull PoseStack matrix, @NotNull MultiBufferSource renderer,
           int light, int overlayLight) {
         matrix.pushPose();
         matrix.scale(1, -1, -1);
