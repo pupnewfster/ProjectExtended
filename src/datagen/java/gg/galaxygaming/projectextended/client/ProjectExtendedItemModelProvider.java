@@ -35,6 +35,14 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
         return RegistryUtils.getPath(itemProvider.asItem());
     }
 
+    protected ItemModelBuilder generated(ItemLike itemProvider, ResourceLocation texture) {
+        return generated(getName(itemProvider), texture);
+    }
+
+    protected ItemModelBuilder generated(String name, ResourceLocation texture) {
+        return withExistingParent(name, "item/generated").texture("layer0", texture);
+    }
+
     @Override
     protected void registerModels() {
         generateShieldModel(ProjectExtendedItems.DARK_MATTER_SHIELD, mcLoc("block/diamond_block"));
@@ -44,6 +52,8 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
 
         String name = getName(ProjectExtendedBlocks.ALCHEMICAL_BARREL);
         withExistingParent(name, modLoc("block/" + name));
+
+        generated(ProjectExtendedBlocks.INTERDICTION_LANTERN, modLoc("item/interdiction_lantern"));
     }
 
     private void generateShieldModel(ItemRegistryObject<PEShield> item, ResourceLocation particle) {

@@ -27,7 +27,8 @@ public class ProjectExtendedBlockTagProvider extends BlockTagsProvider {
               ProjectExtendedBlocks.ALCHEMICAL_BARREL.getBlock()
         );
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(
-              ProjectExtendedBlocks.ALCHEMICAL_BARREL.getBlock()
+              ProjectExtendedBlocks.ALCHEMICAL_BARREL.getBlock(),
+              ProjectExtendedBlocks.INTERDICTION_LANTERN.getBlock()
         );
     }
 }

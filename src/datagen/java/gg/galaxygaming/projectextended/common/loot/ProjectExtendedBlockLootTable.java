@@ -24,6 +24,7 @@ public class ProjectExtendedBlockLootTable extends BlockLootSubProvider {
 	@Override
 	protected void generate() {
 		dropSelf(ProjectExtendedBlocks.ALCHEMICAL_BARREL.getBlock());
+		dropSelf(ProjectExtendedBlocks.INTERDICTION_LANTERN.getBlock());
 	}
 
 	@Override

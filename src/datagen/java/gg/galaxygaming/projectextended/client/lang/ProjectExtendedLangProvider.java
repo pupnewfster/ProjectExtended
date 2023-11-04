@@ -37,6 +37,7 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
 
     private void addBlocks() {
         add(ProjectExtendedBlocks.ALCHEMICAL_BARREL, "Alchemical Barrel");
+        add(ProjectExtendedBlocks.INTERDICTION_LANTERN, "Interdiction Lantern");
     }
 
     private void addEntityTypes() {

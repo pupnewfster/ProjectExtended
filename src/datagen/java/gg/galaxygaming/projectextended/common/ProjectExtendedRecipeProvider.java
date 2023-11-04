@@ -66,6 +66,17 @@ public class ProjectExtendedRecipeProvider extends RecipeProvider {
               .define('D', Tags.Items.GEMS_DIAMOND)
               .unlockedBy("has_covalence_dust", InventoryChangeTrigger.TriggerInstance.hasItems(PEItems.LOW_COVALENCE_DUST, PEItems.MEDIUM_COVALENCE_DUST, PEItems.HIGH_COVALENCE_DUST))
               .save(consumer);
+        //Interdiction Lantern
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ProjectExtendedBlocks.INTERDICTION_LANTERN)
+              .pattern("RDR")
+              .pattern("DPD")
+              .pattern("GGG")
+              .define('R', Items.SOUL_LANTERN)
+              .define('G', Tags.Items.DUSTS_GLOWSTONE)
+              .define('D', Tags.Items.GEMS_DIAMOND)
+              .define('P', PEItems.PHILOSOPHERS_STONE)
+              .unlockedBy("has_philo_stone", has(PEItems.PHILOSOPHERS_STONE))
+              .save(consumer);
     }
 
     private static void addCustomRecipeSerializer(Consumer<FinishedRecipe> consumer, SimpleCraftingRecipeSerializer<?> serializer) {
