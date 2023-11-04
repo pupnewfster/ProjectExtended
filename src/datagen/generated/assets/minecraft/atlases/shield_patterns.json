@@ -1,0 +1,12 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "projectextended:entity/dark_matter_shield"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "projectextended:entity/red_matter_shield"
+    }
+  ]
+}

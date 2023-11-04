@@ -9,9 +9,9 @@ import moze_intel.projecte.PECore;
 import moze_intel.projecte.gameObjs.registration.impl.ItemRegistryObject;
 import moze_intel.projecte.utils.RegistryUtils;
 import net.minecraft.client.renderer.block.model.BlockModel.GuiLight;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.client.model.generators.ItemModelBuilder;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
@@ -21,8 +21,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class ProjectExtendedItemModelProvider extends ItemModelProvider {
 
-    public ProjectExtendedItemModelProvider(DataGenerator gen, ExistingFileHelper helper) {
-        super(gen, ProjectExtended.MODID, helper);
+    public ProjectExtendedItemModelProvider(PackOutput output, ExistingFileHelper helper) {
+        super(output, ProjectExtended.MODID, helper);
     }
 
     @NotNull
@@ -72,9 +72,9 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
                     .parent(getExistingFile(mcLoc("trident_throwing")))
                     .texture("particle", itemLoc))
               //Gui, ground, and fixed all use the normal "item model"
-              .perspective(TransformType.GUI, guiModel)
-              .perspective(TransformType.GROUND, guiModel)
-              .perspective(TransformType.FIXED, guiModel)
+              .perspective(ItemDisplayContext.GUI, guiModel)
+              .perspective(ItemDisplayContext.GROUND, guiModel)
+              .perspective(ItemDisplayContext.FIXED, guiModel)
               .end();
         getBuilder(name)
               .guiLight(GuiLight.FRONT)
@@ -91,15 +91,15 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
                     .texture("particle", itemLoc)
                     //Add head transformation
                     .transforms()
-                    .transform(TransformType.HEAD)
+                    .transform(ItemDisplayContext.HEAD)
                     .rotation(0, 180, 120)
                     .translation(8, 10, -11)
                     .scale(1.5F)
                     .end()
                     .end())
               //Gui, ground, and fixed all use the normal "item model"
-              .perspective(TransformType.GUI, guiModel)
-              .perspective(TransformType.GROUND, guiModel)
-              .perspective(TransformType.FIXED, guiModel);
+              .perspective(ItemDisplayContext.GUI, guiModel)
+              .perspective(ItemDisplayContext.GROUND, guiModel)
+              .perspective(ItemDisplayContext.FIXED, guiModel);
     }
 }

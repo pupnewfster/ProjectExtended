@@ -6,14 +6,15 @@ import gg.galaxygaming.projectextended.common.registries.ProjectExtendedRecipeSe
 import java.util.function.Consumer;
 import moze_intel.projecte.gameObjs.registries.PEItems;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -21,18 +22,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class ProjectExtendedRecipeProvider extends RecipeProvider {
 
-    public ProjectExtendedRecipeProvider(DataGenerator gen) {
-        super(gen);
+    public ProjectExtendedRecipeProvider(PackOutput output) {
+        super(output);
     }
 
     @Override
-    protected void buildCraftingRecipes(@NotNull Consumer<FinishedRecipe> consumer) {
+    protected void buildRecipes(@NotNull Consumer<FinishedRecipe> consumer) {
         addCustomRecipeSerializer(consumer, ProjectExtendedRecipeSerializers.SHIELD_DECORATION.get());
         addTridentRecipe(consumer, ProjectExtendedItems.DARK_MATTER_TRIDENT, PEItems.DARK_MATTER, Items.TRIDENT, Ingredient.of(Tags.Items.GEMS_DIAMOND));
         addTridentRecipe(consumer, ProjectExtendedItems.RED_MATTER_TRIDENT, PEItems.RED_MATTER, ProjectExtendedItems.DARK_MATTER_TRIDENT,
               Ingredient.of(PEItems.DARK_MATTER));
         //Dark matter shield
-        ShapedRecipeBuilder.shaped(ProjectExtendedItems.DARK_MATTER_SHIELD)
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ProjectExtendedItems.DARK_MATTER_SHIELD)
               .pattern("PMP")
               .pattern("PPP")
               .pattern(" P ")
@@ -41,7 +42,7 @@ public class ProjectExtendedRecipeProvider extends RecipeProvider {
               .unlockedBy("has_matter", has(PEItems.DARK_MATTER))
               .save(consumer);
         //Red matter shield
-        ShapedRecipeBuilder.shaped(ProjectExtendedItems.RED_MATTER_SHIELD)
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ProjectExtendedItems.RED_MATTER_SHIELD)
               .pattern("PMP")
               .pattern("PSP")
               .pattern(" P ")
@@ -52,7 +53,7 @@ public class ProjectExtendedRecipeProvider extends RecipeProvider {
               .unlockedBy("has_shield", has(ProjectExtendedItems.DARK_MATTER_SHIELD))
               .save(consumer);
         //Alchemical Barrel
-        ShapedRecipeBuilder.shaped(ProjectExtendedBlocks.ALCHEMICAL_BARREL)
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ProjectExtendedBlocks.ALCHEMICAL_BARREL)
               .pattern("LMH")
               .pattern("SDS")
               .pattern("IBI")
@@ -67,12 +68,12 @@ public class ProjectExtendedRecipeProvider extends RecipeProvider {
               .save(consumer);
     }
 
-    private static void addCustomRecipeSerializer(Consumer<FinishedRecipe> consumer, SimpleRecipeSerializer<?> serializer) {
+    private static void addCustomRecipeSerializer(Consumer<FinishedRecipe> consumer, SimpleCraftingRecipeSerializer<?> serializer) {
         SpecialRecipeBuilder.special(serializer).save(consumer, ForgeRegistries.RECIPE_SERIALIZERS.getKey(serializer).toString());
     }
 
     private void addTridentRecipe(Consumer<FinishedRecipe> consumer, ItemLike item, ItemLike matter, ItemLike trident, Ingredient previousTier) {
-        ShapedRecipeBuilder.shaped(item)
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, item)
               .pattern("MTM")
               .pattern(" P ")
               .pattern(" P ")

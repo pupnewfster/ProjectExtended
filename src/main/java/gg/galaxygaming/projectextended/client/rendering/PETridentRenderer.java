@@ -2,7 +2,7 @@ package gg.galaxygaming.projectextended.client.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import gg.galaxygaming.projectextended.client.rendering.item.TridentISTER;
 import gg.galaxygaming.projectextended.common.entity.PETridentEntity;
 import net.minecraft.client.model.TridentModel;
@@ -29,8 +29,8 @@ public class PETridentRenderer extends EntityRenderer<PETridentEntity> {
     @Override
     public void render(PETridentEntity entity, float entityYaw, float partialTicks, PoseStack matrix, @NotNull MultiBufferSource renderer, int light) {
         matrix.pushPose();
-        matrix.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
-        matrix.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot()) + 90.0F));
+        matrix.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
+        matrix.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot()) + 90.0F));
         VertexConsumer vertexConsumer = ItemRenderer.getFoilBuffer(renderer, tridentModel.renderType(getTextureLocation(entity)), false, entity.isFoil());
         tridentModel.renderToBuffer(matrix, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         matrix.popPose();

@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +75,7 @@ public class AlchemicalBarrel extends DirectionalBlock implements PEEntityBlock<
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = WorldHelper.getBlockEntity(level, pos);
             if (blockEntity != null) {
-                blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(inv -> WorldHelper.dropInventory(inv, level, pos));
+                blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(inv -> WorldHelper.dropInventory(inv, level, pos));
             }
             super.onRemove(state, level, pos, newState, isMoving);
         }
@@ -114,7 +114,7 @@ public class AlchemicalBarrel extends DirectionalBlock implements PEEntityBlock<
     public int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
         BlockEntity blockEntity = WorldHelper.getBlockEntity(level, pos);
         if (blockEntity != null) {
-            return blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).map(ItemHandlerHelper::calcRedstoneFromInventory).orElse(0);
+            return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).map(ItemHandlerHelper::calcRedstoneFromInventory).orElse(0);
         }
         return 0;
     }

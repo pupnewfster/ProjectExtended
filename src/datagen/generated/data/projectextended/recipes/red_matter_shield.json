@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "equipment",
   "key": {
     "M": {
       "item": "projecte:red_matter"
@@ -18,5 +19,6 @@
   ],
   "result": {
     "item": "projectextended:red_matter_shield"
-  }
+  },
+  "show_notification": true
 }

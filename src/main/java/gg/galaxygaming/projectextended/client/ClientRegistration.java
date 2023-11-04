@@ -11,14 +11,12 @@ import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.item.ItemPropertyFunction;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -55,14 +53,6 @@ public class ClientRegistration {
 
     @SubscribeEvent
     public static void registerContainerTypes(RegisterEvent event) {
-        event.register(Registry.MENU_REGISTRY, helper -> MenuScreens.register(ProjectExtendedContainerTypes.ALCHEMICAL_BARREL_CONTAINER.get(), AlchemicalBarrelScreen::new));
-    }
-
-    @SubscribeEvent
-    public static void onStitch(TextureStitchEvent.Pre event) {
-        if (event.getAtlas().location().equals(TextureAtlas.LOCATION_BLOCKS)) {
-            event.addSprite(ProjectExtended.rl("entity/dark_matter_shield"));
-            event.addSprite(ProjectExtended.rl("entity/red_matter_shield"));
-        }
+        event.register(Registries.MENU, helper -> MenuScreens.register(ProjectExtendedContainerTypes.ALCHEMICAL_BARREL_CONTAINER.get(), AlchemicalBarrelScreen::new));
     }
 }

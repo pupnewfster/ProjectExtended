@@ -3,7 +3,7 @@ package gg.galaxygaming.projectextended.client;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import moze_intel.projecte.utils.RegistryUtils;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
@@ -12,8 +12,8 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class ProjectExtendedBlockStateProvider extends BlockStateProvider {
 
-	public ProjectExtendedBlockStateProvider(DataGenerator generator, ExistingFileHelper existingFileHelper) {
-		super(generator, ProjectExtended.MODID, existingFileHelper);
+	public ProjectExtendedBlockStateProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
+		super(output, ProjectExtended.MODID, existingFileHelper);
 	}
 
 	@Override

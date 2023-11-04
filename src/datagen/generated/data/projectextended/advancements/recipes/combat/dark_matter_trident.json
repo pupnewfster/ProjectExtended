@@ -43,5 +43,6 @@
     "recipes": [
       "projectextended:dark_matter_trident"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

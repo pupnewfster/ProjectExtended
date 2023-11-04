@@ -7,19 +7,15 @@ import moze_intel.projecte.PECore;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.advancements.AdvancementProvider;
+import net.minecraft.core.HolderLookup;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.ForgeAdvancementProvider.AdvancementGenerator;
 import org.jetbrains.annotations.NotNull;
 
-public class ProjectExtendedAdvancementsProvider extends AdvancementProvider {
-
-	public ProjectExtendedAdvancementsProvider(DataGenerator generator, ExistingFileHelper existingFileHelper) {
-		super(generator, existingFileHelper);
-	}
+public class ProjectExtendedAdvancementsGenerator implements AdvancementGenerator {
 
 	@Override
-	protected void registerAdvancements(@NotNull Consumer<Advancement> advancementConsumer, @NotNull ExistingFileHelper fileHelper) {
+	public void generate(@NotNull HolderLookup.Provider registries, @NotNull Consumer<Advancement> advancementConsumer, @NotNull ExistingFileHelper fileHelper) {
 		Advancement.Builder.advancement()
 			.parent(PECore.rl("alchemical_chest"))
 			.display(ProjectExtendedBlocks.ALCHEMICAL_BARREL, ProjectExtendedLang.ADVANCEMENTS_ALCHEMICAL_BARREL.translate(),

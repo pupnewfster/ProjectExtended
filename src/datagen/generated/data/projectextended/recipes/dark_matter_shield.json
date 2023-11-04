@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "equipment",
   "key": {
     "M": {
       "item": "projecte:dark_matter"
@@ -15,5 +16,6 @@
   ],
   "result": {
     "item": "projectextended:dark_matter_shield"
-  }
+  },
+  "show_notification": true
 }

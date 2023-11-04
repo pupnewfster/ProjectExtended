@@ -2,11 +2,13 @@ package gg.galaxygaming.projectextended.common.recipe;
 
 import gg.galaxygaming.projectextended.common.items.PEShield;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedRecipeSerializers;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
@@ -14,8 +16,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class PEShieldSpecialRecipe extends CustomRecipe {
 
-    public PEShieldSpecialRecipe(ResourceLocation idIn) {
-        super(idIn);
+    public PEShieldSpecialRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, category);
     }
 
     @Override
@@ -43,7 +45,7 @@ public class PEShieldSpecialRecipe extends CustomRecipe {
 
     @NotNull
     @Override
-    public ItemStack assemble(CraftingContainer inv) {
+    public ItemStack assemble(CraftingContainer inv, @NotNull RegistryAccess registryAccess) {
         ItemStack bannerStack = ItemStack.EMPTY;
         ItemStack shieldStack = ItemStack.EMPTY;
         for (int i = 0; i < inv.getContainerSize(); ++i) {

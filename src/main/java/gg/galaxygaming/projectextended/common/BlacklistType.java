@@ -6,7 +6,7 @@ import gg.galaxygaming.projectextended.common.integration.ProjectExtendedHooks;
 import gg.galaxygaming.projectextended.common.integration.gamestages.EMCGameStageHelper;
 import java.util.List;
 import moze_intel.projecte.api.ItemInfo;
-import moze_intel.projecte.api.ProjectEAPI;
+import moze_intel.projecte.api.proxy.IEMCProxy;
 import moze_intel.projecte.utils.LazyTagLookup;
 import moze_intel.projecte.utils.text.ILangEntry;
 import net.minecraft.ChatFormatting;
@@ -65,7 +65,7 @@ public enum BlacklistType {
         } else if (ProjectExtendedHooks.gameStagesLoaded) {
             //TODO: Eventually maybe we want to use source info to try and support more arbitrary parts of NBT
             ItemInfo sourceInfo = ItemInfo.fromStack(stack);
-            ItemInfo reducedInfo = ProjectEAPI.getEMCProxy().getPersistentInfo(sourceInfo);
+            ItemInfo reducedInfo = IEMCProxy.INSTANCE.getPersistentInfo(sourceInfo);
             List<String> missingStages = EMCGameStageHelper.getMissingStages(player, reducedInfo, this);
             if (!missingStages.isEmpty()) {
                 tooltips.add(getWarning());

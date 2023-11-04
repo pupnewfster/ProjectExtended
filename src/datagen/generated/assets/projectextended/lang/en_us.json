@@ -41,6 +41,7 @@
   "item.projectextended.red_matter_trident": "Red Matter Trident",
   "misc.projectextended.list_element": " - %s",
   "misc.projectextended.mod_name": "ProjectExtended",
+  "misc.projectextended.pack_description": "Resources used for ProjectExtended",
   "mode.projectextended.trident.1": "Normal",
   "mode.projectextended.trident.2": "Channeling",
   "mode.projectextended.trident.3": "Riptide",

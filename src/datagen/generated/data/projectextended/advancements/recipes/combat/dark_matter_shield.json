@@ -6,7 +6,7 @@
         "items": [
           {
             "items": [
-              "projecte:red_matter"
+              "projecte:dark_matter"
             ]
           }
         ]
@@ -15,33 +15,21 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "projectextended:red_matter_trident"
+        "recipe": "projectextended:dark_matter_shield"
       },
       "trigger": "minecraft:recipe_unlocked"
-    },
-    "has_trident": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "projectextended:dark_matter_trident"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
     }
   },
   "requirements": [
     [
       "has_matter",
-      "has_trident",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "projectextended:red_matter_trident"
+      "projectextended:dark_matter_shield"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

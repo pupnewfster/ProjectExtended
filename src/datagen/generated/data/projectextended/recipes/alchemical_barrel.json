@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "key": {
     "B": {
       "tag": "forge:barrels/wooden"
@@ -30,5 +31,6 @@
   ],
   "result": {
     "item": "projectextended:alchemical_barrel"
-  }
+  },
+  "show_notification": true
 }

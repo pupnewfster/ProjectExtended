@@ -40,5 +40,6 @@
     "recipes": [
       "projectextended:alchemical_barrel"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

@@ -54,7 +54,7 @@ public class AlchemicalBarrelBlockEntity extends CapabilityEmcBlockEntity implem
     private boolean inventoryChanged;
 
     public AlchemicalBarrelBlockEntity(BlockPos pos, BlockState state) {
-        super(ProjectExtendedBlockEntityTypes.ALCHEMICAL_BARREL, pos, state);
+        super(ProjectExtendedBlockEntityTypes.ALCHEMICAL_BARREL, pos, state, 1_000);
         itemHandlerResolver = BasicCapabilityResolver.getBasicItemHandlerResolver(inventory);
     }
 

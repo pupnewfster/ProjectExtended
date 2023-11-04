@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -102,7 +103,7 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
                     setNoPhysics(true);
                     Vec3 returnVector = entity.getEyePosition().subtract(position());
                     setPosRaw(getX(), getY() + returnVector.y * 0.015D * loyaltyLevel, getZ());
-                    if (level.isClientSide) {
+                    if (level().isClientSide) {
                         yOld = getY();
                     }
                     setDeltaMovement(getDeltaMovement().scale(0.95D).add(returnVector.normalize().scale(0.05D * loyaltyLevel)));
@@ -113,7 +114,7 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
                     clientSideReturnTridentTickCount++;
                 } else {
                     //If we shouldn't return to the thrower, but we already are on the way back just drop the item
-                    if (!level.isClientSide && pickup == Pickup.ALLOWED) {
+                    if (!level().isClientSide && pickup == Pickup.ALLOWED) {
                         spawnAtLocation(getPickupItem(), 0.1F);
                     }
                     discard();
@@ -154,7 +155,7 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
             damage += EnchantmentHelper.getDamageBonus(this.tridentItem, livingHit.getMobType());
         }
         Entity thrower = getOwner();
-        DamageSource damagesource = DamageSource.trident(this, thrower == null ? this : thrower);
+        DamageSource damagesource = damageSources().trident(this, thrower == null ? this : thrower);
         dealtDamage = true;
         if (hitEntity.hurt(damagesource, damage)) {
             //Vanilla's trident exits on endermen here, we allow hitting them instead
@@ -185,8 +186,8 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
 
     @Override//onBlockHit
     protected void onHitBlock(BlockHitResult result) {
-        lastState = level.getBlockState(result.getBlockPos());
-        lastState.onProjectileHit(level, lastState, result, this);
+        lastState = level().getBlockState(result.getBlockPos());
+        lastState.onProjectileHit(level(), lastState, result, this);
         Vec3 motion = result.getLocation().subtract(getX(), getY(), getZ());
         setDeltaMovement(motion);
         Vec3 vec3d1 = motion.normalize().scale(0.05F);
@@ -228,20 +229,20 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
     }
 
     private boolean trySummonLightning(int bolts, BlockPos hitPos, @Nullable ServerPlayer thrower) {
-        if (level instanceof ServerLevel) {
+        if (level() instanceof ServerLevel) {
             //Allow for channeling to take place if we are red matter, or it is thundering
-            if (matterTier > 0 || level.isThundering()) {
+            if (matterTier > 0 || level().isThundering()) {
                 //Note: uses canBlockSeeSky instead of isSkyLightMax like the vanilla trident does to fix not being able
                 // to cause lightning to come down on fish or in the water
-                if (level.canSeeSkyFromBelowWater(hitPos)) {
+                if (level().canSeeSkyFromBelowWater(hitPos)) {
                     boolean hasAction = false;
                     for (int i = 0; i < bolts; i++) {
                         if (thrower == null || ItemPE.consumeFuel(thrower, tridentItem, 64, true)) {
-                            LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
+                            LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level());
                             if (lightning != null) {
                                 lightning.moveTo(Vec3.atBottomCenterOf(hitPos));
                                 lightning.setCause(thrower);
-                                level.addFreshEntity(lightning);
+                                level().addFreshEntity(lightning);
                             }
                             hasAction = true;
                         } else {
@@ -257,21 +258,22 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
     }
 
     private boolean tryCreateShockwave(int charge, float damage, @Nullable LivingEntity thrower) {
-        if (level instanceof ServerLevel) {
+        if (level() instanceof ServerLevel) {
             //Allow for shockwave to be created if we are red matter or the thrower is wet
             if (matterTier > 0 || thrower != null && thrower.isInWaterOrRain()) {
-                DamageSource src = DamageSource.trident(this, thrower == null ? this : thrower).bypassArmor();
+                //Note: This used to bypass armor but no longer does. Eventually we may want that back but for now it seems reasonable enough to not do so
+                DamageSource src = damageSources().trident(this, thrower == null ? this : thrower);
                 float damageToDo = damage + charge;
                 int distance = charge + 1;
-                for (Entity entity : level.getEntities(thrower, getBoundingBox().inflate(distance), SLAY_MOB)) {
+                for (Entity entity : level().getEntities(thrower, getBoundingBox().inflate(distance), SLAY_MOB)) {
                     entity.hurt(src, damageToDo);
                 }
-                AreaEffectCloud particle = new AreaEffectCloud(level, getX(), getY(), getZ());
+                AreaEffectCloud particle = new AreaEffectCloud(level(), getX(), getY(), getZ());
                 particle.setOwner(thrower);
                 particle.setParticle(ParticleTypes.CRIT);
                 particle.setRadius(distance);
                 particle.setDuration(0);
-                level.addFreshEntity(particle);
+                level().addFreshEntity(particle);
                 return true;
             }
         }
@@ -318,7 +320,7 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
     protected void tickDespawn() {
         if (this.pickup != Pickup.ALLOWED) {
             super.tickDespawn();
-        } else if (noReturn && !level.isClientSide) {
+        } else if (noReturn && !level().isClientSide) {
             //Drop the item if we despawned after not having been able to return
             spawnAtLocation(getPickupItem(), 0.1F);
             discard();
@@ -337,7 +339,7 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
 
     @NotNull
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 

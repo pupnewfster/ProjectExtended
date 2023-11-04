@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import moze_intel.projecte.api.ItemInfo;
 import moze_intel.projecte.api.nss.NSSItem;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -38,15 +38,15 @@ public class BlacklistReader {
         try {
             return DataResult.success(TagParser.parseTag(nbtAsString));
         } catch (CommandSyntaxException e) {
-            return DataResult.error("Not valid nbt: " + nbtAsString + " " + e.getMessage());
+            return DataResult.error(() -> "Not valid nbt: " + nbtAsString + " " + e.getMessage());
         }
     }
 
     private static DataResult<Item> readItem(String itemName) {
         return ResourceLocation.read(itemName)
-              .flatMap(registryName -> Registry.ITEM.getOptional(registryName)
+              .flatMap(registryName -> BuiltInRegistries.ITEM.getOptional(registryName)
                     .map(DataResult::success)
-                    .orElseGet(() -> DataResult.error("Unknown item: " + registryName))
+                    .orElseGet(() -> DataResult.error(() -> "Unknown item: " + registryName))
               );
     }
 

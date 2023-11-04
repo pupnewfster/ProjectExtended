@@ -208,7 +208,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode, IB
                     float velocityModifier = (0.75F + 0.75F * riptideLevel) / velocity;
                     player.push(xVelocity * velocityModifier, yVelocity * velocityModifier, zVelocity * velocityModifier);
                     player.startAutoSpinAttack(20);
-                    if (player.isOnGround()) {
+                    if (player.onGround()) {
                         player.move(MoverType.SELF, new Vec3(0.0D, 1.1999999F, 0.0D));
                     }
                     SoundEvent soundevent;

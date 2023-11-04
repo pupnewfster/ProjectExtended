@@ -1,17 +1,20 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import net.minecraftforge.gradle.common.util.RunConfig
+
+import java.util.function.Consumer
 
 plugins {
     id 'java'
     id 'eclipse'
     id 'idea'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'net.neoforged.gradle' version '[6.0.18,6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
 tasks.named('wrapper', Wrapper).configure {
     //Define wrapper values here so as to not have to always do so when updating gradlew.properties
-    gradleVersion = '7.5.1'
+    gradleVersion = '8.4'
     distributionType = Wrapper.DistributionType.ALL
 }
 
@@ -88,7 +91,12 @@ group = 'gg.galaxygaming.projectextended'
 version = "${minecraft_version}-${mod_version}"
 archivesBaseName = 'ProjectExtended'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+        vendor.set(JvmVendorSpec.JETBRAINS)
+    }
+}
 
 minecraft {
     if (mappings_channel == "parchment_previous") {
@@ -101,12 +109,7 @@ minecraft {
 
     runs {
         client {
-            workingDirectory file('run')
-            //We aren't a multi-project config so we can disable the forced exit to allow gradle run tasks to stop gracefully
-            forceExit = false
-            //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            setupRunConfig(it, true)
 
             //The below if statements are to add args to your gradle.properties file in user home
             // (DO NOT add them directly to the gradle.properties file for this project)
@@ -128,104 +131,80 @@ minecraft {
                 //Your access token, you can find it in your '.minecraft/launcher_accounts.json' file
                 args '--accessToken', project.getProperty('mc_accessToken')
             }
-            if (project.hasProperty('forge_force_ansi')) {
-                //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
-                // or eclipse's plugin that adds support for ansi escape in console
-                jvmArg('-Dterminal.ansi=' + project.getProperty('forge_force_ansi'))
-            }
-
-            mods {
-                projectextended.source(sourceSets.main)
-            }
         }
-
-        server {
-            workingDirectory file('run')
-            //We aren't a multi-project config so we can disable the forced exit to allow gradle run tasks to stop gracefully
-            forceExit = false
-            //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            if (project.hasProperty('forge_force_ansi')) {
-                //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
-                // or eclipse's plugin that adds support for ansi escape in console
-                jvmArg('-Dterminal.ansi=' + project.getProperty('forge_force_ansi'))
-            }
-
-            mods {
-                projectextended.source(sourceSets.main)
-            }
-        }
-
+        server { setupRunConfig(it, true) }
         data {
-            workingDirectory file('run')
+            setupRunConfig(it, false)
             environment 'target', 'fmluserdevdata'
-            //We aren't a multi-project config so we can disable the forced exit to allow gradle run tasks to stop gracefully
-            forceExit = false
-            //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            if (project.hasProperty('forge_force_ansi')) {
-                //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
-                // or eclipse's plugin that adds support for ansi escape in console
-                jvmArg('-Dterminal.ansi=' + project.getProperty('forge_force_ansi'))
-            }
 
             args '--mod', 'projectextended', '--all', '--output', file('src/datagen/generated/'),
                     '--existing', file('src/main/resources/'), '--existing-mod', 'projecte'
-            mods {
-                projectextended.sources((SourceSet[]) [sourceSets.main, sourceSets.datagen])
-            }
+
+            mods.named("projectextended").configure { source((SourceSet) sourceSets.datagen) }
         }
     }
 }
 
-repositories {
-    maven {
-        name 'Jared'
-        url 'https://maven.blamejared.com'
-        content {
-            includeGroup 'net.darkhax.bookshelf'
-            includeGroup 'net.darkhax.gamestages'
-            includeGroup 'mezz.jei'
-        }
-    }
-    maven {
-        name 'CurseMaven'
-        url 'https://www.cursemaven.com'
-        content {
-            includeGroup 'curse.maven'
-        }
-    }
-    flatDir {
-        dirs "libs"
+def setupRunConfig(RunConfig runConfig, boolean supportsGameTests, String directory = "run") {
+    runConfig.workingDirectory(file(directory))
+    //This fixes Mixin application problems from other mods because their refMaps are SRG-based, but we're in a MCP env
+    runConfig.property 'mixin.env.remapRefMap', 'true'
+    runConfig.property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+    if (supportsGameTests) {
+        //Specify all our mods as domains to look for game tests
+        runConfig.property 'forge.enabledGameTestNamespaces', 'projectextended'
     }
 
-    whenObjectAdded {
-        //ForgeGradle adds these in an afterEvaluate, so we need to catch them as they're added and exclude mod artifacts/groups
-        if (it instanceof MavenArtifactRepository) {
-            def url = it.url.toString()
-            if (url == 'https://maven.minecraftforge.net/' || url == 'https://libraries.minecraft.net/' || url == 'https://repo.maven.apache.org/maven2/') {
-                try {
-                    it.content {
-                        excludeGroup 'curse.maven'
-                        excludeGroup 'net.darkhax.bookshelf'
-                        excludeGroup 'net.darkhax.gamestages'
-                        excludeGroup 'mezz.jei'
-                    }
-                    println("Adding exclusions to ${it.url}")
-                } catch (Exception ignored) {
-                    //oh well
-                }
-            }
+    if (project.hasProperty('forge_force_ansi')) {
+        //Force ansi if declared as a gradle variable, as the auto detection doesn't detect IntelliJ properly
+        // or eclipse's plugin that adds support for ansi escape in console
+        runConfig.jvmArg("-Dterminal.ansi=${project.getProperty('forge_force_ansi')}")
+    }
+
+    runConfig.mods.register("projectextended").configure {
+        source(sourceSets.main)
+    }
+
+    //if the selected toolchain is a JBR, enable DCEVM
+    if(project.javaToolchains.launcherFor(java.toolchain).map{it.metadata.vendor }.getOrElse("").contains("JetBrains")) {
+        runConfig.jvmArg("-XX:+AllowEnhancedClassRedefinition")
+    }
+}
+
+void exclusiveRepo(RepositoryHandler handler, String url, String... groups) {
+    exclusiveRepo(handler, url, filter -> {
+        for (def group : groups) {
+            filter.includeGroup(group)
         }
+    })
+}
+
+//Note: This cannot be static so that fg.repository can be properly accessed
+@SuppressWarnings('GrMethodMayBeStatic')
+void exclusiveRepo(RepositoryHandler handler, String url, Consumer<InclusiveRepositoryContentDescriptor> filterSetup) {
+    handler.exclusiveContent {
+        it.forRepositories(handler.maven {
+            setUrl(url)
+        }, fg.repository)//Add FG's repo so we make sure we are able to then find the mapped deps
+        it.filter { f -> filterSetup.accept(f) }
+    }
+}
+
+repositories { RepositoryHandler handler ->
+    exclusiveRepo(handler, 'https://maven.blamejared.com', filter -> {
+        filter.includeGroupByRegex 'com\\.blamejared.*'
+        filter.includeGroupByRegex 'net\\.darkhax.*'
+        filter.includeGroup 'org.openzen.zencode'
+        filter.includeGroup 'mezz.jei'
+    })
+    exclusiveRepo(handler, 'https://www.cursemaven.com', 'curse.maven')
+    flatDir {
+        dirs "libs"
     }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft "net.neoforged:forge:${minecraft_version}-${forge_version}"
 
     if (project.hasProperty('projecte_local_version')) {
         implementation fg.deobf("projecte:projecte:${projecte_local_version}:universal")

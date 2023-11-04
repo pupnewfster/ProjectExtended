@@ -13,35 +13,36 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_shield": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "projectextended:red_matter_trident"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_trident": {
       "conditions": {
         "items": [
           {
             "items": [
-              "projectextended:dark_matter_shield"
+              "projectextended:dark_matter_trident"
             ]
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
-    },
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "projectextended:red_matter_shield"
-      },
-      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
       "has_matter",
-      "has_shield",
+      "has_trident",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "projectextended:red_matter_shield"
+      "projectextended:red_matter_trident"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

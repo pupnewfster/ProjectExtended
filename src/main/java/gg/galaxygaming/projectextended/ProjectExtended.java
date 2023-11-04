@@ -10,6 +10,7 @@ import gg.galaxygaming.projectextended.common.network.PacketHandler;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlockEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedContainerTypes;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedCreativeTabs;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedRecipeSerializers;
@@ -56,6 +57,7 @@ public class ProjectExtended {
         ProjectExtendedBlocks.BLOCKS.register(modEventBus);
         ProjectExtendedBlockEntityTypes.BLOCK_ENTITY_TYPES.register(modEventBus);
         ProjectExtendedContainerTypes.CONTAINER_TYPES.register(modEventBus);
+        ProjectExtendedCreativeTabs.CREATIVE_TABS.register(modEventBus);
         ProjectExtendedEntityTypes.ENTITY_TYPES.register(modEventBus);
         ProjectExtendedRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
         modEventBus.addListener(this::commonSetup);

@@ -6,6 +6,7 @@ import net.minecraft.Util;
 
 public enum ProjectExtendedLang implements ILangEntry {
     PROJECT_EXTENDED("misc", "mod_name"),
+    PACK_DESCRIPTION("misc", "pack_description"),
     LIST_ELEMENT("misc", "list_element"),
     WARNING_BLACKLIST_CONDENSER("warning", "blacklist.condenser"),
     WARNING_BLACKLIST_CONDENSER_STAGES("warning", "blacklist.condenser.stage"),

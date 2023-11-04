@@ -5,14 +5,14 @@ import gg.galaxygaming.projectextended.common.ProjectExtendedLang;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ItemLike;
 
 public class ProjectExtendedLangProvider extends BaseLanguageProvider {
 
-    public ProjectExtendedLangProvider(DataGenerator gen) {
-        super(gen, ProjectExtended.MODID);
+    public ProjectExtendedLangProvider(PackOutput output) {
+        super(output, ProjectExtended.MODID);
     }
 
     @Override
@@ -23,6 +23,7 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
         addModes();
         //Misc stuff
         add(ProjectExtendedLang.PROJECT_EXTENDED, ProjectExtended.MOD_NAME);
+        add(ProjectExtendedLang.PACK_DESCRIPTION, "Resources used for " + ProjectExtended.MOD_NAME);
         add(ProjectExtendedLang.LIST_ELEMENT, " - %s");
 
         add(ProjectExtendedLang.WARNING_BLACKLIST_CONDENSER, "WARNING: This item is blacklisted from the condenser. It cannot be used as the target lock, but can be used for EMC.");
