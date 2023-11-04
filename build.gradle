@@ -184,9 +184,11 @@ minecraft {
 
 repositories {
     maven {
-        name 'prog'
-        url 'https://dvs1.progwml6.com/files/maven'
+        name 'Jared'
+        url 'https://maven.blamejared.com'
         content {
+            includeGroup 'net.darkhax.bookshelf'
+            includeGroup 'net.darkhax.gamestages'
             includeGroup 'mezz.jei'
         }
     }
@@ -209,6 +211,8 @@ repositories {
                 try {
                     it.content {
                         excludeGroup 'curse.maven'
+                        excludeGroup 'net.darkhax.bookshelf'
+                        excludeGroup 'net.darkhax.gamestages'
                         excludeGroup 'mezz.jei'
                     }
                     println("Adding exclusions to ${it.url}")
@@ -230,6 +234,9 @@ dependencies {
     }
     //Include JEI in the dev environment
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+
+    runtimeOnly fg.deobf("net.darkhax.bookshelf:Bookshelf-Forge-${minecraft_version}:${bookshelf_version}")
+    implementation fg.deobf("net.darkhax.gamestages:GameStages-Forge-${minecraft_version}:${gamestages_version}")
 }
 
 //Set the various variables/settings for the different process resources tasks

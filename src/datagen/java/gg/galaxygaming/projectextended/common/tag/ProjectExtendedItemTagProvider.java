@@ -1,6 +1,7 @@
 package gg.galaxygaming.projectextended.common.tag;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
+import gg.galaxygaming.projectextended.common.BlacklistType;
 import gg.galaxygaming.projectextended.common.ProjectExtendedTags;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
@@ -22,8 +23,9 @@ public class ProjectExtendedItemTagProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags() {
-        tag(ProjectExtendedTags.Items.BLACKLIST_CONDENSER);
-        tag(ProjectExtendedTags.Items.BLACKLIST_LEARNING);
+        for (BlacklistType blacklistType : BlacklistType.values()) {
+            tag(blacklistType.getBlacklist());
+        }
         tag(Tags.Items.BARRELS).add(
               ProjectExtendedBlocks.ALCHEMICAL_BARREL.asItem()
         );

@@ -39,11 +39,14 @@
   "item.projectextended.red_matter_shield.white": "pꞁǝᴉɥS ɹǝʇʇɐW pǝᴚ ǝʇᴉɥM",
   "item.projectextended.red_matter_shield.yellow": "pꞁǝᴉɥS ɹǝʇʇɐW pǝᴚ ʍoꞁꞁǝ⅄",
   "item.projectextended.red_matter_trident": "ʇuǝpᴉɹ⟘ ɹǝʇʇɐW pǝᴚ",
+  "misc.projectextended.list_element": "%s - ",
   "misc.projectextended.mod_name": "pǝpuǝʇxƎʇɔǝɾoɹԀ",
   "mode.projectextended.trident.1": "ꞁɐɯɹoN",
   "mode.projectextended.trident.2": "ᵷuᴉꞁǝuuɐɥƆ",
   "mode.projectextended.trident.3": "ǝpᴉʇdᴉᴚ",
   "mode.projectextended.trident.4": "ǝʌɐʍʞɔoɥS",
   "warning.projectextended.blacklist.condenser": "˙ƆWƎ ɹoɟ pǝsn ǝq uɐɔ ʇnq 'ʞɔoꞁ ʇǝᵷɹɐʇ ǝɥʇ sɐ pǝsn ǝq ʇouuɐɔ ʇI ˙ɹǝsuǝpuoɔ ǝɥʇ ɯoɹɟ pǝʇsᴉꞁʞɔɐꞁq sᴉ ɯǝʇᴉ sᴉɥ⟘ :⅁NINᴚⱯM",
-  "warning.projectextended.blacklist.transmutation": "˙ƆWƎ ɹoɟ pǝɯnsuoɔ ǝq uɐɔ ʇnq 'pǝuɹɐǝꞁ ǝq ʇouuɐɔ ʇI ˙ǝꞁqɐʇ uoᴉʇɐʇnɯsuɐɹʇ ǝɥʇ ɯoɹɟ pǝʇsᴉꞁʞɔɐꞁq sᴉ ɯǝʇᴉ sᴉɥ⟘ :⅁NINᴚⱯM"
+  "warning.projectextended.blacklist.condenser.stage": ":ʞɔoꞁ ʇǝᵷɹɐʇ ɐ sɐ ɯǝʇᴉ sᴉɥʇ ǝsn oʇ ɹǝpɹo uᴉ sǝᵷɐʇS ǝɯɐ⅁ ᵷuᴉʍoꞁꞁoɟ ǝɥʇ ᵷuᴉssᴉW",
+  "warning.projectextended.blacklist.transmutation": "˙ƆWƎ ɹoɟ pǝɯnsuoɔ ǝq uɐɔ ʇnq 'pǝuɹɐǝꞁ ǝq ʇouuɐɔ ʇI ˙ǝꞁqɐʇ uoᴉʇɐʇnɯsuɐɹʇ ǝɥʇ ɯoɹɟ pǝʇsᴉꞁʞɔɐꞁq sᴉ ɯǝʇᴉ sᴉɥ⟘ :⅁NINᴚⱯM",
+  "warning.projectextended.blacklist.transmutation.stage": ":ɯǝʇᴉ sᴉɥʇ uɹɐǝꞁ oʇ ɹǝpɹo uᴉ sǝᵷɐʇS ǝɯɐ⅁ ᵷuᴉʍoꞁꞁoɟ ǝɥʇ ᵷuᴉssᴉW"
 }

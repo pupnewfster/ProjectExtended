@@ -23,8 +23,12 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
         addModes();
         //Misc stuff
         add(ProjectExtendedLang.PROJECT_EXTENDED, ProjectExtended.MOD_NAME);
+        add(ProjectExtendedLang.LIST_ELEMENT, " - %s");
+
         add(ProjectExtendedLang.WARNING_BLACKLIST_CONDENSER, "WARNING: This item is blacklisted from the condenser. It cannot be used as the target lock, but can be used for EMC.");
+        add(ProjectExtendedLang.WARNING_BLACKLIST_CONDENSER_STAGES, "Missing the following Game Stages in order to use this item as a target lock:");
         add(ProjectExtendedLang.WARNING_BLACKLIST_TRANSMUTATION, "WARNING: This item is blacklisted from the transmutation table. It cannot be learned, but can be consumed for EMC.");
+        add(ProjectExtendedLang.WARNING_BLACKLIST_TRANSMUTATION_STAGES, "Missing the following Game Stages in order to learn this item:");
 
         add(ProjectExtendedLang.ADVANCEMENTS_ALCHEMICAL_BARREL, "Barrelled Storage!");
         add(ProjectExtendedLang.ADVANCEMENTS_ALCHEMICAL_BARREL_DESCRIPTION, "A \"little\" barrel upgrade.");
