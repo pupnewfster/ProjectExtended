@@ -1,0 +1,78 @@
+package dev.freimer.projectextended.client;
+
+import dev.freimer.projectextended.ProjectExtended;
+import dev.freimer.projectextended.client.gui.AlchemicalBarrelScreen;
+import dev.freimer.projectextended.client.rendering.PETridentRenderer;
+import dev.freimer.projectextended.client.rendering.item.ShieldISTER;
+import dev.freimer.projectextended.client.rendering.item.TridentISTER;
+import dev.freimer.projectextended.common.registries.ProjectExtendedContainerTypes;
+import dev.freimer.projectextended.common.registries.ProjectExtendedEntityTypes;
+import dev.freimer.projectextended.common.registries.ProjectExtendedItems;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.renderer.item.ItemPropertyFunction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ItemLike;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import org.jetbrains.annotations.NotNull;
+
+@EventBusSubscriber(modid = ProjectExtended.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+public class ClientRegistration {
+
+    @SubscribeEvent
+    public static void setupClient(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            ItemPropertyFunction override = (stack, world, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F;
+            addPropertyOverrides(ProjectExtended.rl("blocking"), override, ProjectExtendedItems.DARK_MATTER_SHIELD, ProjectExtendedItems.RED_MATTER_SHIELD);
+            addPropertyOverrides(ProjectExtended.rl("throwing"), override, ProjectExtendedItems.DARK_MATTER_TRIDENT, ProjectExtendedItems.RED_MATTER_TRIDENT);
+        });
+    }
+
+    @SubscribeEvent
+    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ProjectExtendedEntityTypes.PE_TRIDENT.get(), PETridentRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerClientReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(ShieldISTER.RENDERER);
+        event.registerReloadListener(TridentISTER.RENDERER);
+    }
+
+    private static void addPropertyOverrides(ResourceLocation override, ItemPropertyFunction propertyGetter, ItemLike... items) {
+        for (ItemLike item : items) {
+            ItemProperties.register(item.asItem(), override, propertyGetter);
+        }
+    }
+
+    @SubscribeEvent
+    public static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(ProjectExtendedContainerTypes.ALCHEMICAL_BARREL_CONTAINER.get(), AlchemicalBarrelScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+        event.registerItem(new IClientItemExtensions() {
+            @NotNull
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return ShieldISTER.RENDERER;
+            }
+        }, ProjectExtendedItems.DARK_MATTER_SHIELD, ProjectExtendedItems.RED_MATTER_SHIELD);
+        event.registerItem(new IClientItemExtensions() {
+            @NotNull
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return TridentISTER.RENDERER;
+            }
+        }, ProjectExtendedItems.DARK_MATTER_TRIDENT, ProjectExtendedItems.RED_MATTER_TRIDENT);
+    }
+}

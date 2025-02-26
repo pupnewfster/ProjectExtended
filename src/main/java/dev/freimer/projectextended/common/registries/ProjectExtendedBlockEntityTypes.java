@@ -1,0 +1,24 @@
+package dev.freimer.projectextended.common.registries;
+
+import dev.freimer.projectextended.ProjectExtended;
+import dev.freimer.projectextended.common.block_entity.AlchemicalBarrelBlockEntity;
+import moze_intel.projecte.api.capabilities.PECapabilities;
+import moze_intel.projecte.gameObjs.block_entities.InterdictionBlockEntity;
+import moze_intel.projecte.gameObjs.registration.impl.BlockEntityTypeDeferredRegister;
+import moze_intel.projecte.gameObjs.registration.impl.BlockEntityTypeRegistryObject;
+import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
+
+public class ProjectExtendedBlockEntityTypes {
+
+    public static final BlockEntityTypeDeferredRegister BLOCK_ENTITY_TYPES = new BlockEntityTypeDeferredRegister(ProjectExtended.MODID);
+
+    public static final BlockEntityTypeRegistryObject<AlchemicalBarrelBlockEntity> ALCHEMICAL_BARREL = BLOCK_ENTITY_TYPES.builder(ProjectExtendedBlocks.ALCHEMICAL_BARREL, AlchemicalBarrelBlockEntity::new)
+          .clientTicker(AlchemicalBarrelBlockEntity::tickClient)
+          .serverTicker(AlchemicalBarrelBlockEntity::tickServer)
+          .with(PECapabilities.EMC_STORAGE_CAPABILITY, (be, side) -> be)
+          .with(ItemHandler.BLOCK, AlchemicalBarrelBlockEntity::getInventory)
+          .build();
+    public static final BlockEntityTypeRegistryObject<InterdictionBlockEntity> INTERDICTION_LANTERN = BLOCK_ENTITY_TYPES.builder(ProjectExtendedBlocks.INTERDICTION_LANTERN, InterdictionBlockEntity::new)
+          .commonTicker(InterdictionBlockEntity::tick)
+          .build();
+}
