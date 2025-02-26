@@ -1,6 +1,5 @@
 package dev.freimer.projectextended.client.lang;
 
-import dev.freimer.projectextended.ProjectExtended;
 import dev.freimer.projectextended.client.lang.FormatSplitter.Component;
 import java.util.Collection;
 import java.util.List;
@@ -92,9 +91,7 @@ public abstract class BaseLanguageProvider extends LanguageProvider {
     @Override
     public void add(@NotNull String key, @NotNull String value) {
         if (value.contains("%s")) {
-            //throw new IllegalArgumentException("Values containing substitutions should use explicit numbered indices: " + key + " - " + value);
-            //TODO - 1.21: Switch to exception
-            ProjectExtended.LOGGER.error("Values containing substitutions should use explicit numbered indices: {} - {}", key, value);
+            throw new IllegalArgumentException("Values containing substitutions should use explicit numbered indices: " + key + " - " + value);
         }
         super.add(key, value);
         if (altProviders.length > 0) {

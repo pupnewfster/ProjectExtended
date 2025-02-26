@@ -96,8 +96,8 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode<Tri
         this.attackDamage = matterType.getAttackDamageBonus() + damage;
     }
 
-    public float getDamage() {
-        return attackDamage;
+    public float getAttackDamage(ItemStack stack) {
+        return attackDamage + getCharge(stack);
     }
 
     public int getMatterTier() {
@@ -207,7 +207,7 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode<Tri
                 float velocityModifier = tridentSpinStrength / velocity;
                 player.push(xVelocity * velocityModifier, yVelocity * velocityModifier, zVelocity * velocityModifier);
                 //Modify vanilla call to start the spin attack with the damage our trident applies
-                player.startAutoSpinAttack(SharedConstants.TICKS_PER_SECOND, getDamage(), stack);
+                player.startAutoSpinAttack(SharedConstants.TICKS_PER_SECOND, getAttackDamage(stack), stack);
                 if (player.onGround()) {
                     player.move(MoverType.SELF, new Vec3(0.0D, 1.1999999F, 0.0D));
                 }

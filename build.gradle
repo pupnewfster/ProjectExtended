@@ -227,6 +227,7 @@ tasks.named('processResources', ProcessResources) {
     duplicatesStrategy = DuplicatesStrategy.FAIL
     exclude('META-INF/neoforge.mods.toml')
     finalizedBy(replaceResources)
+    from("${projectDir}") { include('logo.png') }
     def files = fileTree(dir: outputs.files.asPath, includes: ['**/*.json', '**/*.mcmeta'])
     doLast {
         for (def file : files) {

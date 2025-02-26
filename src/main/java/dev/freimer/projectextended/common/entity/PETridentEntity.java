@@ -76,14 +76,15 @@ public class PETridentEntity extends ThrownTrident implements IEntityWithComplex
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
+        ItemStack tridentStack = getWeaponItem();
+        if (!(tridentStack.getItem() instanceof PETrident trident)) {
+            super.onHitEntity(result);
+            return;
+        }
         Entity hitEntity = result.getEntity();
         Entity thrower = getOwner();
         DamageSource damagesource = damageSources().trident(this, thrower == null ? this : thrower);
-        ItemStack tridentStack = getWeaponItem();
-
-        PETrident trident = (PETrident) tridentStack.getItem();
-        int charge = trident.getCharge(tridentStack);
-        float damage = trident.getDamage() + charge;
+        float damage = trident.getAttackDamage(tridentStack);
         if (level() instanceof ServerLevel serverLevel) {
             //Even though we can't be enchanted normally, apply enchantment modifiers anyway
             damage = EnchantmentHelper.modifyDamage(serverLevel, tridentStack, hitEntity, damagesource, damage);
@@ -106,8 +107,9 @@ public class PETridentEntity extends ThrownTrident implements IEntityWithComplex
         float volume = 1.0F;
         SoundEvent sound = SoundEvents.TRIDENT_HIT;
         TridentMode mode = trident.getMode(tridentStack);
+        int charge = trident.getCharge(tridentStack);
         if (mode == TridentMode.SHOCKWAVE) {
-            if (tryCreateShockwave(charge, trident.getDamage(), thrower instanceof LivingEntity ? (LivingEntity) thrower : null)) {
+            if (tryCreateShockwave(charge, trident.getAttackDamage(tridentStack), thrower instanceof LivingEntity ? (LivingEntity) thrower : null)) {
                 volume = 5.0F;
             }
         } else if (mode == TridentMode.CHANNELING) {
@@ -137,7 +139,7 @@ public class PETridentEntity extends ThrownTrident implements IEntityWithComplex
         int charge = trident.getCharge(tridentStack);
         TridentMode mode = tridentStack.getOrDefault(ProjectExtendedDataComponentTypes.TRIDENT_MODE, TridentMode.NORMAL);
         if (mode == TridentMode.SHOCKWAVE) {
-            if (tryCreateShockwave(charge, trident.getDamage(), thrower instanceof LivingEntity ? (LivingEntity) thrower : null)) {
+            if (tryCreateShockwave(charge, trident.getAttackDamage(tridentStack), thrower instanceof LivingEntity ? (LivingEntity) thrower : null)) {
                 //volume = 5.0F;
                 //pitch = 1.0F;
                 //TODO - 1.21: Play the hit ground sound louder?
@@ -189,10 +191,9 @@ public class PETridentEntity extends ThrownTrident implements IEntityWithComplex
             if (matterTier > 0 || thrower != null && thrower.isInWaterOrRain()) {
                 //Note: This used to bypass armor but no longer does. Eventually we may want that back but for now it seems reasonable enough to not do so
                 DamageSource src = damageSources().trident(this, thrower == null ? this : thrower);
-                float damageToDo = damage + charge;
                 int distance = charge + 1;
                 for (Entity entity : level().getEntities(thrower, getBoundingBox().inflate(distance), SLAY_MOB)) {
-                    entity.hurt(src, damageToDo);
+                    entity.hurt(src, damage);
                 }
                 AreaEffectCloud particle = new AreaEffectCloud(level(), getX(), getY(), getZ());
                 particle.setOwner(thrower);
