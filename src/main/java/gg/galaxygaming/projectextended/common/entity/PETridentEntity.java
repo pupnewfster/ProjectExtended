@@ -1,6 +1,8 @@
 package gg.galaxygaming.projectextended.common.entity;
 
 import gg.galaxygaming.projectextended.common.items.PETrident;
+import gg.galaxygaming.projectextended.common.items.PETrident.TridentMode;
+import gg.galaxygaming.projectextended.common.registries.ProjectExtendedDataComponentTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import java.util.function.Predicate;
@@ -8,13 +10,7 @@ import moze_intel.projecte.gameObjs.items.ItemPE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -26,8 +22,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -36,196 +30,127 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Modified copy of vanilla's {@link ThrownTrident} so as to cut some things out, but also allow for overriding things and then being able to properly still call super
- * without it then just going back into {@link ThrownTrident} that we were changing anyway.
- */
-public class PETridentEntity extends AbstractArrow implements IEntityAdditionalSpawnData {
+//TODO - 1.21: See what other methods we should override
+public class PETridentEntity extends ThrownTrident implements IEntityWithComplexSpawn {
 
     private static final Predicate<Entity> SLAY_MOB = entity -> !entity.isSpectator() && entity instanceof Enemy;
-    private static final EntityDataAccessor<Boolean> ID_FOIL = SynchedEntityData.defineId(PETridentEntity.class, EntityDataSerializers.BOOLEAN);
-    private ItemStack tridentItem = new ItemStack(ProjectExtendedItems.DARK_MATTER_TRIDENT);
-    private boolean dealtDamage;
     private boolean noReturn;
-    private int loyaltyLevel;
     private int matterTier;
-    private int clientSideReturnTridentTickCount;
 
     public PETridentEntity(EntityType<? extends PETridentEntity> type, Level worldIn) {
         super(type, worldIn);
     }
 
-    public PETridentEntity(Level world, LivingEntity thrower, ItemStack thrownStackIn) {
-        super(ProjectExtendedEntityTypes.PE_TRIDENT.get(), thrower, world);
-        setStackAndLoyalty(thrownStackIn.copy());
-        this.entityData.set(ID_FOIL, thrownStackIn.hasFoil());
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(ID_FOIL, false);
-    }
-
-    private void setStackAndLoyalty(@NotNull ItemStack stack) {
-        if (!stack.isEmpty() && stack.getItem() instanceof PETrident trident) {
-            tridentItem = stack;
+    public PETridentEntity(Level world, LivingEntity thrower, ItemStack stack) {
+        super(world, thrower, stack);
+        if (stack.getItem() instanceof PETrident trident) {
             matterTier = trident.getMatterTier();
-            loyaltyLevel = trident.getCharge(stack) + 1;
         }
     }
 
-    public int getMatterTier() {
-        return matterTier;
-    }
-
-    public boolean isFoil() {
-        return this.entityData.get(ID_FOIL);
-    }
-
-    @Override
-    public void tick() {
-        if (inGroundTime > 4) {
-            dealtDamage = true;
-            noReturn = !isAcceptableReturnOwner();
+    public PETridentEntity(Level level, double x, double y, double z, ItemStack stack) {
+        super(level, x, y, z, stack);
+        if (stack.getItem() instanceof PETrident trident) {
+            matterTier = trident.getMatterTier();
         }
-        //If we aren't told to not do any return logic AND we either landed or are already on the return trip
-        if (!noReturn && (dealtDamage || isNoPhysics())) {
-            Entity entity = getOwner();
-            //Make it return to the thrower
-            if (entity != null) {
-                if (isAcceptableReturnOwner()) {
-                    setNoPhysics(true);
-                    Vec3 returnVector = entity.getEyePosition().subtract(position());
-                    setPosRaw(getX(), getY() + returnVector.y * 0.015D * loyaltyLevel, getZ());
-                    if (level().isClientSide) {
-                        yOld = getY();
-                    }
-                    setDeltaMovement(getDeltaMovement().scale(0.95D).add(returnVector.normalize().scale(0.05D * loyaltyLevel)));
-                    if (clientSideReturnTridentTickCount == 0) {
-                        //Play the return sound if this is our first tick returning
-                        playSound(SoundEvents.TRIDENT_RETURN, 10.0F, 1.0F);
-                    }
-                    clientSideReturnTridentTickCount++;
-                } else {
-                    //If we shouldn't return to the thrower, but we already are on the way back just drop the item
-                    if (!level().isClientSide && pickup == Pickup.ALLOWED) {
-                        spawnAtLocation(getPickupItem(), 0.1F);
-                    }
-                    discard();
-                }
-            }
-        }
-        super.tick();
-    }
-
-    private boolean isAcceptableReturnOwner() {
-        Entity entity = getOwner();
-        if (entity != null && entity.isAlive()) {
-            return !(entity instanceof ServerPlayer) || !entity.isSpectator();
-        }
-        return false;
     }
 
     @NotNull
     @Override
-    protected ItemStack getPickupItem() {
-        return this.tridentItem.copy();
+    public EntityType<PETridentEntity> getType() {
+        return ProjectExtendedEntityTypes.PE_TRIDENT.get();
     }
 
-    @Nullable
     @Override
-    protected EntityHitResult findHitEntity(@NotNull Vec3 startVec, @NotNull Vec3 endVec) {
-        return this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
+    public void tick() {
+        if (inGroundTime > 4 && !isAcceptibleReturnOwner()) {
+            noReturn = true;
+            entityData.set(ID_LOYALTY, (byte) 0);
+        }
+        super.tick();
     }
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
         Entity hitEntity = result.getEntity();
-        PETrident trident = (PETrident) tridentItem.getItem();
-        int charge = trident.getCharge(tridentItem);
-        float damage = trident.getDamage() + charge;
-        if (hitEntity instanceof LivingEntity livingHit) {
-            //Even though we can't be enchanted normally, apply enchantment modifiers anyway
-            damage += EnchantmentHelper.getDamageBonus(this.tridentItem, livingHit.getMobType());
-        }
         Entity thrower = getOwner();
         DamageSource damagesource = damageSources().trident(this, thrower == null ? this : thrower);
+        ItemStack tridentStack = getWeaponItem();
+
+        PETrident trident = (PETrident) tridentStack.getItem();
+        int charge = trident.getCharge(tridentStack);
+        float damage = trident.getDamage() + charge;
+        if (level() instanceof ServerLevel serverLevel) {
+            //Even though we can't be enchanted normally, apply enchantment modifiers anyway
+            damage = EnchantmentHelper.modifyDamage(serverLevel, tridentStack, hitEntity, damagesource, damage);
+        }
+
         dealtDamage = true;
         if (hitEntity.hurt(damagesource, damage)) {
             //Vanilla's trident exits on endermen here, we allow hitting them instead
+
+            if (level() instanceof ServerLevel serverLevel) {
+                EnchantmentHelper.doPostAttackEffectsWithItemSource(serverLevel, hitEntity, damagesource, tridentStack);
+            }
+
             if (hitEntity instanceof LivingEntity livingHit) {
-                if (thrower instanceof LivingEntity) {
-                    EnchantmentHelper.doPostHurtEffects(livingHit, thrower);
-                    EnchantmentHelper.doPostDamageEffects((LivingEntity) thrower, livingHit);
-                }
-                this.doPostHurtEffects(livingHit);
+                doKnockback(livingHit, damagesource);
+                doPostHurtEffects(livingHit);
             }
         }
-        setDeltaMovement(getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
+        setDeltaMovement(getDeltaMovement().multiply(-0.01, -0.1, -0.01));
         float volume = 1.0F;
         SoundEvent sound = SoundEvents.TRIDENT_HIT;
-        byte mode = trident.getMode(tridentItem);
-        if (mode == PETrident.CHANNELING) {
-            if (trySummonLightning(charge + 1, hitEntity.blockPosition(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null)) {
-                sound = SoundEvents.TRIDENT_THUNDER;
-                volume = 5.0F;
-            }
-        } else if (mode == PETrident.SHOCKWAVE) {
+        TridentMode mode = trident.getMode(tridentStack);
+        if (mode == TridentMode.SHOCKWAVE) {
             if (tryCreateShockwave(charge, trident.getDamage(), thrower instanceof LivingEntity ? (LivingEntity) thrower : null)) {
                 volume = 5.0F;
             }
+        } else if (mode == TridentMode.CHANNELING) {
+            //TODO - 1.21: Let this happen through the gameplay enchantment
+            // The only difference is that we do charge + 1 for how many bolts vs vanilla does a singular bolt
+            /*if (trySummonLightning(charge + 1, hitEntity.blockPosition(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null)) {
+                sound = SoundEvents.TRIDENT_THUNDER;
+                volume = 5.0F;
+            }*/
         }
         playSound(sound, volume, 1.0F);
     }
 
-    @Override//onBlockHit
-    protected void onHitBlock(BlockHitResult result) {
-        lastState = level().getBlockState(result.getBlockPos());
-        lastState.onProjectileHit(level(), lastState, result, this);
-        Vec3 motion = result.getLocation().subtract(getX(), getY(), getZ());
-        setDeltaMovement(motion);
-        Vec3 vec3d1 = motion.normalize().scale(0.05F);
-        setPosRaw(getX() - vec3d1.x, getY() - vec3d1.y, getZ() - vec3d1.z);
-        //Vanilla Copy end
+    @Override
+    protected void hitBlockEnchantmentEffects(@NotNull ServerLevel level, @NotNull BlockHitResult hitResult, @NotNull ItemStack stack) {
+        super.hitBlockEnchantmentEffects(level, hitResult, stack);
+        //TODO - 1.21: Move onHitBlock impl to here
+        //Note: This runs before updating the position of the entity rather than afterward like it used to
+        //SoundEvent sound = getHitGroundSoundEvent();
+        //float volume = 1.0F;
+        //float pitch = 1.2F / (random.nextFloat() * 0.2F + 0.9F);
 
-        SoundEvent sound = getHitGroundSoundEvent();
-        float volume = 1.0F;
-        float pitch = 1.2F / (random.nextFloat() * 0.2F + 0.9F);
-
-        BlockPos hitPosition = result.getBlockPos();
         Entity thrower = getOwner();
         //If we hit a block try
-        PETrident trident = (PETrident) tridentItem.getItem();
-        int charge = trident.getCharge(tridentItem);
-        byte mode = trident.getMode(tridentItem);
-        if (mode == PETrident.CHANNELING) {
-            if (trySummonLightning(charge + 1, hitPosition.above(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null)) {
+        ItemStack tridentStack = getWeaponItem();
+        PETrident trident = (PETrident) tridentStack.getItem();
+        int charge = trident.getCharge(tridentStack);
+        TridentMode mode = tridentStack.getOrDefault(ProjectExtendedDataComponentTypes.TRIDENT_MODE, TridentMode.NORMAL);
+        if (mode == TridentMode.SHOCKWAVE) {
+            if (tryCreateShockwave(charge, trident.getDamage(), thrower instanceof LivingEntity ? (LivingEntity) thrower : null)) {
+                //volume = 5.0F;
+                //pitch = 1.0F;
+                //TODO - 1.21: Play the hit ground sound louder?
+            }
+        } else if (mode == TridentMode.CHANNELING) {
+            //TODO - 1.21: Let this happen through the gameplay enchantment
+            // The only difference is that we do charge + 1 for how many bolts vs vanilla does a singular bolt
+            /*if (trySummonLightning(charge + 1, hitResult.getBlockPos().above(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null)) {
                 sound = SoundEvents.TRIDENT_THUNDER;
                 volume = 5.0F;
                 pitch = 1.0F;
-            }
-        } else if (mode == PETrident.SHOCKWAVE) {
-            if (tryCreateShockwave(charge, trident.getDamage(), thrower instanceof LivingEntity ? (LivingEntity) thrower : null)) {
-                volume = 5.0F;
-                pitch = 1.0F;
-            }
+            }*/
         }
-
-        //Vanilla Copy continue
-        playSound(sound, volume, pitch);
-        inGround = true;
-        shakeTime = 7;
-        setCritArrow(false);
-        setPierceLevel((byte) 0);
-        setSoundEvent(SoundEvents.ARROW_HIT);
-        setShotFromCrossbow(false);
-        resetPiercedEntities();
     }
 
     private boolean trySummonLightning(int bolts, BlockPos hitPos, @Nullable ServerPlayer thrower) {
@@ -237,7 +162,8 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
                 if (level().canSeeSkyFromBelowWater(hitPos)) {
                     boolean hasAction = false;
                     for (int i = 0; i < bolts; i++) {
-                        if (thrower == null || ItemPE.consumeFuel(thrower, tridentItem, 64, true)) {
+                        //TODO - 1.21: Should this be getWeaponItem or getPickupItem (aka do we want to act on the source stack)
+                        if (thrower == null || ItemPE.consumeFuel(thrower, getWeaponItem(), 64, true)) {
                             LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level());
                             if (lightning != null) {
                                 lightning.moveTo(Vec3.atBottomCenterOf(hitPos));
@@ -281,43 +207,22 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
     }
 
     @Override
-    protected boolean tryPickup(@NotNull Player player) {
-        return super.tryPickup(player) || isNoPhysics() && ownedBy(player) && player.getInventory().add(getPickupItem());
-    }
-
-    @NotNull
-    @Override
-    protected SoundEvent getDefaultHitGroundSoundEvent() {
-        return SoundEvents.TRIDENT_HIT_GROUND;
-    }
-
-    @Override
-    public void playerTouch(@NotNull Player entity) {
-        if (ownedBy(entity) || getOwner() == null) {
-            super.playerTouch(entity);
-        }
-    }
-
-    @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        if (compound.contains("Trident", Tag.TAG_COMPOUND)) {
-            setStackAndLoyalty(ItemStack.of(compound.getCompound("Trident")));
+        noReturn = compound.getBoolean("no_return");
+        if (noReturn) {
+            entityData.set(ID_LOYALTY, (byte) 0);
         }
-        dealtDamage = compound.getBoolean("DealtDamage");
-        noReturn = compound.getBoolean("NoReturn");
     }
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.put("Trident", tridentItem.serializeNBT());
-        compound.putBoolean("DealtDamage", dealtDamage);
-        compound.putBoolean("NoReturn", noReturn);
+        compound.putBoolean("no_return", noReturn);
     }
 
     @Override
-    protected void tickDespawn() {
+    public void tickDespawn() {
         if (this.pickup != Pickup.ALLOWED) {
             super.tickDespawn();
         } else if (noReturn && !level().isClientSide) {
@@ -327,34 +232,33 @@ public class PETridentEntity extends AbstractArrow implements IEntityAdditionalS
         }
     }
 
-    @Override
-    protected float getWaterInertia() {
-        return 0.99F + 0.5F * (getMatterTier() + 1);
-    }
-
-    @Override
-    public boolean shouldRender(double x, double y, double z) {
-        return true;
-    }
-
     @NotNull
     @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
+    protected ItemStack getDefaultPickupItem() {
+        return ProjectExtendedItems.DARK_MATTER_TRIDENT.asStack();
     }
 
     @Override
-    public void writeSpawnData(FriendlyByteBuf buffer) {
-        buffer.writeItem(tridentItem);
+    protected float getWaterInertia() {
+        return super.getWaterInertia() + 0.5F * (matterTier + 1);
     }
 
     @Override
-    public void readSpawnData(FriendlyByteBuf buffer) {
-        setStackAndLoyalty(buffer.readItem());
+    public void writeSpawnData(@NotNull RegistryFriendlyByteBuf buffer) {
+        ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, getWeaponItem());
     }
 
     @Override
-    public ItemStack getPickedResult(HitResult target) {
-        return tridentItem.copy();
+    public void readSpawnData(@NotNull RegistryFriendlyByteBuf buffer) {
+        ItemStack trident = ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer);
+        setPickupItemStack(trident);
+        if (trident.getItem() instanceof PETrident tridentItem) {
+            matterTier = tridentItem.getMatterTier();
+        }
+    }
+
+    @Override
+    public ItemStack getPickedResult(@NotNull HitResult target) {
+        return getPickupItem();
     }
 }

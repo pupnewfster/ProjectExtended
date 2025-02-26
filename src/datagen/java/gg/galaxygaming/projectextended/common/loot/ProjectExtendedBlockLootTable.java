@@ -1,8 +1,10 @@
 package gg.galaxygaming.projectextended.common.loot;
 
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.ItemLike;
@@ -17,8 +19,8 @@ public class ProjectExtendedBlockLootTable extends BlockLootSubProvider {
 
 	private final Set<Block> knownBlocks = new HashSet<>();
 
-	public ProjectExtendedBlockLootTable() {
-		super(Set.of(), FeatureFlags.VANILLA_SET);
+	public ProjectExtendedBlockLootTable(HolderLookup.Provider registries) {
+		super(Collections.emptySet(), FeatureFlags.VANILLA_SET, registries);
 	}
 
 	@Override

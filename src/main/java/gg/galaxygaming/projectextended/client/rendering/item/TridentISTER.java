@@ -43,7 +43,7 @@ public class TridentISTER extends BlockEntityWithoutLevelRenderer {
         matrix.pushPose();
         matrix.scale(1, -1, -1);
         VertexConsumer builder = ItemRenderer.getFoilBufferDirect(renderer, tridentModel.renderType(getTexture(stack)), false, stack.hasFoil());
-        tridentModel.renderToBuffer(matrix, builder, light, overlayLight, 1, 1, 1, 1);
+        tridentModel.renderToBuffer(matrix, builder, light, overlayLight);
         matrix.popPose();
     }
 

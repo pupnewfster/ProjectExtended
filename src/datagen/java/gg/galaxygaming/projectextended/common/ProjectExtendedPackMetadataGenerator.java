@@ -1,27 +1,31 @@
 package gg.galaxygaming.projectextended.common;
 
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.Optional;
 import moze_intel.projecte.utils.text.IHasTranslationKey;
+import moze_intel.projecte.utils.text.TextComponentUtil;
 import net.minecraft.DetectedVersion;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.metadata.PackMetadataGenerator;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.util.InclusiveRange;
 
 //From Mekanism's BasePackMetadataGenerator
 public class ProjectExtendedPackMetadataGenerator extends PackMetadataGenerator {
 
 	public ProjectExtendedPackMetadataGenerator(PackOutput output, IHasTranslationKey description) {
 		super(output);
-		Map<PackType, Integer> packTypeVersions = new EnumMap<>(PackType.class);
+		int minVersion = Integer.MAX_VALUE;
 		int maxVersion = 0;
 		for (PackType packType : PackType.values()) {
 			int version = DetectedVersion.BUILT_IN.getPackVersion(packType);
-			packTypeVersions.put(packType, version);
 			maxVersion = Math.max(maxVersion, version);
+			minVersion = Math.min(minVersion, version);
 		}
-		add(PackMetadataSection.TYPE, new PackMetadataSection(Component.translatable(description.getTranslationKey()), maxVersion, packTypeVersions));
+		add(PackMetadataSection.TYPE, new PackMetadataSection(
+			TextComponentUtil.build(description),
+			maxVersion,
+			Optional.of(new InclusiveRange<>(minVersion, maxVersion))
+		));
 	}
 }

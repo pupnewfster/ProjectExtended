@@ -25,7 +25,7 @@
     }
   },
   "gui_light": "front",
-  "loader": "forge:separate_transforms",
+  "loader": "neoforge:separate_transforms",
   "overrides": [
     {
       "model": "projectextended:item/red_matter_trident_throwing",

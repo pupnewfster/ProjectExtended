@@ -4,23 +4,25 @@ import gg.galaxygaming.projectextended.ProjectExtended;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister;
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.common.data.SpriteSourceProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.SpriteSourceProvider;
 
 public class ProjectExtendedSpriteSourceProvider extends SpriteSourceProvider {
 
     private final Set<ResourceLocation> trackedSingles = new HashSet<>();
 
-    public ProjectExtendedSpriteSourceProvider(PackOutput output, ExistingFileHelper fileHelper) {
-        super(output, fileHelper, ProjectExtended.MODID);
+    public ProjectExtendedSpriteSourceProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper fileHelper) {
+        super(output, lookupProvider, ProjectExtended.MODID, fileHelper);
     }
 
     @Override
-    protected void addSources() {
+    protected void gather() {
         SourceList shieldAtlas = atlas(SHIELD_PATTERNS_ATLAS);
         addFiles(shieldAtlas, ProjectExtended.rl("entity/dark_matter_shield"));
         addFiles(shieldAtlas, ProjectExtended.rl("entity/red_matter_shield"));

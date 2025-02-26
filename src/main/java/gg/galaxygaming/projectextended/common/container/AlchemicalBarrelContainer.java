@@ -1,14 +1,13 @@
 package gg.galaxygaming.projectextended.common.container;
 
 import gg.galaxygaming.projectextended.common.block_entity.AlchemicalBarrelBlockEntity;
-import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedContainerTypes;
 import moze_intel.projecte.gameObjs.container.PEContainer;
 import moze_intel.projecte.gameObjs.container.slots.InventoryContainerSlot;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class AlchemicalBarrelContainer extends PEContainer {
@@ -19,7 +18,7 @@ public class AlchemicalBarrelContainer extends PEContainer {
         super(ProjectExtendedContainerTypes.ALCHEMICAL_BARREL_CONTAINER, windowId, playerInv);
         this.blockEntity = barrel;
         this.blockEntity.startOpen(playerInv.player);
-        IItemHandler inv = this.blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).orElseThrow(NullPointerException::new);
+        IItemHandler inv = this.blockEntity.getInventory(null);
         //Barrel Inventory
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 13; j++) {
@@ -31,7 +30,7 @@ public class AlchemicalBarrelContainer extends PEContainer {
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return stillValid(player, blockEntity, ProjectExtendedBlocks.ALCHEMICAL_BARREL);
+        return Container.stillValidBlockEntity(blockEntity, player);
     }
 
     @Override

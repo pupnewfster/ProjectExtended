@@ -8,21 +8,23 @@ import gg.galaxygaming.projectextended.client.rendering.item.TridentISTER;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedContainerTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
-import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.item.ItemPropertyFunction;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.registries.RegisterEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(modid = ProjectExtended.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ProjectExtended.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class ClientRegistration {
 
     @SubscribeEvent
@@ -52,7 +54,25 @@ public class ClientRegistration {
     }
 
     @SubscribeEvent
-    public static void registerContainerTypes(RegisterEvent event) {
-        event.register(Registries.MENU, helper -> MenuScreens.register(ProjectExtendedContainerTypes.ALCHEMICAL_BARREL_CONTAINER.get(), AlchemicalBarrelScreen::new));
+    public static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(ProjectExtendedContainerTypes.ALCHEMICAL_BARREL_CONTAINER.get(), AlchemicalBarrelScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+        event.registerItem(new IClientItemExtensions() {
+            @NotNull
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return ShieldISTER.RENDERER;
+            }
+        }, ProjectExtendedItems.DARK_MATTER_SHIELD, ProjectExtendedItems.RED_MATTER_SHIELD);
+        event.registerItem(new IClientItemExtensions() {
+            @NotNull
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return TridentISTER.RENDERER;
+            }
+        }, ProjectExtendedItems.DARK_MATTER_TRIDENT, ProjectExtendedItems.RED_MATTER_TRIDENT);
     }
 }

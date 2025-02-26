@@ -2,30 +2,23 @@ package gg.galaxygaming.projectextended.common.config;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
 import moze_intel.projecte.config.BasePEConfig;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
-import net.minecraftforge.fml.config.ModConfig;
+import moze_intel.projecte.config.value.CachedBooleanValue;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
  * For config options that the server has absolute say over
  */
 public final class ServerConfig extends BasePEConfig {
 
-	private final ForgeConfigSpec configSpec;
+	private final ModConfigSpec configSpec;
 
-	//Note: Use a normal boolean value, so we don't have to clear the cache as it will be cleared on forge's end
-	public final BooleanValue showMissingGameStages;
+	public final CachedBooleanValue showMissingGameStages;
 
 	ServerConfig() {
-		ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-		builder.comment("All of the config options in this file are server side and will be synced from server to client. ProjectExtended uses one \"server\" config file for " +
-						"all worlds, for convenience in going from one world to another, but makes it be a \"server\" config file so that forge will automatically sync it when " +
-						"we connect to a multiplayer server.")
-				.push("server");
-		showMissingGameStages = builder
-			.comment("Set to false to not display missing Game Stages in tooltips when a player cannot learn or condense an item.")
-			.define("showMissingGameStages", true);
-		builder.pop();
+		ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+		showMissingGameStages = CachedBooleanValue.wrap(this, ProjectExtendedConfigTranslations.SERVER_SHOW_MISSING_STAGES.applyToBuilder(builder)
+			.define("showMissingGameStages", true));
 		configSpec = builder.build();
 	}
 
@@ -35,7 +28,12 @@ public final class ServerConfig extends BasePEConfig {
 	}
 
 	@Override
-	public ForgeConfigSpec getConfigSpec() {
+	public String getTranslation() {
+		return ProjectExtended.MOD_NAME + " Config";
+	}
+
+	@Override
+	public ModConfigSpec getConfigSpec() {
 		return configSpec;
 	}
 

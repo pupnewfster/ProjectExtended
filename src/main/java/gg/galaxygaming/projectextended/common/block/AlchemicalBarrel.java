@@ -1,43 +1,51 @@
 package gg.galaxygaming.projectextended.common.block;
 
+import com.mojang.serialization.MapCodec;
 import gg.galaxygaming.projectextended.common.block_entity.AlchemicalBarrelBlockEntity;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlockEntityTypes;
 import moze_intel.projecte.gameObjs.blocks.PEEntityBlock;
 import moze_intel.projecte.gameObjs.registration.impl.BlockEntityTypeRegistryObject;
+import moze_intel.projecte.gameObjs.registries.PEItems;
 import moze_intel.projecte.utils.WorldHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.capabilities.Capabilities.ItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AlchemicalBarrel extends DirectionalBlock implements PEEntityBlock<AlchemicalBarrelBlockEntity> {
 
+    public static final MapCodec<AlchemicalBarrel> CODEC = simpleCodec(AlchemicalBarrel::new);
+
     public AlchemicalBarrel(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(BlockStateProperties.OPEN, false));
+    }
+
+    @NotNull
+    @Override
+    protected MapCodec<? extends DirectionalBlock> codec() {
+        return CODEC;
     }
 
     @Override
@@ -55,14 +63,13 @@ public class AlchemicalBarrel extends DirectionalBlock implements PEEntityBlock<
     @NotNull
     @Override
     @Deprecated
-    public InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand,
-          @NotNull BlockHitResult rtr) {
+    public InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult rtr) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         AlchemicalBarrelBlockEntity barrel = WorldHelper.getBlockEntity(AlchemicalBarrelBlockEntity.class, level, pos);
         if (barrel != null) {
-            NetworkHooks.openScreen((ServerPlayer) player, barrel, pos);
+            player.openMenu(barrel, pos);
             player.awardStat(Stats.OPEN_BARREL);
             PiglinAi.angerNearbyPiglins(player, true);
         }
@@ -73,11 +80,20 @@ public class AlchemicalBarrel extends DirectionalBlock implements PEEntityBlock<
     @Deprecated
     public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
-            BlockEntity blockEntity = WorldHelper.getBlockEntity(level, pos);
-            if (blockEntity != null) {
-                blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(inv -> WorldHelper.dropInventory(inv, level, pos));
-            }
+            IItemHandler handler = WorldHelper.getCapability(level, ItemHandler.BLOCK, pos, state, null, null);
+            WorldHelper.dropInventory(handler, level, pos);
             super.onRemove(state, level, pos, newState, isMoving);
+        }
+    }
+
+    @Override
+    @Deprecated
+    public void attack(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player) {
+        if (!level.isClientSide) {
+            ItemStack stack = player.getMainHandItem();
+            if (!stack.isEmpty() && stack.is(PEItems.PHILOSOPHERS_STONE)) {
+                level.setBlockAndUpdate(pos, level.getBlockState(pos).setValue(FACING, player.getDirection().getOpposite()));
+            }
         }
     }
 
@@ -112,9 +128,9 @@ public class AlchemicalBarrel extends DirectionalBlock implements PEEntityBlock<
     @Override
     @Deprecated
     public int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
-        BlockEntity blockEntity = WorldHelper.getBlockEntity(level, pos);
-        if (blockEntity != null) {
-            return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).map(ItemHandlerHelper::calcRedstoneFromInventory).orElse(0);
+        IItemHandler handler = WorldHelper.getCapability(level, ItemHandler.BLOCK, pos, null);
+        if (handler != null) {
+            return ItemHandlerHelper.calcRedstoneFromInventory(handler);
         }
         return 0;
     }

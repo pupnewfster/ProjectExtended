@@ -2,6 +2,8 @@ package gg.galaxygaming.projectextended.client.lang;
 
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.ProjectExtendedLang;
+import gg.galaxygaming.projectextended.common.config.ProjectExtendedConfig;
+import gg.galaxygaming.projectextended.common.config.ProjectExtendedConfigTranslations;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
@@ -12,18 +14,19 @@ import net.minecraft.world.level.ItemLike;
 public class ProjectExtendedLangProvider extends BaseLanguageProvider {
 
     public ProjectExtendedLangProvider(PackOutput output) {
-        super(output, ProjectExtended.MODID);
+        super(output, ProjectExtended.MODID, ProjectExtended.MOD_NAME);
     }
 
     @Override
     protected void addTranslations() {
+        addConfigs();
         addBlocks();
         addEntityTypes();
         addItems();
         addModes();
         //Misc stuff
-        add(ProjectExtendedLang.PROJECT_EXTENDED, ProjectExtended.MOD_NAME);
-        add(ProjectExtendedLang.PACK_DESCRIPTION, "Resources used for " + ProjectExtended.MOD_NAME);
+        addPackData(ProjectExtendedLang.PROJECT_EXTENDED, ProjectExtendedLang.PACK_DESCRIPTION);
+        addModInfo(modName + " is a mod that adds features to ProjectE that EE2 would probably have had it been made in modern times.");
         add(ProjectExtendedLang.LIST_ELEMENT, " - %s");
 
         add(ProjectExtendedLang.WARNING_BLACKLIST_CONDENSER, "WARNING: This item is blacklisted from the condenser. It cannot be used as the target lock, but can be used for EMC.");
@@ -33,6 +36,11 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
 
         add(ProjectExtendedLang.ADVANCEMENTS_ALCHEMICAL_BARREL, "Barrelled Storage!");
         add(ProjectExtendedLang.ADVANCEMENTS_ALCHEMICAL_BARREL_DESCRIPTION, "A \"little\" barrel upgrade.");
+    }
+
+    private void addConfigs() {
+        addConfigs(ProjectExtendedConfig.getConfigs());
+        addConfigs(ProjectExtendedConfigTranslations.values());
     }
 
     private void addBlocks() {
@@ -77,9 +85,9 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
     }
 
     private void addModes() {
-        add(ProjectExtendedLang.MODE_TRIDENT_1, "Normal");
-        add(ProjectExtendedLang.MODE_TRIDENT_2, "Channeling");
-        add(ProjectExtendedLang.MODE_TRIDENT_3, "Riptide");
-        add(ProjectExtendedLang.MODE_TRIDENT_4, "Shockwave");
+        add(ProjectExtendedLang.TRIDENT_MODE_NORMAL, "Normal");
+        add(ProjectExtendedLang.TRIDENT_MODE_CHANNELING, "Channeling");
+        add(ProjectExtendedLang.TRIDENT_MODE_RIPTIDE, "Riptide");
+        add(ProjectExtendedLang.TRIDENT_MODE_SHOCKWAVE, "Shockwave");
     }
 }

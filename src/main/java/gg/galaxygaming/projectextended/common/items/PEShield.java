@@ -1,13 +1,13 @@
 package gg.galaxygaming.projectextended.common.items;
 
-import gg.galaxygaming.projectextended.client.rendering.ISTERProvider;
 import java.util.function.Consumer;
 import moze_intel.projecte.gameObjs.EnumMatterType;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 public class PEShield extends ShieldItem {
@@ -34,12 +34,17 @@ public class PEShield extends ShieldItem {
     }
 
     @Override
-    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+    public boolean isPrimaryItemFor(ItemStack stack, Holder<Enchantment> enchantment) {
         return false;
     }
 
     @Override
-    public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, T entity, Consumer<T> onBroken) {
+    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
+        return false;
+    }
+
+    @Override
+    public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, T entity, Consumer<Item> onBroken) {
         return 0;
     }
 
@@ -47,10 +52,5 @@ public class PEShield extends ShieldItem {
     public boolean isValidRepairItem(@NotNull ItemStack toRepair, @NotNull ItemStack repair) {
         //Override the shield allowing planks to repair it as we can't lose durability anyway
         return false;
-    }
-
-    @Override
-    public void initializeClient(@NotNull Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(ISTERProvider.shield());
     }
 }

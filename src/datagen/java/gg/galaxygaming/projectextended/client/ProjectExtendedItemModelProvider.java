@@ -7,16 +7,16 @@ import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedItems;
 import moze_intel.projecte.PECore;
 import moze_intel.projecte.gameObjs.registration.impl.ItemRegistryObject;
-import moze_intel.projecte.utils.RegistryUtils;
 import net.minecraft.client.renderer.block.model.BlockModel.GuiLight;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.client.model.generators.ItemModelBuilder;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 
 public class ProjectExtendedItemModelProvider extends ItemModelProvider {
@@ -31,8 +31,11 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
         return ProjectExtended.MOD_NAME + " Item Models";
     }
 
-    private static String getName(ItemLike itemProvider) {
-        return RegistryUtils.getPath(itemProvider.asItem());
+    public static String getName(ItemLike itemProvider) {
+        return BuiltInRegistries.ITEM.getResourceKey(itemProvider.asItem())
+              .orElseThrow()
+              .location()
+              .getPath();
     }
 
     protected ItemModelBuilder generated(ItemLike itemProvider, ResourceLocation texture) {

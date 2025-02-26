@@ -1,6 +1,5 @@
 package gg.galaxygaming.projectextended.client.lang;
 
-import com.google.common.collect.ImmutableList;
 import java.text.ChoiceFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -47,11 +46,11 @@ public class FormatSplitter {
                 components.add(new TextComponent(text.substring(start)));
             }
         }
-        return ImmutableList.copyOf(components);
+        return List.copyOf(components);
     }
 
     public static List<Component> splitMessageFormat(String text) {
-        return ImmutableList.copyOf(splitMessageFormatInternal(text));
+        return List.copyOf(splitMessageFormatInternal(text));
     }
 
     /**
@@ -212,6 +211,8 @@ public class FormatSplitter {
          *
          * @return A {@link MessageFormatComponent} representing the given contents, or {@code null} if the contents do not represent a valid
          * {@link MessageFormatComponent}
+         *
+         * @see net.neoforged.fml.i18n.FMLTranslations
          */
         @Nullable
         private static MessageFormatComponent fromContents(String contents) {
@@ -290,9 +291,9 @@ public class FormatSplitter {
                         return null;
                     }
                 }
-                case "featurebound", "lower", "upper", "vr" -> {
+                case "featurebound", "lower", "upper", "vr", "i18ntranslate" -> {
                     if (formatStyle != null) {
-                        //featurebound, lower, upper, and vr do not support any format style
+                        //None of these support any format style
                         return null;
                     }
                 }

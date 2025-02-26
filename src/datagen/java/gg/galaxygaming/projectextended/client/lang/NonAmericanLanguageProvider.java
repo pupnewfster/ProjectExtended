@@ -2,6 +2,7 @@ package gg.galaxygaming.projectextended.client.lang;
 
 import gg.galaxygaming.projectextended.client.lang.FormatSplitter.Component;
 import gg.galaxygaming.projectextended.client.lang.FormatSplitter.FormatComponent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +31,7 @@ public class NonAmericanLanguageProvider extends ConvertibleLanguageProvider {
 	}
 
 	@Override
-	public void convert(String key, List<Component> splitEnglish) {
+	public void convert(String key, String raw, List<Component> splitEnglish) {
 		StringBuilder builder = new StringBuilder();
 		boolean foundMatch = false;
 		for (Component component : splitEnglish) {
@@ -38,8 +39,12 @@ public class NonAmericanLanguageProvider extends ConvertibleLanguageProvider {
 				builder.append(component.contents());
 			} else {
 				String contents = component.contents();
-				String finalContents = contents;
-				List<WordConversion> matched = CONVERSIONS.stream().filter(e -> e.match(finalContents).find()).toList();
+				List<WordConversion> matched = new ArrayList<>();
+				for (WordConversion conversion : CONVERSIONS) {
+					if (conversion.match(contents).find()) {
+						matched.add(conversion);
+					}
+				}
 				if (!matched.isEmpty()) {
 					foundMatch = true;
 					for (WordConversion conversion : matched) {

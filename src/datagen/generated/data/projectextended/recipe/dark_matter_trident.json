@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "item": "projecte:dark_matter"
+    },
+    "P": {
+      "tag": "c:gems/diamond"
+    },
+    "T": {
+      "item": "minecraft:trident"
+    }
+  },
+  "pattern": [
+    "MTM",
+    " P ",
+    " P "
+  ],
+  "result": {
+    "count": 1,
+    "id": "projectextended:dark_matter_trident"
+  }
+}

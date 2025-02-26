@@ -2,10 +2,9 @@ package gg.galaxygaming.projectextended.client.rendering.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.datafixers.util.Pair;
 import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.items.PEShield;
-import java.util.List;
+import java.util.Objects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -17,14 +16,12 @@ import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.Material;
-import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.level.block.entity.BannerBlockEntity;
-import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import org.jetbrains.annotations.NotNull;
 
 public class ShieldISTER extends BlockEntityWithoutLevelRenderer {
@@ -49,6 +46,9 @@ public class ShieldISTER extends BlockEntityWithoutLevelRenderer {
     @Override
     public void renderByItem(@NotNull ItemStack stack, @NotNull ItemDisplayContext displayContext, @NotNull PoseStack matrix, @NotNull MultiBufferSource renderer,
           int light, int overlayLight) {
+        BannerPatternLayers patternLayers = stack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
+        DyeColor dyeColor = stack.get(DataComponents.BASE_COLOR);
+
         matrix.pushPose();
         matrix.scale(1, -1, -1);
         Material material;
@@ -60,12 +60,12 @@ public class ShieldISTER extends BlockEntityWithoutLevelRenderer {
         }
         VertexConsumer buffer = material.sprite().wrap(ItemRenderer.getFoilBufferDirect(renderer, shieldModel.renderType(material.atlasLocation()),
               true, stack.hasFoil()));
-        if (stack.getTagElement("BlockEntityTag") != null) {
-            shieldModel.handle().render(matrix, buffer, light, overlayLight, 1, 1, 1, 1);
-            List<Pair<Holder<BannerPattern>, DyeColor>> list = BannerBlockEntity.createPatterns(ShieldItem.getColor(stack), BannerBlockEntity.getItemPatterns(stack));
-            BannerRenderer.renderPatterns(matrix, renderer, light, overlayLight, shieldModel.plate(), material, false, list);
+        shieldModel.handle().render(matrix, buffer, light, overlayLight);
+        if (!patternLayers.layers().isEmpty() || dyeColor != null) {
+            BannerRenderer.renderPatterns(matrix, renderer, light, overlayLight, shieldModel.plate(), material, false,
+                  Objects.requireNonNullElse(dyeColor, DyeColor.WHITE), patternLayers, stack.hasFoil());
         } else {
-            shieldModel.renderToBuffer(matrix, buffer, light, overlayLight, 1, 1, 1, 1);
+            shieldModel.plate().render(matrix, buffer, light, overlayLight);
         }
         matrix.popPose();
     }

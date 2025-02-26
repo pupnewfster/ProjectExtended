@@ -1,80 +1,60 @@
 package gg.galaxygaming.projectextended.common.network;
 
-import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.common.network.to_client.PacketSyncBlacklist;
-import java.util.Optional;
-import java.util.function.Function;
 import moze_intel.projecte.network.packets.IPEPacket;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
 
 public final class PacketHandler {
 
-	private static final String PROTOCOL_VERSION = Integer.toString(1);
-	private static final SimpleChannel HANDLER = NetworkRegistry.ChannelBuilder
-			.named(ProjectExtended.rl("main_channel"))
-			.clientAcceptedVersions(PROTOCOL_VERSION::equals)
-			.serverAcceptedVersions(PROTOCOL_VERSION::equals)
-			.networkProtocolVersion(() -> PROTOCOL_VERSION)
-			.simpleChannel();
-	private static int index;
-
-	public static void register() {
-		//Client to server messages
-
-		//Server to client messages
-		registerServerToClient(PacketSyncBlacklist.class, PacketSyncBlacklist::decode);
+	public PacketHandler(IEventBus modEventBus, ArtifactVersion version) {
+		modEventBus.addListener(RegisterPayloadHandlersEvent.class, event -> {
+			PayloadRegistrar registrar = event.registrar(version.toString());
+			registerClientToServer(new PacketRegistrar(registrar, true));
+			registerServerToClient(new PacketRegistrar(registrar, false));
+		});
 	}
 
-	private static <MSG extends IPEPacket> void registerClientToServer(Class<MSG> type, Function<FriendlyByteBuf, MSG> decoder) {
-		registerMessage(type, decoder, NetworkDirection.PLAY_TO_SERVER);
+	private void registerClientToServer(PacketRegistrar registrar) {
+
 	}
 
-	private static <MSG extends IPEPacket> void registerServerToClient(Class<MSG> type, Function<FriendlyByteBuf, MSG> decoder) {
-		registerMessage(type, decoder, NetworkDirection.PLAY_TO_CLIENT);
+	private void registerServerToClient(PacketRegistrar registrar) {
+		registrar.play(PacketSyncBlacklist.TYPE, PacketSyncBlacklist.STREAM_CODEC);
 	}
 
-	private static <MSG extends IPEPacket> void registerMessage(Class<MSG> type, Function<FriendlyByteBuf, MSG> decoder, NetworkDirection networkDirection) {
-		HANDLER.registerMessage(index++, type, IPEPacket::encode, decoder, IPEPacket::handle, Optional.of(networkDirection));
-	}
+	protected record SimplePacketPayLoad(CustomPacketPayload.Type<CustomPacketPayload> type) implements CustomPacketPayload {
 
-	private static boolean isLocal(ServerPlayer player) {
-		return player.server.isSingleplayerOwner(player.getGameProfile());
-	}
-
-	public static <MSG extends IPEPacket> void sendNonLocal(MSG msg, ServerPlayer player) {
-		if (!isLocal(player)) {
-			sendTo(msg, player);
+		private SimplePacketPayLoad(ResourceLocation id) {
+			this(new CustomPacketPayload.Type<>(id));
 		}
 	}
 
-	public static <MSG extends IPEPacket> void sendToAllNonLocal(MSG msg) {
-		if (ServerLifecycleHooks.getCurrentServer() != null) {
-			for (ServerPlayer player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
-				sendNonLocal(msg, player);
+	protected record PacketRegistrar(PayloadRegistrar registrar, boolean toServer) {
+
+		public <MSG extends IPEPacket> void play(CustomPacketPayload.Type<MSG> type, StreamCodec<? super RegistryFriendlyByteBuf, MSG> reader) {
+			if (toServer) {
+				registrar.playToServer(type, reader, IPEPacket::handle);
+			} else {
+				registrar.playToClient(type, reader, IPEPacket::handle);
 			}
 		}
-	}
 
-	/**
-	 * Sends a packet to the server.<br> Must be called Client side.
-	 */
-	public static <MSG extends IPEPacket> void sendToServer(MSG msg) {
-		HANDLER.sendToServer(msg);
-	}
-
-	/**
-	 * Send a packet to a specific player.<br> Must be called Server side.
-	 */
-	public static <MSG extends IPEPacket> void sendTo(MSG msg, ServerPlayer player) {
-		if (!(player instanceof FakePlayer)) {
-			HANDLER.send(PacketDistributor.PLAYER.with(() -> player), msg);
+		public SimplePacketPayLoad playInstanced(ResourceLocation id, IPayloadHandler<CustomPacketPayload> handler) {
+			SimplePacketPayLoad payload = new SimplePacketPayLoad(id);
+			if (toServer) {
+				registrar.playToServer(payload.type(), StreamCodec.unit(payload), handler);
+			} else {
+				registrar.playToClient(payload.type(), StreamCodec.unit(payload), handler);
+			}
+			return payload;
 		}
 	}
 }

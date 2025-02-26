@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "tag": "c:gems/diamond"
+    },
+    "G": {
+      "tag": "c:dusts/glowstone"
+    },
+    "P": {
+      "item": "projecte:philosophers_stone"
+    },
+    "R": {
+      "item": "minecraft:soul_lantern"
+    }
+  },
+  "pattern": [
+    "RDR",
+    "DPD",
+    "GGG"
+  ],
+  "result": {
+    "count": 1,
+    "id": "projectextended:interdiction_lantern"
+  }
+}

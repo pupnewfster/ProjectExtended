@@ -6,7 +6,7 @@
     }
   },
   "gui_light": "front",
-  "loader": "forge:separate_transforms",
+  "loader": "neoforge:separate_transforms",
   "perspectives": {
     "fixed": {
       "parent": "projectextended:item/red_matter_trident_gui"

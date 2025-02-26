@@ -4,11 +4,12 @@ import gg.galaxygaming.projectextended.common.container.AlchemicalBarrelContaine
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlockEntityTypes;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlocks;
 import moze_intel.projecte.api.capabilities.PECapabilities;
-import moze_intel.projecte.capability.managing.BasicCapabilityResolver;
-import moze_intel.projecte.gameObjs.block_entities.CapabilityEmcBlockEntity;
+import moze_intel.projecte.api.capabilities.item.IAlchChestItem;
+import moze_intel.projecte.gameObjs.block_entities.EmcBlockEntity;
 import moze_intel.projecte.utils.text.TextComponentUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
@@ -24,21 +25,29 @@ import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class AlchemicalBarrelBlockEntity extends CapabilityEmcBlockEntity implements MenuProvider {
+public class AlchemicalBarrelBlockEntity extends EmcBlockEntity implements MenuProvider {
 
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
         @Override
         protected void onOpen(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
-            AlchemicalBarrelBlockEntity.this.playSound(state, SoundEvents.BARREL_OPEN);
-            AlchemicalBarrelBlockEntity.this.updateBlockState(state, true);
+            playSound(level, pos, state, SoundEvents.BARREL_OPEN);
+            level.setBlockAndUpdate(pos, state.setValue(BarrelBlock.OPEN, true));
         }
 
         @Override
         protected void onClose(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state) {
-            AlchemicalBarrelBlockEntity.this.playSound(state, SoundEvents.BARREL_CLOSE);
-            AlchemicalBarrelBlockEntity.this.updateBlockState(state, false);
+            playSound(level, pos, state, SoundEvents.BARREL_CLOSE);
+            level.setBlockAndUpdate(pos, state.setValue(BarrelBlock.OPEN, false));
+        }
+
+        private void playSound(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, SoundEvent sound) {
+            Vec3 soundPos = pos.getCenter().relative(state.getValue(BarrelBlock.FACING), 0.5);
+            level.playSound(null, soundPos.x(), soundPos.y(), soundPos.z(), sound, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
         }
 
         @Override
@@ -55,28 +64,24 @@ public class AlchemicalBarrelBlockEntity extends CapabilityEmcBlockEntity implem
 
     public AlchemicalBarrelBlockEntity(BlockPos pos, BlockState state) {
         super(ProjectExtendedBlockEntityTypes.ALCHEMICAL_BARREL, pos, state, 1_000);
-        itemHandlerResolver = BasicCapabilityResolver.getBasicItemHandlerResolver(inventory);
     }
 
     public static void tickClient(Level level, BlockPos pos, BlockState state, AlchemicalBarrelBlockEntity barrel) {
-        for (int i = 0; i < barrel.inventory.getSlots(); i++) {
+        for (int i = 0, slots = barrel.inventory.getSlots(); i < slots; i++) {
             ItemStack stack = barrel.inventory.getStackInSlot(i);
-            if (!stack.isEmpty()) {
-                stack.getCapability(PECapabilities.ALCH_CHEST_ITEM_CAPABILITY).ifPresent(alchChestItem -> alchChestItem.updateInAlchChest(level, pos, stack));
+            IAlchChestItem chestItem = stack.getCapability(PECapabilities.ALCH_CHEST_ITEM_CAPABILITY);
+            if (chestItem != null) {
+                chestItem.updateInAlchChest(level, pos, stack);
             }
         }
     }
 
     public static void tickServer(Level level, BlockPos pos, BlockState state, AlchemicalBarrelBlockEntity barrel) {
-        for (int i = 0; i < barrel.inventory.getSlots(); i++) {
+        for (int i = 0, slots = barrel.inventory.getSlots(); i < slots; i++) {
             ItemStack stack = barrel.inventory.getStackInSlot(i);
-            if (!stack.isEmpty()) {
-                int slotId = i;
-                stack.getCapability(PECapabilities.ALCH_CHEST_ITEM_CAPABILITY).ifPresent(alchChestItem -> {
-                    if (alchChestItem.updateInAlchChest(level, pos, stack)) {
-                        barrel.inventory.onContentsChanged(slotId);
-                    }
-                });
+            IAlchChestItem chestItem = stack.getCapability(PECapabilities.ALCH_CHEST_ITEM_CAPABILITY);
+            if (chestItem != null && chestItem.updateInAlchChest(level, pos, stack)) {
+                barrel.inventory.onContentsChanged(i);
             }
         }
         if (barrel.inventoryChanged) {
@@ -84,19 +89,19 @@ public class AlchemicalBarrelBlockEntity extends CapabilityEmcBlockEntity implem
             barrel.inventoryChanged = false;
             level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
         }
-        barrel.updateComparators();
+        barrel.updateComparators(level, pos);
     }
 
     @Override
-    public void load(@NotNull CompoundTag nbt) {
-        super.load(nbt);
-        inventory.deserializeNBT(nbt);
+    public void loadAdditional(@NotNull CompoundTag nbt, @NotNull HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
+        inventory.deserializeNBT(registries, nbt);
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.merge(inventory.serializeNBT());
+    protected void saveAdditional(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.merge(inventory.serializeNBT(registries));
     }
 
     public void startOpen(Player player) {
@@ -117,18 +122,8 @@ public class AlchemicalBarrelBlockEntity extends CapabilityEmcBlockEntity implem
         }
     }
 
-    void updateBlockState(BlockState state, boolean open) {
-        if (level != null) {
-            level.setBlockAndUpdate(getBlockPos(), state.setValue(BarrelBlock.OPEN, open));
-        }
-    }
-
-    void playSound(BlockState state, SoundEvent sound) {
-        Vec3i vec3i = state.getValue(BarrelBlock.FACING).getNormal();
-        double d0 = (double) this.worldPosition.getX() + 0.5D + (double) vec3i.getX() / 2.0D;
-        double d1 = (double) this.worldPosition.getY() + 0.5D + (double) vec3i.getY() / 2.0D;
-        double d2 = (double) this.worldPosition.getZ() + 0.5D + (double) vec3i.getZ() / 2.0D;
-        this.level.playSound(null, d0, d1, d2, sound, SoundSource.BLOCKS, 0.5F, this.level.random.nextFloat() * 0.1F + 0.9F);
+    public IItemHandler getInventory(@Nullable Direction direction) {
+        return inventory;
     }
 
     @NotNull

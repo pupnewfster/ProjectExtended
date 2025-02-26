@@ -1,11 +1,11 @@
 package gg.galaxygaming.projectextended.client.lang;
 
+import gg.galaxygaming.projectextended.ProjectExtended;
 import gg.galaxygaming.projectextended.client.lang.FormatSplitter.Component;
 import gg.galaxygaming.projectextended.client.lang.FormatSplitter.FormatComponent;
 import gg.galaxygaming.projectextended.client.lang.FormatSplitter.MessageFormatComponent;
 import java.text.ChoiceFormat;
 import java.util.List;
-import moze_intel.projecte.PECore;
 import net.minecraft.data.PackOutput;
 
 /**
@@ -19,18 +19,21 @@ public class UpsideDownLanguageProvider extends ConvertibleLanguageProvider {
     }
 
     @Override
-    public void convert(String key, List<Component> splitEnglish) {
-        add(key, convertComponents(splitEnglish));
+    public void convert(String key, String raw, List<Component> splitEnglish) {
+        String upsideDown = convertComponents(splitEnglish);
+        if (!raw.equals(upsideDown)) {
+            add(key, upsideDown);
+        }
     }
 
     private static final String normal = "abcdefghijklmnopqrstuvwxyz" +
                                          "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
                                          "0123456789" +
-                                         ",.?!;\"'`&_^()[]{}<>";
+                                         ",.?!;\"'`&_^()[]{}<>≤≥";
     private static final char[] upside_down = ("ɐqɔpǝɟᵷɥᴉɾʞꞁɯuodbɹsʇnʌʍxʎz" +
                                                "ⱯᗺƆᗡƎℲ⅁HIՐꞰꞀWNOԀꝹᴚS⟘∩ΛMX⅄Z" +
                                                "0⥝ᘔƐ߈ϛ9ㄥ86" +
-                                               "'˙¿¡؛„,,⅋‾v)(][}{><").toCharArray();
+                                               "'˙¿¡؛„,,⅋‾v)(][}{><⪖⪕").toCharArray();
 
     private static char flip(char c) {
         int index = normal.indexOf(c);
@@ -75,7 +78,7 @@ public class UpsideDownLanguageProvider extends ConvertibleLanguageProvider {
             try {
                 new ChoiceFormat(newFormatStyle);
             } catch (IllegalArgumentException e) {
-                PECore.LOGGER.warn("Failed to convert '{}' to an upside down choice format. Got: '{}' which was invalid.", formatStyle, newFormatStyle);
+                ProjectExtended.LOGGER.warn("Failed to convert '{}' to an upside down choice format. Got: '{}' which was invalid.", formatStyle, newFormatStyle);
                 //Safety check for if we failed to convert it into a valid choice format just fallback to leaving the format as is
                 return component.contents();
             }

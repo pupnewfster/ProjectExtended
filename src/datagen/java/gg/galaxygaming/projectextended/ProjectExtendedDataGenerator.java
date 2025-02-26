@@ -8,21 +8,25 @@ import gg.galaxygaming.projectextended.common.ProjectExtendedAdvancementsGenerat
 import gg.galaxygaming.projectextended.common.ProjectExtendedLang;
 import gg.galaxygaming.projectextended.common.ProjectExtendedPackMetadataGenerator;
 import gg.galaxygaming.projectextended.common.ProjectExtendedRecipeProvider;
-import gg.galaxygaming.projectextended.common.loot.ProjectExtendedLootProvider;
+import gg.galaxygaming.projectextended.common.loot.ProjectExtendedBlockLootTable;
 import gg.galaxygaming.projectextended.common.tag.ProjectExtendedBlockTagProvider;
 import gg.galaxygaming.projectextended.common.tag.ProjectExtendedEntityTypesTagProvider;
 import gg.galaxygaming.projectextended.common.tag.ProjectExtendedItemTagProvider;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.common.data.ForgeAdvancementProvider;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.data.loot.LootTableProvider.SubProviderEntry;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.neoforge.common.data.AdvancementProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 @EventBusSubscriber(modid = ProjectExtended.MODID, bus = Bus.MOD)
 public class ProjectExtendedDataGenerator {
@@ -36,7 +40,7 @@ public class ProjectExtendedDataGenerator {
 
         gen.addProvider(true, new ProjectExtendedPackMetadataGenerator(output, ProjectExtendedLang.PACK_DESCRIPTION));
         //Client side datagen
-        gen.addProvider(event.includeClient(), new ProjectExtendedSpriteSourceProvider(output, existingFileHelper));
+        gen.addProvider(event.includeClient(), new ProjectExtendedSpriteSourceProvider(output, lookupProvider, existingFileHelper));
         gen.addProvider(event.includeClient(), new ProjectExtendedLangProvider(output));
         gen.addProvider(event.includeClient(), new ProjectExtendedBlockStateProvider(output, existingFileHelper));
         gen.addProvider(event.includeClient(), new ProjectExtendedItemModelProvider(output, existingFileHelper));
@@ -44,8 +48,10 @@ public class ProjectExtendedDataGenerator {
         ProjectExtendedBlockTagProvider blockTagsProvider = gen.addProvider(event.includeServer(), new ProjectExtendedBlockTagProvider(output, lookupProvider, existingFileHelper));
         gen.addProvider(event.includeServer(), new ProjectExtendedItemTagProvider(output, lookupProvider, blockTagsProvider.contentsGetter(), existingFileHelper));
         gen.addProvider(event.includeServer(), new ProjectExtendedEntityTypesTagProvider(output, lookupProvider, existingFileHelper));
-        gen.addProvider(event.includeServer(), new ProjectExtendedRecipeProvider(output));
-        gen.addProvider(event.includeServer(), new ForgeAdvancementProvider(output, lookupProvider, existingFileHelper, List.of(new ProjectExtendedAdvancementsGenerator())));
-        gen.addProvider(event.includeServer(), new ProjectExtendedLootProvider(output));
+        gen.addProvider(event.includeServer(), new ProjectExtendedRecipeProvider(output, lookupProvider));
+        gen.addProvider(event.includeServer(), new AdvancementProvider(output, lookupProvider, existingFileHelper, List.of(new ProjectExtendedAdvancementsGenerator())));
+        gen.addProvider(event.includeServer(), new LootTableProvider(output, Collections.emptySet(), List.of(
+              new SubProviderEntry(ProjectExtendedBlockLootTable::new, LootContextParamSets.BLOCK)
+        ), lookupProvider));
     }
 }

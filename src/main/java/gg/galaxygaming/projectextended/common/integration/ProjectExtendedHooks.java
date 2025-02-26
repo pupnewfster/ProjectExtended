@@ -1,6 +1,6 @@
 package gg.galaxygaming.projectextended.common.integration;
 
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 public class ProjectExtendedHooks {
 

@@ -1,7 +1,7 @@
 package gg.galaxygaming.projectextended.common.block;
 
-import gg.galaxygaming.projectextended.common.block_entity.InterdictionLanternBlockEntity;
 import gg.galaxygaming.projectextended.common.registries.ProjectExtendedBlockEntityTypes;
+import moze_intel.projecte.gameObjs.block_entities.InterdictionBlockEntity;
 import moze_intel.projecte.gameObjs.blocks.PEEntityBlock;
 import moze_intel.projecte.gameObjs.registration.impl.BlockEntityTypeRegistryObject;
 import net.minecraft.core.BlockPos;
@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class InterdictionLantern extends LanternBlock implements PEEntityBlock<InterdictionLanternBlockEntity> {
+public class InterdictionLantern extends LanternBlock implements PEEntityBlock<InterdictionBlockEntity> {
 
     public InterdictionLantern(Properties properties) {
         super(properties);
@@ -19,7 +19,7 @@ public class InterdictionLantern extends LanternBlock implements PEEntityBlock<I
 
     @Nullable
     @Override
-    public BlockEntityTypeRegistryObject<InterdictionLanternBlockEntity> getType() {
+    public BlockEntityTypeRegistryObject<InterdictionBlockEntity> getType() {
         return ProjectExtendedBlockEntityTypes.INTERDICTION_LANTERN;
     }
 
