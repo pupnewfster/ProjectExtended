@@ -9,6 +9,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -35,6 +37,8 @@ public class ProjectExtendedItemTagProvider extends ItemTagsProvider {
 
     private void addTools() {
         tag(Tags.Items.TOOLS_SHIELD).add(ProjectExtendedItems.DARK_MATTER_SHIELD.get(), ProjectExtendedItems.RED_MATTER_SHIELD.get());
-        tag(Tags.Items.TOOLS_SPEAR).add(ProjectExtendedItems.DARK_MATTER_TRIDENT.get(), ProjectExtendedItems.RED_MATTER_TRIDENT.get());
+        Item[] tridents = {ProjectExtendedItems.DARK_MATTER_TRIDENT.get(), ProjectExtendedItems.RED_MATTER_TRIDENT.get()};
+        tag(Tags.Items.TOOLS_SPEAR).add(tridents);
+        tag(ItemTags.BREAKS_DECORATED_POTS).add(tridents);
     }
 }

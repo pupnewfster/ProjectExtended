@@ -33,10 +33,10 @@ public class ProjectExtendedCreativeTabs {
 		} else if (tabKey == CreativeModeTabs.REDSTONE_BLOCKS) {
 			event.accept(ProjectExtendedBlocks.ALCHEMICAL_BARREL);
 		} else if (tabKey == CreativeModeTabs.COMBAT) {
-			event.accept(ProjectExtendedItems.DARK_MATTER_TRIDENT.get());
-			event.accept(ProjectExtendedItems.DARK_MATTER_SHIELD.get());
-			event.accept(ProjectExtendedItems.RED_MATTER_TRIDENT.get());
-			event.accept(ProjectExtendedItems.RED_MATTER_SHIELD.get());
+			event.accept(ProjectExtendedItems.DARK_MATTER_TRIDENT);
+			event.accept(ProjectExtendedItems.DARK_MATTER_SHIELD);
+			event.accept(ProjectExtendedItems.RED_MATTER_TRIDENT);
+			event.accept(ProjectExtendedItems.RED_MATTER_SHIELD);
 		}
 	}
 }

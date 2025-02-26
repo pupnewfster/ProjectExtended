@@ -51,6 +51,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.TridentItem;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -65,6 +66,7 @@ import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+//TODO - 1.21: Doesn't trigger the shot trident advancement
 public class PETrident extends TridentItem implements IItemCharge, IItemMode<TridentMode>, IBarHelper, IHasConditionalAttributes {
 
     private static ItemAttributeModifiers createAttributes(EnumMatterType matterType, float damage) {
@@ -84,11 +86,13 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode<Tri
     private final float attackDamage;
 
     public PETrident(EnumMatterType matterType, int numCharges, float damage, Properties props) {
-        super(props.attributes(createAttributes(matterType, damage))
+        super(props.rarity(Rarity.EPIC)
+              .attributes(createAttributes(matterType, damage))
               .component(DataComponents.TOOL, createToolProperties())
         );
         this.matterType = matterType;
         this.numCharges = numCharges;
+        //TODO - 1.21: Get this from the attributes instead
         this.attackDamage = matterType.getAttackDamageBonus() + damage;
     }
 
@@ -101,32 +105,32 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode<Tri
     }
 
     @Override
-    public boolean isEnchantable(@NotNull ItemStack stack) {
-        return false;
-    }
-
-    @Override
-    public boolean isBookEnchantable(ItemStack stack, ItemStack book) {
-        return false;
-    }
-
-    @Override
-    public boolean isPrimaryItemFor(ItemStack stack, Holder<Enchantment> enchantment) {
-        return false;
-    }
-
-    @Override
-    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
-        return false;
-    }
-
-    @Override
     public int getEnchantmentValue() {
         return 0;
     }
 
     @Override
-    public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, T entity, Consumer<Item> onBroken) {
+    public boolean isEnchantable(@NotNull ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(@NotNull ItemStack stack, @NotNull ItemStack book) {
+        return false;
+    }
+
+    @Override
+    public boolean isPrimaryItemFor(@NotNull ItemStack stack, @NotNull Holder<Enchantment> enchantment) {
+        return false;
+    }
+
+    @Override
+    public boolean supportsEnchantment(@NotNull ItemStack stack, @NotNull Holder<Enchantment> enchantment) {
+        return false;
+    }
+
+    @Override
+    public <T extends LivingEntity> int damageItem(@NotNull ItemStack stack, int amount, T entity, @NotNull Consumer<Item> onBroken) {
         return 0;
     }
 

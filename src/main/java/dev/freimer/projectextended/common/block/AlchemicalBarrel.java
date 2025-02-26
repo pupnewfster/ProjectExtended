@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class AlchemicalBarrel extends DirectionalBlock implements PEEntityBlock<AlchemicalBarrelBlockEntity> {
 
-    public static final MapCodec<AlchemicalBarrel> CODEC = simpleCodec(AlchemicalBarrel::new);
+    private static final MapCodec<AlchemicalBarrel> CODEC = simpleCodec(AlchemicalBarrel::new);
 
     public AlchemicalBarrel(BlockBehaviour.Properties properties) {
         super(properties);
@@ -128,11 +128,7 @@ public class AlchemicalBarrel extends DirectionalBlock implements PEEntityBlock<
     @Override
     @Deprecated
     public int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
-        IItemHandler handler = WorldHelper.getCapability(level, ItemHandler.BLOCK, pos, null);
-        if (handler != null) {
-            return ItemHandlerHelper.calcRedstoneFromInventory(handler);
-        }
-        return 0;
+        return ItemHandlerHelper.calcRedstoneFromInventory(WorldHelper.getCapability(level, ItemHandler.BLOCK, pos, null));
     }
 
     @NotNull

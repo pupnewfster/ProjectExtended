@@ -59,7 +59,7 @@ public class UpsideDownLanguageProvider extends ConvertibleLanguageProvider {
             //No index stored in the formatting code
             ending = formattingCode.substring(1);
         }
-        //Compare the index the argument currently has with the index it will have afterwards
+        //Compare the index the argument currently has with the index it will have afterward
         // If they are the same we don't need to include the index argument
         if (storedIndex == numArguments - curIndex + 1) {
             return "%" + ending;

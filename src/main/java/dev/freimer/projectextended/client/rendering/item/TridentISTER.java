@@ -20,14 +20,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class TridentISTER extends BlockEntityWithoutLevelRenderer {
 
-    public static final ResourceLocation DM_TRIDENT = ProjectExtended.rl("textures/entity/dark_matter_trident.png");
-    public static final ResourceLocation RM_TRIDENT = ProjectExtended.rl("textures/entity/red_matter_trident.png");
+    private static final ResourceLocation DM_TRIDENT = ProjectExtended.rl("textures/entity/dark_matter_trident.png");
+    private static final ResourceLocation RM_TRIDENT = ProjectExtended.rl("textures/entity/red_matter_trident.png");
     public static final TridentISTER RENDERER = new TridentISTER(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
 
     private final EntityModelSet modelSet;
     private TridentModel tridentModel;
 
-    public TridentISTER(BlockEntityRenderDispatcher renderDispatcher, EntityModelSet modelSet) {
+    private TridentISTER(BlockEntityRenderDispatcher renderDispatcher, EntityModelSet modelSet) {
         super(renderDispatcher, modelSet);
         this.modelSet = modelSet;
     }
@@ -47,7 +47,7 @@ public class TridentISTER extends BlockEntityWithoutLevelRenderer {
         matrix.popPose();
     }
 
-    private ResourceLocation getTexture(ItemStack stack) {
+    public static ResourceLocation getTexture(ItemStack stack) {
         if (stack.getItem() instanceof PETrident trident && trident.getMatterTier() > 0) {
             return RM_TRIDENT;
         }

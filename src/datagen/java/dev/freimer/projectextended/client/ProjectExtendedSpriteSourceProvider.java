@@ -23,9 +23,7 @@ public class ProjectExtendedSpriteSourceProvider extends SpriteSourceProvider {
 
     @Override
     protected void gather() {
-        SourceList shieldAtlas = atlas(SHIELD_PATTERNS_ATLAS);
-        addFiles(shieldAtlas, ProjectExtended.rl("entity/dark_matter_shield"));
-        addFiles(shieldAtlas, ProjectExtended.rl("entity/red_matter_shield"));
+        addFiles(atlas(SHIELD_PATTERNS_ATLAS), ProjectExtended.rl("entity/dark_matter_shield"), ProjectExtended.rl("entity/red_matter_shield"));
     }
 
     protected void addFiles(SourceList atlas, ResourceLocation... resourceLocations) {

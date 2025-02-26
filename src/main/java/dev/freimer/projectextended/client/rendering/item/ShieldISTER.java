@@ -26,14 +26,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class ShieldISTER extends BlockEntityWithoutLevelRenderer {
 
-    public static final Material DM_SHIELD = new Material(Sheets.SHIELD_SHEET, ProjectExtended.rl("entity/dark_matter_shield"));
-    public static final Material RM_SHIELD = new Material(Sheets.SHIELD_SHEET, ProjectExtended.rl("entity/red_matter_shield"));
+    private static final Material DM_SHIELD = new Material(Sheets.SHIELD_SHEET, ProjectExtended.rl("entity/dark_matter_shield"));
+    private static final Material RM_SHIELD = new Material(Sheets.SHIELD_SHEET, ProjectExtended.rl("entity/red_matter_shield"));
     public static final ShieldISTER RENDERER = new ShieldISTER(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
 
     private final EntityModelSet modelSet;
     private ShieldModel shieldModel;
 
-    public ShieldISTER(BlockEntityRenderDispatcher renderDispatcher, EntityModelSet modelSet) {
+    private ShieldISTER(BlockEntityRenderDispatcher renderDispatcher, EntityModelSet modelSet) {
         super(renderDispatcher, modelSet);
         this.modelSet = modelSet;
     }

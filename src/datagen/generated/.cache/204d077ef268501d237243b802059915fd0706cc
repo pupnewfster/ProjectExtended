@@ -1,6 +1,7 @@
-// 1.21.1	2025-02-26T14:02:23.8646263	Tags for minecraft:item mod id projectextended
+// 1.21.1	2025-02-26T14:48:19.3503414	Tags for minecraft:item mod id projectextended
 274670177e2a1a967509fe89e95410303998658a data/c/tags/item/barrels.json
 fd113b0e24f3d54aedc9b7332ff34aa7fa22da26 data/c/tags/item/tools/shield.json
 366f4c8688f7b1f737d9ad5ec2ee759bc5923a1e data/c/tags/item/tools/spear.json
+366f4c8688f7b1f737d9ad5ec2ee759bc5923a1e data/minecraft/tags/item/breaks_decorated_pots.json
 35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/projectextended/tags/item/blacklist_condenser.json
 35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/projectextended/tags/item/blacklist_learning.json

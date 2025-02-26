@@ -97,7 +97,6 @@ def replaceResources = tasks.register("replaceResources", Copy) {
     }
 }
 
-//TODO - 1.21: Change the actual package as well
 group = 'dev.freimer.projectextended'
 version = "${mod_version}"
 project.base.archivesName = 'ProjectExtended'

@@ -17,9 +17,21 @@ public class ProjectExtendedBlocks {
     public static final BlockDeferredRegister BLOCKS = new BlockDeferredRegister(ProjectExtended.MODID);
 
     public static final BlockRegistryObject<AlchemicalBarrel, BlockItem> ALCHEMICAL_BARREL = BLOCKS.register("alchemical_barrel",
-          () -> new AlchemicalBarrel(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).requiresCorrectToolForDrops()
-                .strength(10, 3_600_000)));
+          () -> new AlchemicalBarrel(BlockBehaviour.Properties.of()
+                .mapColor(MapColor.STONE)
+                .instrument(NoteBlockInstrument.BASEDRUM)
+                .requiresCorrectToolForDrops()
+                .strength(10, 3_600_000)
+          ));
     public static final BlockRegistryObject<InterdictionLantern, BlockItem> INTERDICTION_LANTERN = BLOCKS.register("interdiction_lantern",
-          () -> new InterdictionLantern(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops().strength(3.5F)
-                .sound(SoundType.LANTERN).lightLevel(state -> 15).noOcclusion().pushReaction(PushReaction.DESTROY)));
+          () -> new InterdictionLantern(BlockBehaviour.Properties.of()
+                .mapColor(MapColor.METAL)
+                .forceSolidOn()
+                .requiresCorrectToolForDrops()
+                .strength(3.5F)
+                .sound(SoundType.LANTERN)
+                .lightLevel(state -> 15)
+                .noOcclusion()
+                .pushReaction(PushReaction.DESTROY)
+          ));
 }

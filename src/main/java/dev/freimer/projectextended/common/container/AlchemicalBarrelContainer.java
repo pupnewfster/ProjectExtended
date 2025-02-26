@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class AlchemicalBarrelContainer extends PEContainer {
 
-    protected final AlchemicalBarrelBlockEntity blockEntity;
+    private final AlchemicalBarrelBlockEntity blockEntity;
 
     public AlchemicalBarrelContainer(int windowId, Inventory playerInv, AlchemicalBarrelBlockEntity barrel) {
         super(ProjectExtendedContainerTypes.ALCHEMICAL_BARREL_CONTAINER, windowId, playerInv);

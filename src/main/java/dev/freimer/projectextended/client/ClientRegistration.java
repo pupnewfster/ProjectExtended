@@ -9,8 +9,8 @@ import dev.freimer.projectextended.common.registries.ProjectExtendedContainerTyp
 import dev.freimer.projectextended.common.registries.ProjectExtendedEntityTypes;
 import dev.freimer.projectextended.common.registries.ProjectExtendedItems;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.api.distmarker.Dist;
@@ -30,7 +30,7 @@ public class ClientRegistration {
     @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            ItemPropertyFunction override = (stack, world, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F;
+            ClampedItemPropertyFunction override = (stack, world, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F;
             addPropertyOverrides(ProjectExtended.rl("blocking"), override, ProjectExtendedItems.DARK_MATTER_SHIELD, ProjectExtendedItems.RED_MATTER_SHIELD);
             addPropertyOverrides(ProjectExtended.rl("throwing"), override, ProjectExtendedItems.DARK_MATTER_TRIDENT, ProjectExtendedItems.RED_MATTER_TRIDENT);
         });
@@ -47,7 +47,7 @@ public class ClientRegistration {
         event.registerReloadListener(TridentISTER.RENDERER);
     }
 
-    private static void addPropertyOverrides(ResourceLocation override, ItemPropertyFunction propertyGetter, ItemLike... items) {
+    private static void addPropertyOverrides(ResourceLocation override, ClampedItemPropertyFunction propertyGetter, ItemLike... items) {
         for (ItemLike item : items) {
             ItemProperties.register(item.asItem(), override, propertyGetter);
         }

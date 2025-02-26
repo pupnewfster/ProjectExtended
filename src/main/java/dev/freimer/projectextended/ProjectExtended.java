@@ -19,12 +19,10 @@ import moze_intel.projecte.api.event.PlayerAttemptCondenserSetEvent;
 import moze_intel.projecte.api.event.PlayerAttemptLearnEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
@@ -32,7 +30,6 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 @Mod(ProjectExtended.MODID)
 public class ProjectExtended {
@@ -45,11 +42,10 @@ public class ProjectExtended {
 
     private final PacketHandler packetHandler;
 
-    @Nullable
-    private ResourceManager resourceManager;
-
     public ProjectExtended(ModContainer modContainer, IEventBus modEventBus) {
         INSTANCE = this;
+        ProjectExtendedHooks.checkModsLoaded();
+
         ProjectExtendedItems.ITEMS.register(modEventBus);
         ProjectExtendedBlocks.BLOCKS.register(modEventBus);
         ProjectExtendedBlockEntityTypes.BLOCK_ENTITY_TYPES.register(modEventBus);
@@ -58,7 +54,6 @@ public class ProjectExtended {
         ProjectExtendedDataComponentTypes.DATA_COMPONENT_TYPES.register(modEventBus);
         ProjectExtendedEntityTypes.ENTITY_TYPES.register(modEventBus);
         ProjectExtendedRecipeSerializers.RECIPE_SERIALIZERS.register(modEventBus);
-        modEventBus.addListener(this::commonSetup);
         //Note: High priority so that ProjectE gets the event after us and clears out any NSSTags we make as we don't need
         // conversions defined for them. Technically this doesn't fully matter as projecte acts on datapack sync instead of
         // the reload listener level, but it is still worth doing
@@ -80,11 +75,6 @@ public class ProjectExtended {
 
     public static ResourceLocation rl(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
-    }
-
-    private void commonSetup(FMLCommonSetupEvent event) {
-        //Ensure our tags are all initialized
-        event.enqueueWork(ProjectExtendedHooks::hookCommon);
     }
 
     private void addReloadListeners(AddReloadListenerEvent event) {

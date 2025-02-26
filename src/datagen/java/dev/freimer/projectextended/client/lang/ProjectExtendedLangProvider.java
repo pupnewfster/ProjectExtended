@@ -7,6 +7,7 @@ import dev.freimer.projectextended.common.config.ProjectExtendedConfigTranslatio
 import dev.freimer.projectextended.common.registries.ProjectExtendedBlocks;
 import dev.freimer.projectextended.common.registries.ProjectExtendedEntityTypes;
 import dev.freimer.projectextended.common.registries.ProjectExtendedItems;
+import moze_intel.projecte.PECore;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.ItemLike;
@@ -26,8 +27,8 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
         addModes();
         //Misc stuff
         addPackData(ProjectExtendedLang.PROJECT_EXTENDED, ProjectExtendedLang.PACK_DESCRIPTION);
-        addModInfo(modName + " is a mod that adds features to ProjectE that EE2 would probably have had it been made in modern times.");
-        add(ProjectExtendedLang.LIST_ELEMENT, " - %s");
+        addModInfo(modName + " is a mod that adds features to " + PECore.MODNAME + " that EE2 would probably have had it been made in modern times.");
+        add(ProjectExtendedLang.LIST_ELEMENT, " - %1$s");
 
         add(ProjectExtendedLang.WARNING_BLACKLIST_CONDENSER, "WARNING: This item is blacklisted from the condenser. It cannot be used as the target lock, but can be used for EMC.");
         add(ProjectExtendedLang.WARNING_BLACKLIST_CONDENSER_STAGES, "Missing the following Game Stages in order to use this item as a target lock:");

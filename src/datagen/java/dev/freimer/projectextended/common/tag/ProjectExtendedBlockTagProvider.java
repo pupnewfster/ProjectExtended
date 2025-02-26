@@ -30,5 +30,8 @@ public class ProjectExtendedBlockTagProvider extends BlockTagsProvider {
               ProjectExtendedBlocks.ALCHEMICAL_BARREL.getBlock(),
               ProjectExtendedBlocks.INTERDICTION_LANTERN.getBlock()
         );
+        tag(BlockTags.PIGLIN_REPELLENTS).add(
+              ProjectExtendedBlocks.INTERDICTION_LANTERN.getBlock()
+        );
     }
 }

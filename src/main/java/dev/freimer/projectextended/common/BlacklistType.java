@@ -27,8 +27,6 @@ public enum BlacklistType {
     LEARNING("learning", ProjectExtendedTags.Items.BLACKLIST_LEARNING, ProjectExtendedLang.WARNING_BLACKLIST_TRANSMUTATION,
           ProjectExtendedLang.WARNING_BLACKLIST_TRANSMUTATION_STAGES);
 
-    //TODO - 1.21: Remove
-    //public static final Codec<BlacklistType> CODEC = StringRepresentable.fromEnum(BlacklistType::values);
     public static final IntFunction<BlacklistType> BY_ID = ByIdMap.continuous(BlacklistType::ordinal, values(), ByIdMap.OutOfBoundsStrategy.WRAP);
     public static final StreamCodec<ByteBuf, BlacklistType> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, BlacklistType::ordinal);
 
