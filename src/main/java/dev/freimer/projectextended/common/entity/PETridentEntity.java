@@ -7,6 +7,8 @@ import dev.freimer.projectextended.common.registries.ProjectExtendedItems;
 import java.util.function.Predicate;
 import moze_intel.projecte.gameObjs.items.ItemPE;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -17,7 +19,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,6 +42,7 @@ public class PETridentEntity extends ThrownTrident {
     private TridentMode mode = TridentMode.NORMAL;
     private boolean noReturn;
     private int charge;
+    private boolean playSoundLouder;
 
     public PETridentEntity(EntityType<? extends PETridentEntity> type, Level worldIn) {
         super(type, worldIn);
@@ -115,11 +117,12 @@ public class PETridentEntity extends ThrownTrident {
                 EnchantmentHelper.doPostAttackEffectsWithItemSource(serverLevel, hitEntity, damageSource, tridentStack);
                 if (mode.canUseSpecialAbility(serverLevel, thrower, getMatterTier())) {
                     if (mode == TridentMode.SHOCKWAVE) {
-                        createShockwave(serverLevel, charge, damage, thrower instanceof LivingEntity living ? living : null);
+                        createShockwave(serverLevel, charge, result.getLocation(), damage, thrower instanceof LivingEntity living ? living : null, ParticleTypes.CRIT);
                         volume = 5.0F;
                     } else if (mode == TridentMode.CHANNELING) {
                         //Note: Channeling explicitly checks for it happening on vanilla's trident entity, so we have to handle it manually here
-                        trySummonLightning(serverLevel, charge + 1, hitEntity.position(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null);
+                        // We also use the hit result's location instead of the hit entity's position
+                        trySummonLightning(serverLevel, charge + 1, result.getLocation(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null);
                     }
                 }
             }
@@ -137,24 +140,30 @@ public class PETridentEntity extends ThrownTrident {
     protected void hitBlockEnchantmentEffects(@NotNull ServerLevel level, @NotNull BlockHitResult hitResult, @NotNull ItemStack stack) {
         super.hitBlockEnchantmentEffects(level, hitResult, stack);
         //Note: This runs before updating the position of the entity rather than afterward like it used to
-        //SoundEvent sound = getHitGroundSoundEvent();
-        //float volume = 1.0F;
-        //float pitch = 1.2F / (random.nextFloat() * 0.2F + 0.9F);
-
         Entity thrower = getOwner();
         if (mode.canUseSpecialAbility(level, thrower, getMatterTier())) {
             ItemStack tridentStack = getWeaponItem();
+            Vec3 hitTarget = hitResult.getBlockPos().clampLocationWithin(hitResult.getLocation());
             if (mode == TridentMode.SHOCKWAVE) {
-                createShockwave(level, charge, PETrident.getAttackDamage(tridentStack), thrower instanceof LivingEntity living ? living : null);
-                //volume = 5.0F;
-                //pitch = 1.0F;
-                //TODO - 1.21: Play the hit ground sound louder?
+                BlockPos hitPos = hitResult.getBlockPos();
+                createShockwave(level, charge, hitTarget, PETrident.getAttackDamage(tridentStack), thrower instanceof LivingEntity living ? living : null,
+                      new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(hitPos)).setPos(hitPos));
+                playSoundLouder = true;
             } else if (mode == TridentMode.CHANNELING) {
                 //Note: Channeling explicitly checks for it happening on vanilla's trident entity, so we have to handle it manually here
-                Vec3 hitTarget = hitResult.getBlockPos().clampLocationWithin(hitResult.getLocation());
                 trySummonLightning(level, charge + 1, hitTarget, thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null);
             }
         }
+    }
+
+    @Override
+    public void playSound(@NotNull SoundEvent sound, float volume, float pitch) {
+        if (playSoundLouder && sound == getHitGroundSoundEvent()) {
+            playSoundLouder = false;
+            volume = 5;
+            pitch = 1;
+        }
+        super.playSound(sound, volume, pitch);
     }
 
     /**
@@ -189,19 +198,15 @@ public class PETridentEntity extends ThrownTrident {
         }
     }
 
-    private void createShockwave(ServerLevel level, int charge, float damage, @Nullable LivingEntity thrower) {
+    private void createShockwave(ServerLevel level, int charge, Vec3 hitTarget, float damage, @Nullable LivingEntity thrower, ParticleOptions particleOptions) {
         //Note: This used to bypass armor but no longer does. Eventually we may want that back but for now it seems reasonable enough to not do so
         DamageSource src = damageSources().trident(this, thrower == null ? this : thrower);
         int distance = charge + 1;
         for (Entity entity : level.getEntities(thrower, getBoundingBox().inflate(distance), SLAY_MOB)) {
             entity.hurt(src, damage);
         }
-        AreaEffectCloud particle = new AreaEffectCloud(level, getX(), getY(), getZ());
-        particle.setOwner(thrower);
-        particle.setParticle(ParticleTypes.CRIT);
-        particle.setRadius(distance);
-        particle.setDuration(0);
-        level.addFreshEntity(particle);
+        double radius = 0.1 * distance;
+        level.sendParticles(particleOptions, hitTarget.x(), hitTarget.y(), hitTarget.z(), 40 * distance, radius, 0.3, radius, 0);
     }
 
     @Override
