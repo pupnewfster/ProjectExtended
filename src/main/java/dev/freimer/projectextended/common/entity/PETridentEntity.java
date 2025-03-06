@@ -98,39 +98,34 @@ public class PETridentEntity extends ThrownTrident {
         ItemStack tridentStack = getWeaponItem();
         Entity hitEntity = result.getEntity();
         Entity thrower = getOwner();
-        DamageSource damagesource = damageSources().trident(this, thrower == null ? this : thrower);
+        DamageSource damageSource = damageSources().trident(this, thrower == null ? this : thrower);
         float damage = PETrident.getAttackDamage(tridentStack);
         if (level() instanceof ServerLevel serverLevel) {
             //Even though we can't be enchanted normally, apply enchantment modifiers anyway
-            damage = EnchantmentHelper.modifyDamage(serverLevel, tridentStack, hitEntity, damagesource, damage);
+            damage = EnchantmentHelper.modifyDamage(serverLevel, tridentStack, hitEntity, damageSource, damage);
         }
 
         float volume = 1.0F;
         SoundEvent sound = SoundEvents.TRIDENT_HIT;
         dealtDamage = true;
-        if (hitEntity.hurt(damagesource, damage)) {
+        if (hitEntity.hurt(damageSource, damage)) {
             //Vanilla's trident exits on endermen here, we allow hitting them instead
 
             if (level() instanceof ServerLevel serverLevel) {
-                EnchantmentHelper.doPostAttackEffectsWithItemSource(serverLevel, hitEntity, damagesource, tridentStack);
+                EnchantmentHelper.doPostAttackEffectsWithItemSource(serverLevel, hitEntity, damageSource, tridentStack);
                 if (mode.canUseSpecialAbility(serverLevel, thrower, getMatterTier())) {
                     if (mode == TridentMode.SHOCKWAVE) {
                         createShockwave(serverLevel, charge, damage, thrower instanceof LivingEntity living ? living : null);
                         volume = 5.0F;
                     } else if (mode == TridentMode.CHANNELING) {
-                        //TODO - 1.21: Let this happen through the gameplay enchantment
-                        // The only difference is that we do charge + 1 for how many bolts vs vanilla does a singular bolt
-                        // and also the reqs for when it works (red matter allows working at other times)
-                        /*if (trySummonLightning(serverLevel, charge + 1, hitEntity.blockPosition(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null)) {
-                            sound = SoundEvents.TRIDENT_THUNDER;
-                            volume = 5.0F;}
-                        }*/
+                        //Note: Channeling explicitly checks for it happening on vanilla's trident entity, so we have to handle it manually here
+                        trySummonLightning(serverLevel, charge + 1, hitEntity.position(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null);
                     }
                 }
             }
 
             if (hitEntity instanceof LivingEntity livingHit) {
-                doKnockback(livingHit, damagesource);
+                doKnockback(livingHit, damageSource);
                 doPostHurtEffects(livingHit);
             }
         }
@@ -155,44 +150,43 @@ public class PETridentEntity extends ThrownTrident {
                 //pitch = 1.0F;
                 //TODO - 1.21: Play the hit ground sound louder?
             } else if (mode == TridentMode.CHANNELING) {
-                //TODO - 1.21: Let this happen through the gameplay enchantment
-                // The only difference is that we do charge + 1 for how many bolts vs vanilla does a singular bolt
-                // and also the reqs for when it works (red matter allows working at other times)
-                /*if (trySummonLightning(level, charge + 1, hitResult.getBlockPos().above(), thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null)) {
-                    sound = SoundEvents.TRIDENT_THUNDER;
-                    volume = 5.0F;
-                    pitch = 1.0F;
-                }*/
+                //Note: Channeling explicitly checks for it happening on vanilla's trident entity, so we have to handle it manually here
+                Vec3 hitTarget = hitResult.getBlockPos().clampLocationWithin(hitResult.getLocation());
+                trySummonLightning(level, charge + 1, hitTarget, thrower instanceof ServerPlayer ? (ServerPlayer) thrower : null);
             }
         }
     }
 
-    private boolean trySummonLightning(ServerLevel level, int bolts, Vec3 hitTarget, @Nullable ServerPlayer thrower) {
-        //TODO - 1.21: Allow this for when the enchantment effect is happening/make sure we do it anyway?
-        // such as if it is not thundering but we have a red matter trident
+    /**
+     * Similar to logic that {@link net.minecraft.world.item.enchantment.Enchantments#CHANNELING} uses via
+     * {@link net.minecraft.world.item.enchantment.effects.SummonEntityEffect}
+     */
+    private void trySummonLightning(ServerLevel level, int bolts, Vec3 hitTarget, @Nullable ServerPlayer thrower) {
         BlockPos hitPos = BlockPos.containing(hitTarget);
         //Note: uses canBlockSeeSky instead of isSkyLightMax like the vanilla trident does to fix not being able
         // to cause lightning to come down on fish or in the water
         if (Level.isInSpawnableBounds(hitPos) && level.canSeeSkyFromBelowWater(hitPos)) {
-            boolean hasAction = false;
+            boolean hasPlayed = false;
             for (int i = 0; i < bolts; i++) {
                 //Note: We use getWeaponItem so that we take the fuel from the source stack
-                if (thrower == null || ItemPE.consumeFuel(thrower, getWeaponItem(), 64, true)) {
-                    EntityType.LIGHTNING_BOLT.spawn(level, lightning -> {
-                        //Note: Unlike vanilla in SummonEntityEffect, we do this in the consumer,
-                        // so that it has the proper values set before adding it to the level
-                        lightning.moveTo(hitTarget);
-                        lightning.setCause(thrower);
-                    }, hitPos, MobSpawnType.TRIGGERED, false, false);
-                    hasAction = true;
-                } else {
+                if (thrower != null && !ItemPE.consumeFuel(thrower, getWeaponItem(), 64, true)) {
                     //If we failed to consume EMC but needed EMC just break out early as we won't have the required EMC for any of the future bolts
-                    break;
+                    return;
+                }
+                EntityType.LIGHTNING_BOLT.spawn(level, lightning -> {
+                    //Note: Unlike vanilla in SummonEntityEffect, we do this in the consumer,
+                    // so that it has the proper values set before adding it to the level
+                    lightning.moveTo(hitTarget);
+                    lightning.setCause(thrower);
+                }, hitPos, MobSpawnType.TRIGGERED, false, false);
+                if (!hasPlayed) {
+                    hasPlayed = true;
+                    if (!isSilent()) {
+                        level.playSound(null, hitTarget.x(), hitTarget.y(), hitTarget.z(), SoundEvents.TRIDENT_THUNDER, getSoundSource(), 5, 1);
+                    }
                 }
             }
-            return hasAction;
         }
-        return false;
     }
 
     private void createShockwave(ServerLevel level, int charge, float damage, @Nullable LivingEntity thrower) {
