@@ -8,9 +8,10 @@ import dev.freimer.projectextended.common.registries.ProjectExtendedBlocks;
 import dev.freimer.projectextended.common.registries.ProjectExtendedEntityTypes;
 import dev.freimer.projectextended.common.registries.ProjectExtendedItems;
 import moze_intel.projecte.PECore;
+import net.minecraft.core.Holder;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.item.Item;
 
 public class ProjectExtendedLangProvider extends BaseLanguageProvider {
 
@@ -60,8 +61,8 @@ public class ProjectExtendedLangProvider extends BaseLanguageProvider {
         addItem(ProjectExtendedItems.RED_MATTER_TRIDENT, "Red Matter Trident");
     }
 
-    private void addShield(ItemLike shield, String name) {
-        String baseTranslationKey = shield.asItem().getDescriptionId();
+    private void addShield(Holder<Item> shield, String name) {
+        String baseTranslationKey = shield.value().getDescriptionId();
         add(baseTranslationKey, name);
         addShield(baseTranslationKey, DyeColor.BLACK, "Black", name);
         addShield(baseTranslationKey, DyeColor.RED, "Red", name);

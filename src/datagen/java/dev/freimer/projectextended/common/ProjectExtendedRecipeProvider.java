@@ -7,6 +7,7 @@ import dev.freimer.projectextended.common.registries.ProjectExtendedRecipeSerial
 import java.util.concurrent.CompletableFuture;
 import moze_intel.projecte.gameObjs.registries.PEItems;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -14,9 +15,9 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,7 +30,7 @@ public class ProjectExtendedRecipeProvider extends RecipeProvider {
     @Override
     protected void buildRecipes(@NotNull RecipeOutput recipeOutput) {
         SpecialRecipeBuilder.special(PEShieldSpecialRecipe::new).save(recipeOutput, ProjectExtendedRecipeSerializers.SHIELD_DECORATION.getId());
-        addTridentRecipe(recipeOutput, ProjectExtendedItems.DARK_MATTER_TRIDENT, PEItems.DARK_MATTER, Items.TRIDENT, Ingredient.of(Tags.Items.GEMS_DIAMOND));
+        addTridentRecipe(recipeOutput, ProjectExtendedItems.DARK_MATTER_TRIDENT, PEItems.DARK_MATTER, Items.TRIDENT.builtInRegistryHolder(), Ingredient.of(Tags.Items.GEMS_DIAMOND));
         addTridentRecipe(recipeOutput, ProjectExtendedItems.RED_MATTER_TRIDENT, PEItems.RED_MATTER, ProjectExtendedItems.DARK_MATTER_TRIDENT,
               Ingredient.of(PEItems.DARK_MATTER));
         //Dark matter shield
@@ -79,16 +80,16 @@ public class ProjectExtendedRecipeProvider extends RecipeProvider {
               .save(recipeOutput);
     }
 
-    private void addTridentRecipe(RecipeOutput recipeOutput, ItemLike item, ItemLike matter, ItemLike trident, Ingredient previousTier) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, item)
+    private void addTridentRecipe(RecipeOutput recipeOutput, Holder<Item> item, Holder<Item> matter, Holder<Item> trident, Ingredient previousTier) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, item.value())
               .pattern("MTM")
               .pattern(" P ")
               .pattern(" P ")
-              .define('M', matter)
-              .define('T', trident)
+              .define('M', matter.value())
+              .define('T', trident.value())
               .define('P', previousTier)
-              .unlockedBy("has_matter", has(matter))
-              .unlockedBy("has_trident", has(trident))
+              .unlockedBy("has_matter", has(matter.value()))
+              .unlockedBy("has_trident", has(trident.value()))
               .save(recipeOutput);
     }
 }

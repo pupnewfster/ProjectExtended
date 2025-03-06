@@ -37,6 +37,7 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.logging.log4j.util.TriConsumer;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -136,14 +137,17 @@ public class BlacklistManager extends SimplePreparableReloadListener<Map<@Nullab
     }
 
     //TODO - 1.21: Re-evaluate these methods
+    @Internal
     public void handleSyncPacket(Map<BlacklistType, Map<ItemInfo, Set<String>>> blacklists) {
         this.blacklists = blacklists;
     }
 
+    @Internal
     public static PacketSyncBlacklist syncPacket() {
         return new PacketSyncBlacklist(INSTANCE.blacklists);
     }
 
+    @Internal
     public static void clearBlacklist() {
         INSTANCE.blacklists.clear();
     }

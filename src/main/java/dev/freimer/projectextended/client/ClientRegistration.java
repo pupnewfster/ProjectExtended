@@ -11,8 +11,9 @@ import dev.freimer.projectextended.common.registries.ProjectExtendedItems;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -47,9 +48,10 @@ public class ClientRegistration {
         event.registerReloadListener(TridentISTER.RENDERER);
     }
 
-    private static void addPropertyOverrides(ResourceLocation override, ClampedItemPropertyFunction propertyGetter, ItemLike... items) {
-        for (ItemLike item : items) {
-            ItemProperties.register(item.asItem(), override, propertyGetter);
+    @SafeVarargs
+    private static void addPropertyOverrides(ResourceLocation override, ClampedItemPropertyFunction propertyGetter, Holder<Item>... items) {
+        for (Holder<Item> item : items) {
+            ItemProperties.register(item.value(), override, propertyGetter);
         }
     }
 

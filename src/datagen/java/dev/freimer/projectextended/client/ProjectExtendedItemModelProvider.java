@@ -1,18 +1,14 @@
 package dev.freimer.projectextended.client;
 
 import dev.freimer.projectextended.ProjectExtended;
-import dev.freimer.projectextended.common.items.PEShield;
-import dev.freimer.projectextended.common.items.PETrident;
 import dev.freimer.projectextended.common.registries.ProjectExtendedBlocks;
 import dev.freimer.projectextended.common.registries.ProjectExtendedItems;
 import moze_intel.projecte.PECore;
-import moze_intel.projecte.gameObjs.registration.impl.ItemRegistryObject;
+import moze_intel.projecte.gameObjs.registration.INamedEntry;
 import net.minecraft.client.renderer.block.model.BlockModel.GuiLight;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.loaders.SeparateTransformsModelBuilder;
@@ -31,15 +27,8 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
         return ProjectExtended.MOD_NAME + " Item Models";
     }
 
-    public static String getName(ItemLike itemProvider) {
-        return BuiltInRegistries.ITEM.getResourceKey(itemProvider.asItem())
-              .orElseThrow()
-              .location()
-              .getPath();
-    }
-
-    protected ItemModelBuilder generated(ItemLike itemProvider, ResourceLocation texture) {
-        return generated(getName(itemProvider), texture);
+    protected ItemModelBuilder generated(INamedEntry namedEntry, ResourceLocation texture) {
+        return generated(namedEntry.getName(), texture);
     }
 
     protected ItemModelBuilder generated(String name, ResourceLocation texture) {
@@ -53,14 +42,14 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
         generateTridentModel(ProjectExtendedItems.DARK_MATTER_TRIDENT);
         generateTridentModel(ProjectExtendedItems.RED_MATTER_TRIDENT);
 
-        String name = getName(ProjectExtendedBlocks.ALCHEMICAL_BARREL);
+        String name = ProjectExtendedBlocks.ALCHEMICAL_BARREL.getName();
         withExistingParent(name, modLoc("block/" + name));
 
         generated(ProjectExtendedBlocks.INTERDICTION_LANTERN, modLoc("item/interdiction_lantern"));
     }
 
-    private void generateShieldModel(ItemRegistryObject<PEShield> item, ResourceLocation particle) {
-        String name = getName(item);
+    private void generateShieldModel(INamedEntry item, ResourceLocation particle) {
+        String name = item.getName();
         withExistingParent(name, "shield")
               .texture("particle", particle)
               .override()
@@ -70,8 +59,8 @@ public class ProjectExtendedItemModelProvider extends ItemModelProvider {
               .end();
     }
 
-    private void generateTridentModel(ItemRegistryObject<PETrident> item) {
-        String name = getName(item);
+    private void generateTridentModel(INamedEntry item) {
+        String name = item.getName();
         ResourceLocation itemLoc = modLoc(folder + "/" + name);
         ItemModelBuilder guiModel = nested()
               .parent(withExistingParent(name + "_gui", "item/generated")

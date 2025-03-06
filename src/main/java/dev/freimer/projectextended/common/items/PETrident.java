@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import moze_intel.projecte.api.capabilities.item.IItemCharge;
-import moze_intel.projecte.gameObjs.EnumMatterType;
+import moze_intel.projecte.gameObjs.IMatterType;
 import moze_intel.projecte.gameObjs.items.IBarHelper;
 import moze_intel.projecte.gameObjs.items.IHasConditionalAttributes;
 import moze_intel.projecte.gameObjs.items.IItemMode;
@@ -39,6 +39,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
@@ -69,7 +71,7 @@ import org.jetbrains.annotations.Nullable;
 //TODO - 1.21: Doesn't trigger the shot trident advancement
 public class PETrident extends TridentItem implements IItemCharge, IItemMode<TridentMode>, IBarHelper, IHasConditionalAttributes {
 
-    private static ItemAttributeModifiers createAttributes(EnumMatterType matterType, float damage) {
+    private static ItemAttributeModifiers createAttributes(IMatterType matterType, float damage) {
         return ItemAttributeModifiers.builder().add(
                     Attributes.ATTACK_DAMAGE,
                     new AttributeModifier(BASE_ATTACK_DAMAGE_ID, damage + matterType.getAttackDamageBonus(), AttributeModifier.Operation.ADD_VALUE),
@@ -81,23 +83,21 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode<Tri
               ).build();
     }
 
-    private final EnumMatterType matterType;
+    private final IMatterType matterType;
     private final int numCharges;
-    private final float attackDamage;
 
-    public PETrident(EnumMatterType matterType, int numCharges, float damage, Properties props) {
+    public PETrident(IMatterType matterType, int numCharges, float damage, Properties props) {
         super(props.rarity(Rarity.EPIC)
               .attributes(createAttributes(matterType, damage))
               .component(DataComponents.TOOL, createToolProperties())
         );
         this.matterType = matterType;
         this.numCharges = numCharges;
-        //TODO - 1.21: Get this from the attributes instead
-        this.attackDamage = matterType.getAttackDamageBonus() + damage;
     }
 
-    public float getAttackDamage(ItemStack stack) {
-        return attackDamage + getCharge(stack);
+    public static float getAttackDamage(ItemStack stack) {
+        //Note: This includes the damage from the stack being charged
+        return (float) stack.getAttributeModifiers().compute(0, EquipmentSlot.MAINHAND);
     }
 
     public int getMatterTier() {
@@ -170,26 +170,27 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode<Tri
     }
 
     @Override
-    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level world, @NotNull LivingEntity entity, int timeLeft) {
+    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity entity, int timeLeft) {
         if (entity instanceof Player player && getUseDuration(stack, entity) - timeLeft >= THROW_THRESHOLD_TIME) {
             float tridentSpinStrength = EnchantmentHelper.getTridentSpinAttackStrength(stack, player);
-            if (tridentSpinStrength > 0 && !canUseRiptide(player)) {
+            if (tridentSpinStrength > 0 && !TridentMode.RIPTIDE.canUseSpecialAbility(level, player, matterType)) {
                 //If it is riptide, and we can't use it, then don't
                 return;
             }
             Holder<SoundEvent> soundEvent = EnchantmentHelper.pickHighestLevel(stack, EnchantmentEffectComponents.TRIDENT_SOUND)
                   .orElse(SoundEvents.TRIDENT_THROW);
-            if (!world.isClientSide && tridentSpinStrength == 0) {
+            if (!level.isClientSide && tridentSpinStrength == 0) {
                 //Modify what trident entity is actually created by super
-                PETridentEntity trident = new PETridentEntity(world, player, stack);
-                //TODO - 1.21: Where is the +0.5 from
-                trident.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F + 0.5F, 1.0F);
+                PETridentEntity trident = new PETridentEntity(level, player, stack);
+                //Increase the speed compared to vanilla based on the tier of the trident
+                float matterSpeed = 0.5F * (getMatterTier() + 1);
+                trident.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F + matterSpeed, 1.0F);
                 if (player.isCreative()) {
                     trident.pickup = Pickup.CREATIVE_ONLY;
                 }
 
-                world.addFreshEntity(trident);
-                world.playSound(null, trident, soundEvent.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                level.addFreshEntity(trident);
+                level.playSound(null, trident, soundEvent.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                 if (!player.isCreative()) {
                     player.getInventory().removeItem(stack);
                 }
@@ -211,21 +212,17 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode<Tri
                 if (player.onGround()) {
                     player.move(MoverType.SELF, new Vec3(0.0D, 1.1999999F, 0.0D));
                 }
-                world.playSound(null, player, soundEvent.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                level.playSound(null, player, soundEvent.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
             }
         }
     }
 
-    private boolean canUseRiptide(Player player) {
-        //Only allow riptide to work when the player is wet, or it is a higher tier trident than dark matter
-        return getMatterTier() > 0 || player.isInWaterOrRain();
-    }
-
     @NotNull
     @Override
-    public InteractionResultHolder<ItemStack> use(@NotNull Level world, Player player, @NotNull InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (getMode(stack) == TridentMode.RIPTIDE && !canUseRiptide(player)) {
+        TridentMode mode = getMode(stack);
+        if (mode == TridentMode.RIPTIDE && !mode.canUseSpecialAbility(level, player, matterType)) {
             return InteractionResultHolder.fail(stack);
         }
         player.startUsingItem(hand);
@@ -344,6 +341,21 @@ public class PETrident extends TridentItem implements IItemCharge, IItemMode<Tri
                 case CHANNELING -> RIPTIDE;
                 case RIPTIDE -> SHOCKWAVE;
                 case SHOCKWAVE -> NORMAL;
+            };
+        }
+
+        public boolean canUseSpecialAbility(Level level, @Nullable Entity entity, IMatterType matterType) {
+            return canUseSpecialAbility(level, entity, matterType.getMatterTier());
+        }
+
+        public boolean canUseSpecialAbility(Level level, @Nullable Entity entity, int matterTier) {
+            return switch (this) {
+                //Allow for channeling to take place if we are red matter, or it is thundering
+                case CHANNELING -> matterTier > 0 || level.isThundering();
+                //Only allow riptide to work when the player is wet, or it is a higher tier trident than dark matter
+                case RIPTIDE, SHOCKWAVE ->  matterTier > 0 || entity != null && entity.isInWaterOrRain();
+                //Default to false because there is no special ability for the other ones
+                default -> false;
             };
         }
     }

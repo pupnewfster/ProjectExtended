@@ -29,13 +29,10 @@ public class ProjectExtendedBlockLootTable extends BlockLootSubProvider {
 		dropSelf(ProjectExtendedBlocks.INTERDICTION_LANTERN.getBlock());
 	}
 
+	@NotNull
 	@Override
-	public void dropOther(@NotNull Block block, @NotNull ItemLike drop) {
-		//Override to use our own dropping method that names the loot table
-		add(block, dropping(drop));
-	}
-
-	protected LootTable.Builder dropping(ItemLike item) {
+	public LootTable.Builder createSingleItemTable(@NotNull ItemLike item) {
+		//Override so that we can name the loot table
 		return LootTable.lootTable().withPool(applyExplosionCondition(item, LootPool.lootPool().setRolls(ConstantValue.exactly(1))
 				.name("main")
 				.add(LootItem.lootTableItem(item))

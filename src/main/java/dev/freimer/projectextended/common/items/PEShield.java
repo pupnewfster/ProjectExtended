@@ -1,7 +1,7 @@
 package dev.freimer.projectextended.common.items;
 
 import java.util.function.Consumer;
-import moze_intel.projecte.gameObjs.EnumMatterType;
+import moze_intel.projecte.gameObjs.IMatterType;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,9 +15,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class PEShield extends ShieldItem {
 
-    private final EnumMatterType matterType;
+    private final IMatterType matterType;
 
-    public PEShield(EnumMatterType matterType, Properties props) {
+    public PEShield(IMatterType matterType, Properties props) {
         super(props.rarity(Rarity.RARE)
               .component(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY)
         );

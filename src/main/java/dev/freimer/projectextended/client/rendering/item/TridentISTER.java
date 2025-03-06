@@ -4,6 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.freimer.projectextended.ProjectExtended;
 import dev.freimer.projectextended.common.items.PETrident;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import moze_intel.projecte.gameObjs.EnumMatterType;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.TridentModel;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -20,8 +24,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class TridentISTER extends BlockEntityWithoutLevelRenderer {
 
-    private static final ResourceLocation DM_TRIDENT = ProjectExtended.rl("textures/entity/dark_matter_trident.png");
-    private static final ResourceLocation RM_TRIDENT = ProjectExtended.rl("textures/entity/red_matter_trident.png");
+    private static final Int2ObjectMap<ResourceLocation> TRIDENT_TEXTURES = Util.make(new Int2ObjectArrayMap<>(2), map -> {
+        map.put(EnumMatterType.DARK_MATTER.getMatterTier(), ProjectExtended.rl("textures/entity/dark_matter_trident.png"));
+        map.put(EnumMatterType.RED_MATTER.getMatterTier(), ProjectExtended.rl("textures/entity/red_matter_trident.png"));
+    });
     public static final TridentISTER RENDERER = new TridentISTER(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
 
     private final EntityModelSet modelSet;
@@ -47,11 +53,13 @@ public class TridentISTER extends BlockEntityWithoutLevelRenderer {
         matrix.popPose();
     }
 
-    public static ResourceLocation getTexture(ItemStack stack) {
-        if (stack.getItem() instanceof PETrident trident && trident.getMatterTier() > 0) {
-            return RM_TRIDENT;
-        }
-        //Fallback to dark matter trident
-        return DM_TRIDENT;
+    private static ResourceLocation getTexture(ItemStack stack) {
+        //Fall back to vanilla's trident texture
+        return stack.getItem() instanceof PETrident trident ? getTexture(trident.getMatterTier()) : TridentModel.TEXTURE;
+    }
+
+    public static ResourceLocation getTexture(int matterTier) {
+        //Fall back to vanilla's trident texture
+        return TRIDENT_TEXTURES.getOrDefault(matterTier, TridentModel.TEXTURE);
     }
 }

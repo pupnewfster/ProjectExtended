@@ -18,21 +18,21 @@ public class ProjectExtendedBlockStateProvider extends BlockStateProvider {
 
 	@Override
 	protected void registerStatesAndModels() {
-		BlockModelBuilder barrelModel = models().cubeBottomTop(ProjectExtendedItemModelProvider.getName(ProjectExtendedBlocks.ALCHEMICAL_BARREL),
+		BlockModelBuilder barrelModel = models().cubeBottomTop(ProjectExtendedBlocks.ALCHEMICAL_BARREL.getName(),
 			ProjectExtended.rl("block/alchemical_barrel_side"),
 			ProjectExtended.rl("block/alchemical_barrel_bottom"),
 			ProjectExtended.rl("block/alchemical_barrel_top")
 		);
-		BlockModelBuilder openBarrel = models().getBuilder(ProjectExtendedItemModelProvider.getName(ProjectExtendedBlocks.ALCHEMICAL_BARREL) + "_open")
+		BlockModelBuilder openBarrel = models().getBuilder(ProjectExtendedBlocks.ALCHEMICAL_BARREL.getName() + "_open")
 			.parent(barrelModel)
 			.texture("top", ProjectExtended.rl("block/alchemical_barrel_top_open"));
 		directionalBlock(ProjectExtendedBlocks.ALCHEMICAL_BARREL.getBlock(), state -> state.getValue(BlockStateProperties.OPEN) ? openBarrel : barrelModel);
 
-		BlockModelBuilder lantern = models().getBuilder(ProjectExtendedItemModelProvider.getName(ProjectExtendedBlocks.INTERDICTION_LANTERN))
+		BlockModelBuilder lantern = models().getBuilder(ProjectExtendedBlocks.INTERDICTION_LANTERN.getName())
 			.parent(models().getExistingFile(ResourceLocation.withDefaultNamespace("template_lantern")))
 			.texture("lantern", ProjectExtended.rl("block/interdiction_lantern"))
 			.renderType("cutout");
-		BlockModelBuilder hangingLantern = models().getBuilder(ProjectExtendedItemModelProvider.getName(ProjectExtendedBlocks.INTERDICTION_LANTERN) + "_hanging")
+		BlockModelBuilder hangingLantern = models().getBuilder(ProjectExtendedBlocks.INTERDICTION_LANTERN.getName() + "_hanging")
 			.parent(models().getExistingFile(ResourceLocation.withDefaultNamespace("template_hanging_lantern")))
 			.texture("lantern", ProjectExtended.rl("block/interdiction_lantern"))
 			.renderType("cutout");
