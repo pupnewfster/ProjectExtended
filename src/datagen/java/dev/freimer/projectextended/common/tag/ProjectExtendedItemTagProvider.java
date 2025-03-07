@@ -40,5 +40,7 @@ public class ProjectExtendedItemTagProvider extends ItemTagsProvider {
         Item[] tridents = {ProjectExtendedItems.DARK_MATTER_TRIDENT.get(), ProjectExtendedItems.RED_MATTER_TRIDENT.get()};
         tag(Tags.Items.TOOLS_SPEAR).add(tridents);
         tag(ItemTags.BREAKS_DECORATED_POTS).add(tridents);
+        tag(Tags.Items.MELEE_WEAPON_TOOLS).add(tridents);
+        tag(Tags.Items.RANGED_WEAPON_TOOLS).add(tridents);
     }
 }

@@ -68,7 +68,7 @@ import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-//TODO - 1.21: Doesn't trigger the shot trident advancement
+//TODO - 1.21: After a backport of https://github.com/neoforged/NeoForge/pull/2009 is merged, bump min neo version to require it
 public class PETrident extends TridentItem implements IItemCharge, IItemMode<TridentMode>, IBarHelper, IHasConditionalAttributes {
 
     private static ItemAttributeModifiers createAttributes(IMatterType matterType, float damage) {
