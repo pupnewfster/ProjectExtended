@@ -29,7 +29,7 @@ public record PacketSyncBlacklist(Map<BlacklistType, Map<ItemInfo, Set<String>>>
 
 	@Override
 	public void handle(IPayloadContext context) {
-		BlacklistManager.INSTANCE.handleSyncPacket(blacklists);
+		BlacklistManager.handleSyncPacket(blacklists);
 	}
 
 	@NotNull

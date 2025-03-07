@@ -1,5 +1,7 @@
 package dev.freimer.projectextended.common.integration.gamestages;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -93,7 +95,7 @@ public class BlacklistManager extends SimplePreparableReloadListener<Map<@Nullab
     @Override
     protected void apply(@NotNull Map<@Nullable BlacklistType, List<JsonElement>> elements, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
         RegistryOps<JsonElement> serializationContext = getRegistryLookup().createSerializationContext(JsonOps.INSTANCE);
-        Map<BlacklistType, Map<ItemInfo, Set<String>>> blacklists = new EnumMap<>(BlacklistType.class);
+        Map<BlacklistType, Map<ItemInfo, ImmutableSet.Builder<String>>> blacklists = new EnumMap<>(BlacklistType.class);
         TriConsumer<@Nullable BlacklistType, NormalizedSimpleStack, String> nssConsumer = (type, nss, stage) -> {
             if (nss instanceof NSSItem asItem) {
                 ItemInfo itemInfo = ItemInfo.fromNSS(asItem);
@@ -125,21 +127,34 @@ public class BlacklistManager extends SimplePreparableReloadListener<Map<@Nullab
                 }
             }
         }
-        //TODO - 1.21: Make it immutable?? And if we don't have anything blacklisted leave it as an empty map?
-        this.blacklists = blacklists;
-    }
-
-    private void blacklist(Map<BlacklistType, Map<ItemInfo, Set<String>>> blacklists, BlacklistType blacklistType, ItemInfo itemInfo, String stage) {
-        Map<ItemInfo, Set<String>> itemToGameStage = blacklists.computeIfAbsent(blacklistType, type -> new HashMap<>());
-        if (!itemToGameStage.computeIfAbsent(itemInfo, item -> new HashSet<>()).add(stage)) {
-            ProjectExtended.LOGGER.warn("Item: {} has duplicate blacklists for stage: {}", itemInfo, stage);
+        if (blacklists.isEmpty()) {
+            this.blacklists = Collections.emptyMap();
+        } else {
+            Map<BlacklistType, Map<ItemInfo, Set<String>>> builtBlacklist = new EnumMap<>(BlacklistType.class);
+            for (Map.Entry<BlacklistType, Map<ItemInfo, ImmutableSet.Builder<String>>> entry : blacklists.entrySet()) {
+                Map<ItemInfo, Set<String>> itemToGameStage = new HashMap<>();
+                for (Map.Entry<ItemInfo, ImmutableSet.Builder<String>> itemToGameStageEntry : entry.getValue().entrySet()) {
+                    itemToGameStage.put(itemToGameStageEntry.getKey(), itemToGameStageEntry.getValue().build());
+                }
+                builtBlacklist.put(entry.getKey(), Collections.unmodifiableMap(itemToGameStage));
+            }
+            this.blacklists = Collections.unmodifiableMap(builtBlacklist);
         }
     }
 
-    //TODO - 1.21: Re-evaluate these methods
+    private void blacklist(Map<BlacklistType, Map<ItemInfo, ImmutableSet.Builder<String>>> blacklists, BlacklistType blacklistType, ItemInfo itemInfo, String stage) {
+        Map<ItemInfo, ImmutableSet.Builder<String>> itemToGameStage = blacklists.computeIfAbsent(blacklistType, type -> new HashMap<>());
+        //Note: We use a sorted set with natural order so that then when we sort the missing stages, it has less to reorder
+        itemToGameStage.computeIfAbsent(itemInfo, item -> ImmutableSortedSet.naturalOrder()).add(stage);
+    }
+
+    public static Map<ItemInfo, Set<String>> getBlacklists(BlacklistType blacklistType) {
+        return INSTANCE.blacklists.getOrDefault(blacklistType, Collections.emptyMap());
+    }
+
     @Internal
-    public void handleSyncPacket(Map<BlacklistType, Map<ItemInfo, Set<String>>> blacklists) {
-        this.blacklists = blacklists;
+    public static void handleSyncPacket(Map<BlacklistType, Map<ItemInfo, Set<String>>> blacklists) {
+        INSTANCE.blacklists = Collections.unmodifiableMap(blacklists);
     }
 
     @Internal
@@ -149,10 +164,6 @@ public class BlacklistManager extends SimplePreparableReloadListener<Map<@Nullab
 
     @Internal
     public static void clearBlacklist() {
-        INSTANCE.blacklists.clear();
-    }
-
-    public Map<ItemInfo, Set<String>> getBlacklists(BlacklistType blacklistType) {
-        return blacklists.getOrDefault(blacklistType, Collections.emptyMap());
+        INSTANCE.blacklists = Collections.emptyMap();
     }
 }

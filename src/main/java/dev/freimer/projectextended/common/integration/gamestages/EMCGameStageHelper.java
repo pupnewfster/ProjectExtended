@@ -17,7 +17,7 @@ public class EMCGameStageHelper {
     }
 
     public static boolean isBlacklisted(Player player, ItemInfo reducedInfo, BlacklistType blacklistType) {
-        Map<ItemInfo, Set<String>> blacklist = BlacklistManager.INSTANCE.getBlacklists(blacklistType);
+        Map<ItemInfo, Set<String>> blacklist = BlacklistManager.getBlacklists(blacklistType);
         for (String stage : getRequiredStages(blacklist, reducedInfo)) {
             if (!GameStageHelper.hasStage(player, stage)) {
                 return true;
@@ -27,12 +27,12 @@ public class EMCGameStageHelper {
     }
 
     public static List<String> getMissingStages(Player player, ItemInfo reducedInfo, BlacklistType blacklistType) {
-        Map<ItemInfo, Set<String>> blacklist = BlacklistManager.INSTANCE.getBlacklists(blacklistType);
+        Map<ItemInfo, Set<String>> blacklist = BlacklistManager.getBlacklists(blacklistType);
         Set<String> requiredStages = getRequiredStages(blacklist, reducedInfo);
         if (requiredStages.isEmpty()) {
             return Collections.emptyList();
         }
-        List<String> list = new ArrayList<>(requiredStages.size());
+        List<String> list = new ArrayList<>();
         for (String stage : requiredStages) {
             if (!GameStageHelper.hasStage(player, stage)) {
                 list.add(stage);
